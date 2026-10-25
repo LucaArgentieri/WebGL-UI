@@ -1,4 +1,4 @@
-import { createRenderer, createGlslEffect, createDialogFx, BACKDROP_FRAG } from 'webgl-ui'
+import { createRenderer, createDialogFx, backdropEffect } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
@@ -25,7 +25,7 @@ dialogs.forEach(d => {
   d.addEventListener('close', () => log(`${d.id}: close, returnValue “${d.returnValue}”`))
 })
 
-const renderer = createRenderer(createGlslEffect(BACKDROP_FRAG))
+const renderer = createRenderer()
 const trace = createTrace()
 const fxs = dialogs.map(d => createDialogFx(d, { renderer, trace: trace.push }))
 
@@ -76,7 +76,7 @@ function stress() {
     globalCheck() {
       const p: string[] = []
       if (document.querySelector('dialog canvas')) p.push('canvas still in the DOM')
-      if (!renderer.isReady()) p.push('renderer not ready anymore')
+      if (!renderer.isReady(backdropEffect)) p.push('renderer not ready anymore')
       const active = document.activeElement
       if (!dialogs.some(d => d.open) && active && active.closest('dialog')) p.push('focus left inside a closed dialog')
       return p
@@ -98,8 +98,8 @@ stressBtn.addEventListener('click', async () => {
 })
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-renderer.whenReady.then(() => {
-  status.textContent = !renderer.isReady()
+renderer.prepare(backdropEffect).then(ready => {
+  status.textContent = !ready
     ? 'WebGL2 is not available: the dialogs use native behavior.'
     : reduced
       ? 'Reduced motion: the dialogs use native behavior.'
@@ -108,7 +108,7 @@ renderer.whenReady.then(() => {
 
 Object.assign(window, {
   __webglUi: {
-    ready: () => renderer.whenReady.then(() => renderer.isReady()),
+    ready: () => renderer.prepare(backdropEffect),
     runStress: stress
   }
 })

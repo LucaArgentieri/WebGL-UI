@@ -1,3 +1,5 @@
+import { defineGlslEffect } from '../core/glsl'
+
 /**
  * Reveal for a content box: a surface-colored cover dissolves from the top down with fractal noise,
  * leaving a glowing edge on the front. uProgress 0 = fully covered, 1 = fully revealed.
@@ -38,3 +40,5 @@ void main() {
   float a = max(cover, edge * 0.85);
   outColor = vec4(col * a, a);
 }`
+
+export const dissolveEffect = defineGlslEffect('dissolve', DISSOLVE_FRAG)

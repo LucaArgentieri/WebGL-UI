@@ -1,7 +1,7 @@
-import { createRenderer, createGlslEffect, createDetailsFx, DISSOLVE_FRAG } from 'webgl-ui'
+import { createRenderer, createDetailsFx, dissolveEffect } from 'webgl-ui'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
-const renderer = createRenderer(createGlslEffect(DISSOLVE_FRAG))
+const renderer = createRenderer()
 const trace = createTrace()
 const list = [...document.querySelectorAll<HTMLDetailsElement>('details')]
 const fxs = list.map(d => createDetailsFx(d, { renderer, trace: trace.push }))
@@ -47,8 +47,8 @@ stressBtn.addEventListener('click', async () => {
 })
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-renderer.whenReady.then(() => {
-  status.textContent = !renderer.isReady()
+renderer.prepare(dissolveEffect).then(ready => {
+  status.textContent = !ready
     ? 'WebGL2 is not available: the details use native behavior.'
     : reduced
       ? 'Reduced motion: the details use native behavior.'
@@ -57,7 +57,7 @@ renderer.whenReady.then(() => {
 
 Object.assign(window, {
   __webglUi: {
-    ready: () => renderer.whenReady.then(() => renderer.isReady()),
+    ready: () => renderer.prepare(dissolveEffect),
     runStress: stress
   }
 })

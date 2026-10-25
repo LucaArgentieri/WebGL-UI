@@ -3,17 +3,19 @@ export type {
   Vec3,
   FxFrame,
   Effect,
+  EffectDef,
   FxLayout,
   PlayOptions,
   Renderer,
   RendererSource
 } from './core/types'
 export { createRenderer, resolveRenderer } from './core/renderer'
-export { createGlslEffect, FULLSCREEN_VERT } from './core/glsl'
+export { createGlslEffect, defineGlslEffect, FULLSCREEN_VERT } from './core/glsl'
 export { readSurfaceColor } from './core/color'
 
-export { DISSOLVE_FRAG } from './effects/dissolve'
-export { BACKDROP_FRAG } from './effects/backdrop'
+export { DISSOLVE_FRAG, dissolveEffect } from './effects/dissolve'
+export { BACKDROP_FRAG, backdropEffect } from './effects/backdrop'
+export { WIPE_FRAG, wipeEffect } from './effects/wipe'
 
 export { createDetailsFx } from './elements/details'
 export type { DetailsFx, DetailsFxOptions } from './elements/details'

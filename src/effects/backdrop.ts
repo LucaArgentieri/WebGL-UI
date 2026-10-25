@@ -1,3 +1,5 @@
+import { defineGlslEffect } from '../core/glsl'
+
 /**
  * Dialog backdrop that opens from the center with fractal noise.
  * At uProgress = 1 the image is uniform: color uColor with alpha uAlpha, identical to the CSS ::backdrop,
@@ -42,3 +44,5 @@ void main() {
   float a = max(uAlpha * cover, edge * 0.5);
   outColor = vec4(col * a, a);
 }`
+
+export const backdropEffect = defineGlslEffect('backdrop', BACKDROP_FRAG)

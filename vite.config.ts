@@ -16,7 +16,8 @@ export default defineConfig({
       input: {
         index: r('./playground/index.html'),
         details: r('./playground/details.html'),
-        dialog: r('./playground/dialog.html')
+        dialog: r('./playground/dialog.html'),
+        mixed: r('./playground/mixed.html')
       }
     }
   }

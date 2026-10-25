@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebGL UI: mixed</title>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<main>
+  <h1>one renderer, three effects</h1>
+  <p class="lead">Two <code>&lt;details&gt;</code> with different effects (dissolve and wipe) and a <code>&lt;dialog&gt;</code> with its backdrop, all sharing <strong>one canvas and one WebGL context</strong>. The effect is chosen per element.</p>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="open">Open dialog</button>
+    <button type="button" class="btn" id="stress">Stress test: 80 operations</button>
+  </div>
+  <p class="result" id="result" role="status"></p>
+
+  <details id="m1">
+    <summary>Dissolve (default effect)</summary>
+    <div class="content">
+      <p>Fractal-noise dissolve from the top down, with a glowing edge on the front.</p>
+    </div>
+  </details>
+
+  <details id="m2" data-effect="wipe">
+    <summary>Wipe (another effect, same renderer)</summary>
+    <div class="content">
+      <p>A left-to-right wipe with a noisy edge. Different fragment shader, same canvas and context.</p>
+    </div>
+  </details>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+
+<dialog id="mdlg" closedby="any" aria-labelledby="m-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="m-title">Backdrop effect</h2>
+      <p>Opened on the same renderer that animates the two details.</p>
+      <div class="row">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn primary" value="ok">OK</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script type="module" src="./src/mixed.ts"></script>
+</body>
+</html>

@@ -1,9 +1,12 @@
 import { resolveRenderer } from '../../core/renderer'
 import { readSurfaceColor } from '../../core/color'
-import type { RendererSource } from '../../core/types'
+import { dissolveEffect } from '../../effects/dissolve'
+import type { EffectDef, RendererSource } from '../../core/types'
 
 export interface DetailsFxOptions {
   renderer: RendererSource
+  /** Effect to use. Default: dissolve. */
+  effect?: EffectDef
   /** Opening duration in ms. Closing takes 70% of it. Default 800. */
   duration?: number
   /** Content element. Default: the first child that is not the <summary>. */
@@ -23,6 +26,7 @@ export interface DetailsFx {
  */
 export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxOptions): DetailsFx {
   const duration = options.duration ?? 800
+  const effect = options.effect ?? dissolveEffect
   const trace = options.trace ?? (() => {})
   const summary = details.querySelector<HTMLElement>(':scope > summary')
   const content = options.content ?? details.querySelector<HTMLElement>(':scope > :not(summary)')
@@ -31,6 +35,14 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
   }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   const owner = details
+
+  // Starts initializing the effect on the renderer (idempotent); until it is ready the details is native.
+  const fxAvailable = () => {
+    const r = resolveRenderer(options.renderer)
+    if (!r.isReady(effect)) { void r.prepare(effect); return false }
+    return !reduce.matches
+  }
+  void resolveRenderer(options.renderer).prepare(effect)
 
   // Logical state: where the details is heading. Each click flips it immediately, like the native `open`.
   let target = details.open
@@ -89,6 +101,7 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
     try {
       // Starts from the current progress: a reversal halfway through does not jump.
       completed = await renderer.play(content!, {
+        effect,
         from,
         to,
         duration: Math.max(120, (next ? duration : duration * 0.7) * distance),
@@ -115,7 +128,7 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
   function onClick(e: MouseEvent) {
     if ((e.target as Element).closest('summary') !== summary) return
     const renderer = resolveRenderer(options.renderer)
-    if (!renderer.isReady() || reduce.matches) {
+    if (!fxAvailable()) {
       // Pure native behavior. An animation still running goes to its final state first,
       // otherwise it would add up with the native toggle.
       if (running) { runId++; renderer.cancel(owner); settle() }

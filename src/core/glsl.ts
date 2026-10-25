@@ -1,4 +1,4 @@
-import type { Effect, FxFrame } from './types'
+import type { Effect, EffectDef, FxFrame } from './types'
 
 /** Full-screen triangle, no buffers needed. */
 export const FULLSCREEN_VERT = `#version 300 es
@@ -55,7 +55,8 @@ export function createGlslEffect(fragmentSource: string): Effect {
       program = prog
     },
     render(f: FxFrame) {
-      if (!gl) return
+      if (!gl || !program) return
+      gl.useProgram(program) // several effects share one context: select this program every frame
       gl.viewport(0, 0, f.size[0], f.size[1])
       gl.clearColor(0, 0, 0, 0)
       gl.clear(gl.COLOR_BUFFER_BIT)
@@ -73,4 +74,9 @@ export function createGlslEffect(fragmentSource: string): Effect {
       program = null
     }
   }
+}
+
+/** Definition of a raw GLSL effect. Pass it to the element functions or to renderer.play(). */
+export function defineGlslEffect(name: string, fragmentSource: string): EffectDef {
+  return { name, create: () => createGlslEffect(fragmentSource) }
 }

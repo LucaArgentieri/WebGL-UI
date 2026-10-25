@@ -12,8 +12,8 @@ export interface StressConfig<T extends HTMLElement> {
   elements: T[]
   /** Each op returns the expected "open" state of the element after it ran. */
   ops: Record<string, (el: T, expected: boolean) => boolean>
-  /** Op names; repeat a name to weight it. */
-  opNames: string[]
+  /** Op names; repeat a name to weight it. A function picks the names per element (mixed element types). */
+  opNames: string[] | ((el: T) => string[])
   total?: number
   /** Bring every element to a still, closed state. */
   prepare(): Promise<void>
@@ -53,8 +53,9 @@ export async function runStress<T extends HTMLElement>(cfg: StressConfig<T>): Pr
     last = idx
     const burst = Math.random() < 0.2 ? 1 + Math.floor(Math.random() * 3) : 1
     for (let b = 0; b < burst && done < total; b++) {
-      const name = cfg.opNames[Math.floor(Math.random() * cfg.opNames.length)]!
       const el = cfg.elements[idx]!
+      const names = typeof cfg.opNames === 'function' ? cfg.opNames(el) : cfg.opNames
+      const name = names[Math.floor(Math.random() * names.length)]!
       cfg.trace.push(`${stamp()} >>> ${el.id} ${name}`)
       expected[idx] = cfg.ops[name]!(el, expected[idx]!)
       done++

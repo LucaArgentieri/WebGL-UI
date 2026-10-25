@@ -28,12 +28,23 @@ export interface Effect {
 }
 
 /**
+ * A reusable effect definition. A renderer creates and owns one Effect instance per definition,
+ * lazily, on its own canvas: many definitions can share one renderer (one canvas, one WebGL context).
+ * All definitions of a renderer must target the same kind of context (e.g. raw WebGL2).
+ */
+export interface EffectDef {
+  readonly name: string
+  create(): Effect
+}
+
+/**
  * 'host': the canvas covers the host element (host must be a positioned box).
  * 'viewport': the canvas covers the viewport, behind the host's content (use it inside a <dialog>).
  */
 export type FxLayout = 'host' | 'viewport'
 
 export interface PlayOptions {
+  effect: EffectDef
   from: number
   to: number
   /** milliseconds */
@@ -51,8 +62,9 @@ export interface PlayOptions {
 
 export interface Renderer {
   readonly canvas: HTMLCanvasElement
-  readonly whenReady: Promise<void>
-  isReady(): boolean
+  /** Initializes the effect on this renderer's canvas. Idempotent. Resolves true when it can render. */
+  prepare(effect: EffectDef): Promise<boolean>
+  isReady(effect: EffectDef): boolean
   /** Resolves true if the animation reached its end, false if it was cancelled or the backend failed. */
   play(host: HTMLElement, options: PlayOptions): Promise<boolean>
   /** Stops the active animation. With an owner, only if the active animation belongs to it. */

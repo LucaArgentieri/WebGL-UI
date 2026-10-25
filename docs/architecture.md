@@ -12,9 +12,15 @@ interface Effect {
 
 Standard uniforms for GLSL effects: `uTime`, `uProgress` (0 → 1 showing, 1 → 0 hiding), `uResolution`, `uPointer`, `uColor`, `uAlpha`. Fragment shaders write premultiplied alpha.
 
-## Renderer
+## Effects and renderer
 
-`createRenderer(effect)` owns one canvas and one WebGL context. `play(host, options)` appends the canvas to the host, runs a single `requestAnimationFrame` loop and resolves `true` (finished) or `false` (cancelled / backend failed). Only one animation is active at a time; a new `play` cancels the previous one. Animations carry an `owner` so an element only ever cancels its own.
+An effect is described by an `EffectDef` (`{ name, create() }`, e.g. from `defineGlslEffect`). `createRenderer()` owns one canvas and one WebGL context and creates one `Effect` instance per definition, lazily and on its own canvas, so any number of effects share the same context. Programs are selected every frame (`useProgram`). A lost context re-initializes every effect when it comes back.
+
+`prepare(def)` starts initializing an effect (idempotent) and `isReady(def)` tells whether it can render. Elements call `prepare` at creation and fall back to native behavior until the effect is ready, so the decision to intercept an event is always synchronous.
+
+`play(host, { effect, ... })` appends the canvas to the host, runs a single `requestAnimationFrame` loop and resolves `true` (finished) or `false` (cancelled / backend failed). Only one animation is active at a time; a new `play` cancels the previous one. Animations carry an `owner` so an element only ever cancels its own.
+
+One canvas can only hold one kind of context, so all the effects of a renderer must target the same one (raw WebGL2 here). A TSL effect, whose renderer owns its canvas, gets a renderer of its own.
 
 Layouts: `host` (canvas covers a positioned host) and `viewport` (fixed, behind the host's content: used inside a `<dialog>`, because `::backdrop` cannot contain a canvas).
 

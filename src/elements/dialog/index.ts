@@ -1,8 +1,11 @@
 import { resolveRenderer } from '../../core/renderer'
-import type { RendererSource, Vec3 } from '../../core/types'
+import { backdropEffect } from '../../effects/backdrop'
+import type { EffectDef, RendererSource, Vec3 } from '../../core/types'
 
 export interface DialogFxOptions {
   renderer: RendererSource
+  /** Effect to use. Default: backdrop. */
+  effect?: EffectDef
   /** Opening duration in ms. Closing takes 65% of it. Default 700. */
   duration?: number
   /** Debug hook for internal decisions. */
@@ -37,6 +40,7 @@ function readDim(el: Element): { rgb: Vec3; alpha: number } {
  */
 export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptions): DialogFx {
   const duration = options.duration ?? 700
+  const effect = options.effect ?? backdropEffect
   const trace = options.trace ?? (() => {})
   const proto = HTMLDialogElement.prototype
   const nativeShowModal = proto.showModal
@@ -53,7 +57,13 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   let running = false
   let pendingReturnValue: string | undefined // undefined = returnValue untouched
 
-  const fxAvailable = () => resolveRenderer(options.renderer).isReady() && !reduce.matches
+  // Starts initializing the effect on the renderer (idempotent); until it is ready the dialog is native.
+  const fxAvailable = () => {
+    const r = resolveRenderer(options.renderer)
+    if (!r.isReady(effect)) { void r.prepare(effect); return false }
+    return !reduce.matches
+  }
+  void resolveRenderer(options.renderer).prepare(effect)
 
   function cleanup() {
     dialog.removeAttribute('data-animating')
@@ -104,6 +114,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
     try {
       // Starts from the current progress: a reversal halfway through does not jump.
       completed = await renderer.play(dialog, {
+        effect,
         from,
         to,
         duration: Math.max(120, (next ? duration : duration * 0.65) * distance),

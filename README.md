@@ -22,20 +22,23 @@ The playground has one page per element. Each page has a **stress test** button:
 ## Usage
 
 ```ts
-import { createRenderer, createGlslEffect, createDetailsFx, DISSOLVE_FRAG } from 'webgl-ui'
+import { createRenderer, createDetailsFx } from 'webgl-ui'
 
-// One renderer per page: one canvas, one WebGL context, one active animation.
-const renderer = createRenderer(createGlslEffect(DISSOLVE_FRAG))
+// One renderer per page: one canvas, one WebGL context, shared by every element and every effect.
+const renderer = createRenderer()
 
+// Each element picks its own effect (default: dissolve for details, backdrop for dialog).
 document.querySelectorAll('details').forEach(d => createDetailsFx(d, { renderer }))
 ```
 
 ```ts
-import { createRenderer, createGlslEffect, createDialogFx, BACKDROP_FRAG } from 'webgl-ui'
+import { createRenderer, createDetailsFx, createDialogFx, wipeEffect } from 'webgl-ui'
 import 'webgl-ui/src/elements/dialog/dialog.css' // CSS contract, see the file
 
-const renderer = createRenderer(createGlslEffect(BACKDROP_FRAG))
+const renderer = createRenderer()
 const dialog = document.querySelector('dialog')!
+
+createDetailsFx(document.querySelector('details')!, { renderer, effect: wipeEffect })
 
 // Register your own `cancel` listeners BEFORE this line: whoever vetoes the close wins.
 createDialogFx(dialog, { renderer })
@@ -43,7 +46,17 @@ createDialogFx(dialog, { renderer })
 dialog.showModal() // same signature as the native method, now animated
 ```
 
-Without WebGL2, with `prefers-reduced-motion: reduce`, or after a lost context, the elements behave exactly like the native ones.
+Custom effects are raw GLSL ES 3.00 fragment shaders:
+
+```ts
+import { defineGlslEffect } from 'webgl-ui'
+
+// May use: uTime, uProgress, uResolution, uPointer, uColor, uAlpha. Must write premultiplied alpha.
+const myEffect = defineGlslEffect('my-effect', `#version 300 es ...`)
+createDetailsFx(details, { renderer, effect: myEffect })
+```
+
+Without WebGL2, with `prefers-reduced-motion: reduce`, or after a lost context, the elements behave exactly like the native ones. Until an effect has finished initializing (it starts at creation and is instant for GLSL) the element is native too.
 
 ## Principles
 
@@ -51,7 +64,7 @@ Without WebGL2, with `prefers-reduced-motion: reduce`, or after a lost context, 
 2. **WebGL is decoration.** The canvas is `aria-hidden`, takes no focus or pointer events and holds no content.
 3. **Progressive enhancement.** No WebGL, reduced motion, lost context: native behavior.
 4. **Functions, not classes.** Small composable functions, no hidden global state, tree-shakeable.
-5. **Backend-agnostic core.** An `Effect` (`init`, `render`, `dispose`) can be raw GLSL today, TSL or anything else later.
+5. **Backend-agnostic core.** An effect (`init`, `render`, `dispose`) can be raw GLSL today, TSL or anything else later. One renderer owns one canvas, so all its effects must target the same kind of context: a TSL effect needs its own renderer.
 
 ## Native parity
 
@@ -70,7 +83,7 @@ docs/            parity checklists, architecture
 
 ## Roadmap
 
-- Backends: TSL (three.js) as an optional package, never a core dependency.
+- Backends: TSL (three.js) as an optional package with its own renderer, never a core dependency.
 - Elements: `popover`, `<progress>`, `<input type="checkbox">`, `<input type="range">`, `<img>`/`<picture>`.
 - Package split (`core`, `element` web components, `three`) once the API settles.
 - Firefox and WebKit in the e2e matrix.

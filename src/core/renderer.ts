@@ -1,4 +1,4 @@
-import type { Effect, PlayOptions, Renderer, RendererSource } from './types'
+import type { Effect, EffectDef, PlayOptions, Renderer, RendererSource } from './types'
 
 const easeInOut = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
 
@@ -6,33 +6,57 @@ export function resolveRenderer(source: RendererSource): Renderer {
   return typeof source === 'function' ? source() : source
 }
 
+interface Instance {
+  effect: Effect
+  ready: boolean
+  init: Promise<boolean>
+}
+
 /**
- * One canvas, one WebGL context, one active animation at a time.
+ * One canvas, one WebGL context, one active animation at a time, any number of effects.
  * Create a single renderer per page and share it between all elements.
  */
-export function createRenderer(effect: Effect): Renderer {
+export function createRenderer(): Renderer {
   const canvas = document.createElement('canvas')
   canvas.setAttribute('aria-hidden', 'true')
   canvas.style.pointerEvents = 'none'
   canvas.style.display = 'block'
 
-  let ready = false
+  const instances = new Map<EffectDef, Instance>()
   let disposed = false
 
-  const start = async () => {
-    try {
-      await effect.init(canvas)
-      ready = !disposed
-    } catch (err) {
-      console.warn('[webgl-ui] effect init failed', err)
-      ready = false
-    }
+  const initInstance = (inst: Instance): Promise<boolean> => {
+    inst.init = (async () => {
+      try {
+        await inst.effect.init(canvas)
+        inst.ready = !disposed
+      } catch (err) {
+        console.warn('[webgl-ui] effect init failed', err)
+        inst.ready = false
+      }
+      return inst.ready
+    })()
+    return inst.init
   }
-  const whenReady = start()
 
-  const onLost = (e: Event) => { e.preventDefault(); ready = false }
+  function prepare(def: EffectDef): Promise<boolean> {
+    let inst = instances.get(def)
+    if (!inst) {
+      inst = { effect: def.create(), ready: false, init: Promise.resolve(false) }
+      instances.set(def, inst)
+      initInstance(inst)
+    }
+    return inst.init
+  }
+
+  // A lost context takes every program with it: all effects are re-initialized when it comes back.
+  const onLost = (e: Event) => {
+    e.preventDefault()
+    instances.forEach(inst => { inst.ready = false })
+  }
+  const onRestored = () => { instances.forEach(inst => { void initInstance(inst) }) }
   canvas.addEventListener('webglcontextlost', onLost)
-  canvas.addEventListener('webglcontextrestored', start)
+  canvas.addEventListener('webglcontextrestored', onRestored)
 
   let stop: (() => void) | null = null
   let stopOwner: unknown = null
@@ -52,7 +76,8 @@ export function createRenderer(effect: Effect): Renderer {
   }
 
   function play(host: HTMLElement, o: PlayOptions): Promise<boolean> {
-    if (!ready) return Promise.resolve(false)
+    const inst = instances.get(o.effect)
+    if (!inst || !inst.ready) return Promise.resolve(false)
     if (stop) stop()
     return new Promise<boolean>(resolve => {
       applyLayout(o.layout ?? 'host')
@@ -88,14 +113,14 @@ export function createRenderer(effect: Effect): Renderer {
 
       const frame = (now: number) => {
         if (done) return // a queued frame after the end or a cancel must write nothing
-        if (!ready) return finish(false)
+        if (!inst.ready) return finish(false)
         fit()
         const elapsed = Math.max(now - t0, 0)
         const k = Math.min(elapsed / o.duration, 1)
         const progress = o.from + (o.to - o.from) * easeInOut(k)
         const time = time0 + elapsed / 1000
         o.onFrame?.(progress, time)
-        effect.render({
+        inst.effect.render({
           time,
           progress,
           size: [canvas.width, canvas.height],
@@ -112,19 +137,19 @@ export function createRenderer(effect: Effect): Renderer {
 
   return {
     canvas,
-    whenReady,
-    isReady: () => ready,
+    prepare,
+    isReady: def => instances.get(def)?.ready ?? false,
     play,
     cancel(owner?: unknown) {
       if (stop && (owner === undefined || stopOwner === owner)) stop()
     },
     dispose() {
       disposed = true
-      ready = false
       if (stop) stop()
       canvas.removeEventListener('webglcontextlost', onLost)
-      canvas.removeEventListener('webglcontextrestored', start)
-      effect.dispose()
+      canvas.removeEventListener('webglcontextrestored', onRestored)
+      instances.forEach(inst => { inst.ready = false; inst.effect.dispose() })
+      instances.clear()
       canvas.remove()
     }
   }
