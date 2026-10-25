@@ -8,6 +8,8 @@ WebGL UI adds WebGL animation to native elements (`<dialog>`, `<details>`, and n
 
 ## Try it
 
+Live playground and showcase: https://lucaargentieri.github.io/WebGL-UI/ (deployed from `main` by GitHub Pages).
+
 ```bash
 npm install
 npm run dev          # playground at http://localhost:5173
