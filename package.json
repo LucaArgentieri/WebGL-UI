@@ -1,0 +1,20 @@
+{
+  "name": "webgl-ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Accessible-by-default WebGL effects for native HTML elements. Functions-first, framework-agnostic.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
+}

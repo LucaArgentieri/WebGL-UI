@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebGL UI playground</title>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<main>
+  <h1>WebGL UI</h1>
+  <p class="lead">Playground for native HTML elements animated with WebGL. The native element stays the source of truth; WebGL only paints the surface.</p>
+  <ul class="links">
+    <li><a href="./details.html">&lt;details&gt;<small>Dissolve reveal + height transition</small></a></li>
+    <li><a href="./dialog.html">&lt;dialog&gt;<small>WebGL backdrop, native focus trap, Esc and returnValue</small></a></li>
+  </ul>
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module">
+  const gl = document.createElement('canvas').getContext('webgl2')
+  document.getElementById('status').textContent = gl
+    ? 'WebGL2 is available.'
+    : 'WebGL2 is not available: every element falls back to its native behavior.'
+</script>
+</body>
+</html>

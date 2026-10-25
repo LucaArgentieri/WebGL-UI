@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebGL UI: dialog</title>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<main>
+  <h1>dialog</h1>
+  <p class="lead">A native <code>&lt;dialog&gt;</code> with <code>showModal()</code>, focus trap, Esc and <code>returnValue</code> from the browser. A shader paints only the backdrop while it opens and closes.</p>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="openA">Open dialog</button>
+    <button type="button" class="btn" id="stress">Stress test: 80 operations</button>
+  </div>
+  <p class="result" id="result" role="status"></p>
+
+  <ul class="log" id="log" role="log" aria-label="Dialog events"></ul>
+  <p class="status" id="status" role="status"></p>
+</main>
+
+<dialog id="dlgA" closedby="any" aria-labelledby="a-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="a-title">Save changes?</h2>
+      <p>Esc, a click outside (where supported), the buttons and the form close it like a native dialog.</p>
+      <label for="a-name">Name</label>
+      <input id="a-name" name="name" autocomplete="off">
+      <div class="row">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn" type="button" id="openB">Another dialog</button>
+        <button class="btn primary" value="ok">Save</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="dlgB" closedby="any" aria-labelledby="b-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="b-title">Nested dialog</h2>
+      <p>It opens on top of the first one, like in a real app. Esc closes only this one.</p>
+      <div class="row">
+        <button class="btn primary" value="close">Close</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script type="module" src="./src/dialog.ts"></script>
+</body>
+</html>

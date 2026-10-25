@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebGL UI: details</title>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<main>
+  <h1>details</h1>
+  <p class="lead">Native <code>&lt;details&gt;</code> elements. The content appears with a WebGL dissolve and the height animates in sync; <code>open</code>, keyboard and the accessibility tree stay native.</p>
+
+  <div class="actions">
+    <button type="button" class="btn" id="stress">Stress test: 80 clicks</button>
+  </div>
+  <p class="result" id="result" role="status"></p>
+
+  <details id="d1">
+    <summary>What stays native?</summary>
+    <div class="content">
+      <p>Everything behavioral: Enter and Space on the summary, the <code>open</code> attribute and the expanded state announced by screen readers.</p>
+      <p>The canvas is <code>aria-hidden</code>, ignores the pointer and only exists during the animation.</p>
+    </div>
+  </details>
+
+  <details id="d2">
+    <summary>What does the shader do?</summary>
+    <div class="content">
+      <p>A fragment shader covers the content with the surface color and dissolves it with fractal noise, top to bottom, with a glowing edge along the front.</p>
+      <p>Standard uniforms: <code>uTime</code>, <code>uProgress</code>, <code>uResolution</code>, <code>uPointer</code>.</p>
+    </div>
+  </details>
+
+  <details id="d3">
+    <summary>What if WebGL is missing?</summary>
+    <div class="content">
+      <p>The click is not intercepted and the browser opens and closes the details as usual. Same with <code>prefers-reduced-motion: reduce</code> and with a lost WebGL context.</p>
+    </div>
+  </details>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./src/details.ts"></script>
+</body>
+</html>

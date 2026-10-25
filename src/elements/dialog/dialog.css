@@ -1,0 +1,37 @@
+/*
+ * CSS contract for createDialogFx. Copy or import it, then style your own panel.
+ *
+ * - The <dialog> box itself must be transparent: the visible surface goes in an inner element
+ *   marked with [data-fx-panel]. The canvas sits behind the panel (z-index -1) and must not cover it.
+ * - The backdrop color is defined once (--fx-rgb / --fx-a): CSS and shader read the same values.
+ * - While animating, the library sets [data-animating] and --p (0..1) on the dialog.
+ */
+dialog,
+dialog::backdrop {
+  --fx-rgb: 8, 14, 22;
+  --fx-a: 0.62;
+}
+
+dialog::backdrop {
+  background: rgba(var(--fx-rgb), var(--fx-a));
+}
+
+/* While animating, the shader draws the backdrop; when done, CSS takes over (identical to the last frame). */
+dialog[data-animating]::backdrop {
+  background: transparent;
+}
+
+dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  max-width: none;
+  max-height: none;
+}
+
+/* The panel follows the same progress as the shader. */
+dialog[data-animating] [data-fx-panel] {
+  opacity: var(--p, 1);
+  transform: translateY(calc((1 - var(--p, 1)) * 14px)) scale(calc(0.97 + 0.03 * var(--p, 1)));
+}
