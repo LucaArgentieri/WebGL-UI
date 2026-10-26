@@ -14,7 +14,7 @@ Live playground and showcase: https://lucaargentieri.github.io/WebGL-UI/ (deploy
 npm install
 npm run dev          # playground at http://localhost:5173
 npm run typecheck
-npm run test:e2e     # Playwright (Chromium): behavior checks + stress tests
+npm run test:e2e     # Playwright (Chromium, Firefox, WebKit): behavior checks + stress tests
 ```
 
 The playground has one page per element. Each page has a **stress test** button: random, fast operations (including several in the same tick) followed by an invariant check.
@@ -64,6 +64,22 @@ const myEffect = defineGlslEffect('my-effect', `#version 300 es ...`)
 createDetailsFx(details, { renderer, effect: myEffect })
 ```
 
+Effects can also be written in [TSL](https://threejs.org/docs/TSL.html) with the optional `packages/tsl` package (three.js is a peer dependency, loaded lazily; the core never imports it). A TSL effect needs a renderer of its own:
+
+```ts
+import { createRenderer, createDetailsFx } from 'webgl-ui'
+import { defineTslEffect } from 'webgl-ui-tsl'
+
+// The graph returns a vec4 with PREMULTIPLIED alpha. uv is 0..1 with the origin at the top left.
+const fade = defineTslEffect('fade', ({ progress, color, uv }, { vec4, smoothstep }) => {
+  const a = smoothstep(progress.sub(0.1), progress.add(0.1), uv.y).oneMinus()
+  return vec4(color.mul(a), a)
+})
+
+const tslRenderer = createRenderer() // separate from the GLSL one
+createDetailsFx(details, { renderer: tslRenderer, effect: fade })
+```
+
 Without WebGL2, with `prefers-reduced-motion: reduce`, or after a lost context, the elements behave exactly like the native ones. Until an effect has finished initializing (it starts at creation and is instant for GLSL) the element is native too.
 
 ## Principles
@@ -84,6 +100,7 @@ Without WebGL2, with `prefers-reduced-motion: reduce`, or after a lost context, 
 src/core/        renderer, GLSL backend, types
 src/effects/     fragment shaders
 src/elements/    one folder per element, named like its MDN page
+packages/tsl/    optional TSL backend (three.js peer dependency)
 playground/      Vite multi-page app
 tests/e2e/       Playwright tests (real Chromium, software WebGL)
 docs/            parity checklists, architecture
@@ -91,7 +108,6 @@ docs/            parity checklists, architecture
 
 ## Roadmap
 
-- Backends: TSL (three.js) as an optional package with its own renderer, never a core dependency.
+- Backends: publish `webgl-ui-tsl` (today a source-only package in `packages/tsl`) and add more TSL effects.
 - Elements: `<progress>`, `<input type="checkbox">`, `<input type="range">`, `<img>`/`<picture>`.
 - Package split (`core`, `element` web components, `three`) once the API settles.
-- Firefox and WebKit in the e2e matrix.

@@ -3,14 +3,32 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "strict": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "paths": { "webgl-ui": ["./src/index.ts"] }
+    "paths": {
+      "webgl-ui": [
+        "./src/index.ts"
+      ],
+      "webgl-ui-tsl": [
+        "./packages/tsl/src/index.ts"
+      ]
+    }
   },
-  "include": ["src", "playground/src", "tests", "vite.config.ts", "playwright.config.ts"]
+  "include": [
+    "src",
+    "playground/src",
+    "tests",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "packages"
+  ]
 }

@@ -20,7 +20,13 @@ An effect is described by an `EffectDef` (`{ name, create() }`, e.g. from `defin
 
 `play(host, { effect, ... })` appends the canvas to the host, runs a single `requestAnimationFrame` loop and resolves `true` (finished) or `false` (cancelled / backend failed). Only one animation is active at a time; a new `play` cancels the previous one. Animations carry an `owner` so an element only ever cancels its own.
 
-One canvas can only hold one kind of context, so all the effects of a renderer must target the same one (raw WebGL2 here). A TSL effect, whose renderer owns its canvas, gets a renderer of its own.
+One canvas can only hold one kind of context, so all the effects of a renderer must target the same one (raw WebGL2 here). A TSL effect gets a renderer of its own.
+
+## TSL backend (`packages/tsl`)
+
+`defineTslEffect(name, build, options)` returns an `EffectDef` like `defineGlslEffect`. On first use it loads `three/webgpu` and `three/tsl` with a dynamic `import()`, creates a `WebGPURenderer` on the renderer's canvas (WebGPU when available, WebGL2 otherwise; `backend: 'webgl'` forces WebGL2) and draws a full-screen `QuadMesh` whose `fragmentNode` is the user's graph. The graph receives the same inputs as a GLSL effect (`time`, `progress`, `resolution`, `color`, `alpha`, plus `uv`) as TSL nodes.
+
+Contract details, all covered by e2e tests: the graph returns premultiplied alpha, so the material blends with `ONE / ONE_MINUS_SRC_ALPHA` and three's own premultiply is off (otherwise the color is multiplied by alpha twice); `uv` has its origin at the top left; output color space is linear so sRGB inputs are written untouched. If neither WebGPU nor WebGL2 is available, init fails and the elements stay native.
 
 Layouts: `host` (canvas covers a positioned host) and `viewport` (fixed, behind the host's content: used inside a `<dialog>`, because `::backdrop` cannot contain a canvas).
 

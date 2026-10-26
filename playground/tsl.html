@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebGL UI: TSL</title>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<main>
+  <h1>TSL backend</h1>
+  <p class="lead">The same native <code>&lt;details&gt;</code>, with an effect written in <a href="https://threejs.org/docs/TSL.html">TSL</a> (three.js) instead of raw GLSL. It uses a renderer of its own and loads three.js only on this page.</p>
+
+  <div class="actions">
+    <button type="button" class="btn" id="stress">Stress test: 80 clicks</button>
+  </div>
+  <p class="result" id="result" role="status"></p>
+
+  <details id="d1">
+    <summary>Radial reveal (TSL)</summary>
+    <div class="content">
+      <p>A circular reveal from the center, with a wobbling glowing edge, written as a TSL node graph.</p>
+    </div>
+  </details>
+
+  <details id="d2">
+    <summary>Same effect, another element</summary>
+    <div class="content">
+      <p>Both elements share the TSL renderer: one canvas, one context.</p>
+    </div>
+  </details>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./src/tsl.ts"></script>
+</body>
+</html>
