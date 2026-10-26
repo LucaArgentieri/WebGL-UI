@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 import { disableWebGL2, isReady, runStress } from './helpers'
 
 const logTexts = (page: import('@playwright/test').Page) => page.locator('#log li').allTextContents()

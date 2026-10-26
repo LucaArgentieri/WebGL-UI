@@ -113,8 +113,18 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
     settle() // finished, or interrupted from outside (another element, lost context)
   }
 
+  // The browser closes (or opens) a popover by itself on Esc, light dismiss and when another auto popover opens,
+  // and tells us only later, in a queued `toggle` event. Every entry point first reconciles the logical state
+  // with the real one, otherwise a call made between the two would act on stale state.
+  function syncState() {
+    const open = isOpen()
+    if (!open && (running || target)) { abortRun(); target = false; progress = 0 } // closed behind our back
+    else if (open && !running && !target) { target = true; progress = 1 } // opened behind our back
+  }
+
   /* Public API: same signatures as the native methods */
   function showPopover(...args: unknown[]): void {
+    syncState()
     const open = isOpen()
     if (!fxAvailable()) {
       abortRun()
@@ -130,6 +140,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
   }
 
   function hidePopover(): void {
+    syncState()
     if (!fxAvailable()) {
       abortRun()
       target = false
@@ -142,6 +153,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
   }
 
   function togglePopover(force?: boolean | { force?: boolean }): boolean {
+    syncState()
     const want = typeof force === 'object' ? force.force : force
     const next = want === undefined ? !target : want
     if (next) showPopover()
