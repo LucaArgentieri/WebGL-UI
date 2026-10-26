@@ -63,13 +63,10 @@ test.describe('home (showcase)', () => {
     await expect(page.locator('canvas')).toHaveCount(0)
   })
 
-  test('reduced motion: native, no canvas, no pointer RGB split', async ({ page }) => {
+  test('reduced motion: native, no canvas', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/')
     await expect(page.locator('#status')).toContainText('Reduced motion')
-    await page.mouse.move(900, 300)
-    await page.waitForTimeout(100)
-    expect(await page.locator('.rgb').evaluate(el => el.style.getPropertyValue('--sx'))).toBe('')
     await page.locator('details').first().locator('summary').click()
     await expect(page.locator('canvas')).toHaveCount(0)
   })

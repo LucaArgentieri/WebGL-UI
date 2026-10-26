@@ -54,7 +54,7 @@ document.querySelectorAll('[popover]').forEach(p => createPopoverFx(p, { rendere
 // popovertarget buttons and showPopover()/hidePopover()/togglePopover() are now animated
 ```
 
-Built-in effects: `dissolveEffect`, `wipeEffect`, `backdropEffect`, and the Swiss-grid pair `swissEffect` / `swissVeilEffect` used by the showcase (12 columns, a soft opacity edge and a light RGB shift). The elements also expose `--p` and `[data-animating]`, so CSS can add opacity or blur that follows the shader.
+Built-in effects: `dissolveEffect`, `wipeEffect`, `backdropEffect`, and the paper-and-ink pair `inkEffect` / `inkVeilEffect` used by the showcase (a cover that recedes with an organic, fibrous edge, like ink soaking into paper). The elements also expose `--p` and `[data-animating]`, so CSS can add opacity or blur that follows the shader.
 
 For a dialog, `createDialogFx(dialog, { renderer, effect, layout: 'host' })` paints the effect over the dialog box, so the modal itself appears from it, while the default (`'viewport'`) paints the backdrop. Set `--fx-cover: r, g, b` on the dialog, popover or details to choose the cover color.
 

@@ -1,12 +1,14 @@
 /*
- * Playground and showcase: Swiss style. Black on white, one typeface, a 12-column grid, hard rules,
- * no radii, no shadows, no grays. Contrast is maximal by construction; focus is a solid outline.
+ * Playground and showcase: editorial, paper and ink. A warm sheet, near-black ink, one serif typeface,
+ * generous margins and no rules at all: hierarchy comes from size, weight, italics and white space.
  */
 :root {
-  --paper: #fff;
-  --ink: #000;
-  --gutter: 1.5rem;
-  --font: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  --paper: #f4efe4;
+  --sheet: #fbf8f0;
+  --ink: #1b1815;
+  --ink-rgb: 27, 24, 21;
+  --paper-rgb: 244, 239, 228;
+  --font: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, Georgia, serif;
   color-scheme: light;
   box-sizing: border-box;
 }
@@ -16,143 +18,102 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 1rem;
-  line-height: 1.45;
-  font-feature-settings: "tnum" 1;
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  font-variant-numeric: oldstyle-nums;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 ::selection { background: var(--ink); color: var(--paper); }
 
-main {
-  max-width: 80rem;
-  margin: 0 auto;
-  padding: 3rem var(--gutter) 5rem;
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: var(--gutter);
-  counter-reset: row;
-}
-main > * { grid-column: 1 / -1; }
+main { max-width: 46rem; margin: 0 auto; padding: 4.5rem 1.5rem 8rem; }
 
-.back {
-  display: inline-block; justify-self: start; grid-column: 1 / -1;
-  margin-bottom: 4rem; padding: 0.125rem 0;
-  font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--ink);
-}
-.back:hover { background: var(--ink); color: var(--paper); }
+.back { display: inline-block; margin-bottom: 5rem; color: var(--ink); font-style: italic; text-decoration: none; }
+.back:hover { text-decoration: underline; text-underline-offset: 0.2em; }
 
-h1 {
-  font-size: clamp(2.75rem, 11vw, 8.5rem);
-  font-weight: 700; line-height: 0.92; letter-spacing: -0.055em;
-  margin: 0 0 2rem; overflow-wrap: anywhere;
-}
-.lead { font-size: clamp(1.125rem, 2.2vw, 1.5rem); line-height: 1.3; letter-spacing: -0.01em; margin: 0 0 2.5rem; max-width: 44rem; }
-@media (min-width: 52rem) { .lead { grid-column: 1 / span 8; } }
-a { color: var(--ink); text-underline-offset: 0.18em; text-decoration-thickness: 2px; }
-a:hover { background: var(--ink); color: var(--paper); text-decoration-color: transparent; }
-code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.875em; border-bottom: 1px solid var(--ink); }
+h1 { font-size: clamp(3rem, 11vw, 6.5rem); font-weight: 400; line-height: 0.98; letter-spacing: -0.03em; margin: 0 0 2rem; overflow-wrap: anywhere; }
+h1 em { font-style: italic; }
+.lead { font-size: clamp(1.25rem, 2.6vw, 1.625rem); line-height: 1.45; font-style: italic; margin: 0 0 3.5rem; max-width: 36rem; }
+a { color: var(--ink); text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.82em; background: rgb(var(--ink-rgb) / 0.07); padding: 0.05em 0.3em; }
 
-/* controls */
-.actions { display: flex; flex-wrap: wrap; gap: 0; border-top: 2px solid var(--ink); border-left: 2px solid var(--ink); width: fit-content; max-width: 100%; }
+/* controls: ink-filled for the main action, plain italic text for the rest */
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1.75rem; align-items: center; margin-bottom: 3.5rem; }
 .btn {
-  font: inherit; font-size: 0.875rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-  min-height: 3rem; padding: 0 1.25rem; cursor: pointer;
-  color: var(--ink); background: var(--paper);
-  border: 0; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); border-radius: 0;
-  transition: background 0.12s, color 0.12s;
+  font: inherit; font-size: 1.0625rem; font-style: italic; min-height: 2.75rem; padding: 0 0.25rem; cursor: pointer;
+  color: var(--ink); background: none; border: 0; border-radius: 0;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.25em;
 }
-.row .btn, .pop .btn { border: 2px solid var(--ink); }
-.btn.primary { background: var(--ink); color: var(--paper); }
-.btn:hover { background: var(--ink); color: var(--paper); }
-.btn.primary:hover { background: var(--paper); color: var(--ink); }
-.btn:disabled { opacity: 1; cursor: progress; text-decoration: line-through; }
-.btn:focus-visible, summary:focus-visible, a:focus-visible, .panel input:focus-visible {
-  outline: 3px solid var(--ink); outline-offset: 3px;
-}
-.result { margin: 1rem 0 3rem; min-height: 1.45em; font-size: 0.875rem; white-space: pre-wrap; overflow-wrap: anywhere; }
-.status { margin-top: 3rem; padding-top: 0.75rem; border-top: 2px solid var(--ink); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-.log { list-style: none; margin: 0; padding: 0; font-size: 0.8125rem; }
-.log li { padding: 0.25rem 0; border-top: 1px solid var(--ink); }
+.btn:hover { text-decoration-thickness: 2px; }
+.btn.primary { font-style: normal; padding: 0 1.5rem; color: var(--paper); background: var(--ink); text-decoration: none; }
+.btn.primary:hover { background: rgb(var(--ink-rgb) / 0.86); }
+.btn:disabled { cursor: progress; opacity: 0.5; }
+.btn:focus-visible, summary:focus-visible, a:focus-visible, .panel input:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.result { margin: 1.25rem 0 3rem; min-height: 1.6em; font-size: 0.9375rem; font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere; }
+.status { margin-top: 4rem; font-size: 0.9375rem; font-style: italic; }
+.log { list-style: none; margin: 0; padding: 0; font-size: 0.9375rem; }
+.log li { padding: 0.25rem 0; }
 
 /* index of pages */
-.links { list-style: none; padding: 0; margin: 0 0 1.5rem; border-bottom: 2px solid var(--ink); }
-.links li { counter-increment: row; }
-.links a {
-  display: grid; grid-template-columns: 3.5rem 1fr; align-items: baseline; gap: 0 var(--gutter);
-  padding: 1rem 0; border-top: 2px solid var(--ink);
-  font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; text-decoration: none;
-}
-.links a::before { content: counter(row, decimal-leading-zero); font-size: 0.8125rem; letter-spacing: 0.04em; }
-.links small { grid-column: 2; font-size: 0.9375rem; font-weight: 400; letter-spacing: 0; line-height: 1.35; margin-top: 0.25rem; }
+.links { list-style: none; padding: 0; margin: 0; counter-reset: row; }
+.links li { counter-increment: row; margin-bottom: 1.75rem; }
+.links a { display: block; font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.1; letter-spacing: -0.01em; text-decoration: none; }
+.links a::before { content: counter(row, decimal-leading-zero); display: inline-block; width: 3rem; font-size: 0.875rem; font-style: italic; letter-spacing: 0; vertical-align: 0.4em; }
+.links a:hover { font-style: italic; }
+.links small { display: block; margin-left: 3rem; font-size: 1.0625rem; font-style: italic; line-height: 1.4; margin-top: 0.25rem; }
 
-/* details: rows separated by hard rules. The library animates height, --p and the canvas. */
-details { border-top: 2px solid var(--ink); background: var(--paper); overflow: hidden; }
-details:last-of-type { border-bottom: 2px solid var(--ink); }
+/* details: entries separated by white space. The library animates height, --p and the canvas. */
+main { counter-reset: row; }
+details { background: var(--paper); overflow: hidden; }
 summary {
-  list-style: none; cursor: pointer; display: grid; grid-template-columns: 3.5rem 1fr auto; align-items: baseline; gap: 0 var(--gutter);
-  padding: 1.125rem 0; min-height: 3.5rem;
-  font-size: clamp(1.25rem, 3vw, 2rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1;
+  list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 1.25rem;
+  padding: 1rem 0; min-height: 3.25rem;
+  font-size: clamp(1.5rem, 4vw, 2.125rem); line-height: 1.15; letter-spacing: -0.01em;
 }
 summary::-webkit-details-marker { display: none; }
-summary::before { counter-increment: row; content: counter(row, decimal-leading-zero); font-size: 0.8125rem; letter-spacing: 0.04em; }
-summary::after { content: "+"; font-size: 1.75rem; line-height: 1; font-weight: 400; }
+summary::before { counter-increment: row; content: counter(row, decimal-leading-zero); flex: none; width: 2rem; font-size: 0.875rem; font-style: italic; letter-spacing: 0; }
+summary::after { content: "+"; margin-left: auto; font-size: 1.5rem; line-height: 1; }
 details[open] > summary::after { content: "\2212"; }
-summary:hover { background: var(--ink); color: var(--paper); }
-summary:focus-visible { outline-offset: -3px; }
-.content { background: var(--paper); padding: 0 0 1.5rem 0; }
-@media (min-width: 52rem) { .content { padding-left: calc(3.5rem + var(--gutter)); max-width: 52rem; } }
-.content p { margin: 0 0 0.75rem; max-width: 40rem; }
+summary:hover { font-style: italic; }
+.content { background: var(--paper); padding: 0 0 1.75rem 3.25rem; }
+.content p { margin: 0 0 0.9rem; max-width: 36rem; }
 .content p:last-child { margin-bottom: 0; }
+@media (max-width: 36rem) { .content { padding-left: 0; } }
 
-/* The progress the shader uses is exposed as --p: opacity, blur and a light RGB split follow it.
-   Blur radius and shadow offset change in whole pixels (round()): a new radius means a new raster of the text,
-   so a handful of steps cost far fewer frames than a different radius on every one. */
+/* The progress the shader uses is exposed as --p: opacity and blur follow it. The blur radius changes in whole
+   pixels (round()): a new radius means a new raster of the text, so a handful of steps cost far fewer frames
+   than a different radius on every one. */
 details[data-animating] .content > :not(canvas),
 .pop[data-animating] > :not(canvas),
 dialog[data-fx-host][data-animating] [data-fx-panel] > * {
-  --split: round(up, calc((1 - var(--p, 1)) * 3px), 1px);
   opacity: var(--p, 1);
   filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 8px), 2px));
-  text-shadow: var(--split) 0 rgb(255 0 70 / 0.5), calc(var(--split) * -1) 0 rgb(0 190 255 / 0.5);
 }
 
-/* dialog (the contract lives in src/elements/dialog/dialog.css). The veil is white, the panel is black on white. */
-:root dialog, :root dialog::backdrop { --fx-rgb: 255, 255, 255; --fx-a: 0.86; }
-:root dialog::backdrop { backdrop-filter: blur(6px); }
+/* dialog (the contract lives in src/elements/dialog/dialog.css). The veil is paper, the panel is a sheet of paper. */
+:root dialog, :root dialog::backdrop { --fx-rgb: 244, 239, 228; --fx-a: 0.9; }
+:root dialog::backdrop { backdrop-filter: blur(5px); }
 /* A fixed blur radius that fades with opacity: much cheaper than re-blurring the viewport with a new radius on every frame. */
 :root dialog[data-animating]::backdrop { opacity: var(--p, 1); }
 dialog { width: min(34rem, calc(100% - 2rem)); color: var(--ink); }
-.panel {
-  background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 0;
-  padding: 1.5rem; max-height: calc(100dvh - 2rem); overflow: auto;
-}
+.panel { background: var(--sheet); color: var(--ink); padding: 2rem; max-height: calc(100dvh - 2rem); overflow: auto; box-shadow: 0 1px 2px rgb(var(--ink-rgb) / 0.12), 0 24px 60px rgb(var(--ink-rgb) / 0.22); }
 dialog[data-animating]:not([data-fx-host]) [data-fx-panel] { filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 6px), 2px)); }
-.panel h2 { margin: 0 0 0.75rem; font-size: 2rem; line-height: 1; letter-spacing: -0.04em; }
+.panel h2 { margin: 0 0 0.75rem; font-size: 2.125rem; font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; }
 .panel p { margin: 0 0 1rem; }
-.panel label { display: block; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.25rem; }
-.panel input {
-  display: block; width: 100%; font: inherit; min-height: 3rem; padding: 0 0.75rem;
-  color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 0;
-}
-.row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem; }
+.panel label { display: block; font-size: 0.9375rem; font-style: italic; margin-bottom: 0.25rem; }
+.panel input { display: block; width: 100%; font: inherit; min-height: 3rem; padding: 0 0.75rem; color: var(--ink); background: rgb(var(--ink-rgb) / 0.06); border: 0; border-radius: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; justify-content: flex-end; margin-top: 1.75rem; }
 
 /* popover */
-.pop { width: min(24rem, calc(100% - 2rem)); padding: 1.25rem; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 0; }
+.pop { width: min(24rem, calc(100% - 2rem)); padding: 1.5rem; color: var(--ink); background: var(--sheet); border: 0; border-radius: 0; box-shadow: 0 1px 2px rgb(var(--ink-rgb) / 0.12), 0 18px 44px rgb(var(--ink-rgb) / 0.2); }
 .pop p { margin: 0 0 0.5rem; }
 .pop::backdrop { background: transparent; }
-/* The popover's own box appears from the effect: a black cover recedes, the box fades in with the first part of
-   the progress (so it is never shown complete before the effect starts) and its border follows --p. */
-.pop, dialog { --fx-cover: 0, 0, 0; }
+/* The box appears from the effect: an ink cover recedes, the box fades in with the first part of the progress
+   (so it is never shown complete before the effect starts). */
+.pop, dialog { --fx-cover: 27, 24, 21; }
 .pop[data-animating] { opacity: min(1, calc(var(--p, 1) * 6)); }
+.pop[data-animating] > :not(canvas) { opacity: var(--p, 1); }
 
-/* the CSS side of the interactive demo (home): a hairline grid and a pointer-driven RGB split */
-.cols { position: fixed; inset: 0; z-index: -1; pointer-events: none; display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--gutter); max-width: 80rem; margin: 0 auto; padding: 0 var(--gutter); }
-.cols span { border-left: 1px solid var(--ink); opacity: 0.12; }
-.cols span:last-child { border-right: 1px solid var(--ink); }
-.rgb { --sx: 0; --sy: 0; text-shadow: calc(var(--sx) * 3px) calc(var(--sy) * 1.5px) rgb(255 0 70 / 0.45), calc(var(--sx) * -3px) calc(var(--sy) * -1.5px) rgb(0 190 255 / 0.45); }
-.cols-2 { display: grid; gap: var(--gutter); grid-template-columns: 1fr; }
-@media (min-width: 52rem) { .cols-2 { grid-template-columns: 1fr 1fr; } }
-
-@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }

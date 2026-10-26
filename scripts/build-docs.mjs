@@ -15,22 +15,22 @@ const page = (title, body) => `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)} · WebGL UI</title>
 <style>
-:root { --paper:#fff; --ink:#000; color-scheme: light; }
-body { margin:0; background:var(--paper); color:var(--ink); font:1rem/1.5 "Helvetica Neue",Helvetica,Arial,"Liberation Sans",sans-serif; -webkit-font-smoothing:antialiased; }
-main { max-width:52rem; margin:0 auto; padding:1.5rem 1.5rem 5rem; }
-nav { display:flex; gap:1.5rem; flex-wrap:wrap; border-bottom:2px solid var(--ink); padding-bottom:.5rem; margin-bottom:3.5rem; font-size:.8125rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-a { color:var(--ink); text-underline-offset:.18em; text-decoration-thickness:2px; }
-a:hover { background:var(--ink); color:var(--paper); text-decoration-color:transparent; }
-a:focus-visible { outline:3px solid var(--ink); outline-offset:3px; }
-h1 { font-size:clamp(2.5rem,8vw,5rem); font-weight:700; line-height:.95; letter-spacing:-.05em; margin:0 0 2rem; }
-h2 { font-size:1.75rem; letter-spacing:-.03em; border-top:2px solid var(--ink); padding-top:.75rem; margin-top:3rem; }
-h3 { letter-spacing:-.02em; }
-code { font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.875em; border-bottom:1px solid var(--ink); }
-pre { border:2px solid var(--ink); padding:1rem; overflow-x:auto; }
-pre code { border:0; }
-table { border-collapse:collapse; display:block; overflow-x:auto; }
-th, td { border:1px solid var(--ink); padding:.4rem .7rem; text-align:left; vertical-align:top; }
-th { border-bottom:2px solid var(--ink); }
+:root { --paper:#f4efe4; --sheet:#fbf8f0; --ink:#1b1815; color-scheme: light; }
+body { margin:0; background:var(--paper); color:var(--ink); font:1.1875rem/1.65 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Charter,Georgia,serif; -webkit-font-smoothing:antialiased; }
+main { max-width:46rem; margin:0 auto; padding:4rem 1.5rem 7rem; }
+nav { display:flex; gap:1.75rem; flex-wrap:wrap; margin-bottom:4rem; font-style:italic; }
+a { color:var(--ink); text-underline-offset:.2em; text-decoration-thickness:1px; }
+a:hover { text-decoration-thickness:2px; }
+a:focus-visible { outline:3px solid var(--ink); outline-offset:4px; }
+h1 { font-size:clamp(2.75rem,9vw,5rem); font-weight:400; line-height:1; letter-spacing:-.03em; margin:0 0 2rem; }
+h2 { font-size:1.875rem; font-weight:400; letter-spacing:-.02em; margin-top:3.5rem; }
+h3 { font-weight:400; font-style:italic; font-size:1.3125rem; }
+code { font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.82em; background:rgba(27,24,21,.07); padding:.05em .3em; }
+pre { background:var(--sheet); padding:1.25rem; overflow-x:auto; box-shadow:0 1px 2px rgba(27,24,21,.12); }
+pre code { background:none; padding:0; }
+table { border-collapse:collapse; display:block; overflow-x:auto; font-size:1rem; }
+th, td { padding:.5rem 1.25rem .5rem 0; text-align:left; vertical-align:top; }
+th { font-style:italic; font-weight:400; }
 </style>
 </head>
 <body>

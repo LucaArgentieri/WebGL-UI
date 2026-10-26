@@ -16,7 +16,7 @@ export { readSurfaceColor, readCoverColor } from './core/color'
 export { DISSOLVE_FRAG, dissolveEffect } from './effects/dissolve'
 export { BACKDROP_FRAG, backdropEffect } from './effects/backdrop'
 export { WIPE_FRAG, wipeEffect } from './effects/wipe'
-export { SWISS_FRAG, SWISS_VEIL_FRAG, swissEffect, swissVeilEffect } from './effects/swiss'
+export { INK_FRAG, INK_VEIL_FRAG, inkEffect, inkVeilEffect } from './effects/ink'
 
 export { createDetailsFx } from './elements/details'
 export type { DetailsFx, DetailsFxOptions } from './elements/details'
