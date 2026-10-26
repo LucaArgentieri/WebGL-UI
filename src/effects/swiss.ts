@@ -30,7 +30,10 @@ void main() {
 
   float a = max(cover.r, max(cover.g, cover.b));
   vec3 ch = mix(vec3(a), cover, 0.4); // keep the chromatic shift light
-  outColor = vec4(uColor * ch, a);
+  // Over a light cover the shift shows as missing channels; over a dark one it has to be added as light.
+  float lum = dot(uColor, vec3(0.299, 0.587, 0.114));
+  vec3 tint = (vec3(a) - cover) * 0.6 * (1.0 - lum);
+  outColor = vec4(uColor * ch + tint, a);
 }`
 
 /**
@@ -63,8 +66,10 @@ void main() {
 
   float m = max(veil.r, max(veil.g, veil.b));
   vec3 ch = mix(vec3(m), veil, 0.4);
+  float lum = dot(uColor, vec3(0.299, 0.587, 0.114));
+  vec3 tint = (vec3(m) - veil) * 0.6 * (1.0 - lum);
   float a = uAlpha * m;
-  outColor = vec4(uColor * ch * uAlpha, a);
+  outColor = vec4((uColor * ch + tint) * uAlpha, a);
 }`
 
 export const swissEffect = defineGlslEffect('swiss', SWISS_FRAG)

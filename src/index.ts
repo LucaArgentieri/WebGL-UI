@@ -11,7 +11,7 @@ export type {
 } from './core/types'
 export { createRenderer, resolveRenderer } from './core/renderer'
 export { createGlslEffect, defineGlslEffect, FULLSCREEN_VERT } from './core/glsl'
-export { readSurfaceColor } from './core/color'
+export { readSurfaceColor, readCoverColor } from './core/color'
 
 export { DISSOLVE_FRAG, dissolveEffect } from './effects/dissolve'
 export { BACKDROP_FRAG, backdropEffect } from './effects/backdrop'

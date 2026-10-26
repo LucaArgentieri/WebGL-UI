@@ -1,5 +1,5 @@
 import { resolveRenderer } from '../../core/renderer'
-import { readSurfaceColor } from '../../core/color'
+import { readCoverColor } from '../../core/color'
 import { dissolveEffect } from '../../effects/dissolve'
 import type { EffectDef, RendererSource } from '../../core/types'
 
@@ -110,7 +110,7 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
         to,
         duration: Math.max(120, (next ? duration : duration * 0.7) * distance),
         time0: clock,
-        color: readSurfaceColor(content!),
+        color: readCoverColor(content!),
         owner,
         layout: 'host',
         onFrame: (p, t) => {

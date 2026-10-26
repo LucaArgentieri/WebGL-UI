@@ -11,3 +11,12 @@ export function readSurfaceColor(el: Element): Vec3 {
   }
   return [1, 1, 1]
 }
+
+/**
+ * Color of the cover an effect draws over an element: the custom property `--fx-cover` ("r, g, b", 0..255)
+ * when the page sets it, otherwise the surface color. A dark cover makes the element's own box appear from it.
+ */
+export function readCoverColor(el: Element): Vec3 {
+  const parts = getComputedStyle(el).getPropertyValue('--fx-cover').split(',').map(v => parseFloat(v) / 255)
+  return parts.length === 3 && parts.every(Number.isFinite) ? [parts[0]!, parts[1]!, parts[2]!] : readSurfaceColor(el)
+}

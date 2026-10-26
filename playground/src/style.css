@@ -105,26 +105,28 @@ summary:focus-visible { outline-offset: -3px; }
 .content p { margin: 0 0 0.75rem; max-width: 40rem; }
 .content p:last-child { margin-bottom: 0; }
 
-/* The progress the shader uses is exposed as --p: opacity, blur and a light RGB split follow it. */
+/* The progress the shader uses is exposed as --p: opacity, blur and a light RGB split follow it.
+   Blur radius and shadow offset change in whole pixels (round()): a new radius means a new raster of the text,
+   so a handful of steps cost far fewer frames than a different radius on every one. */
 details[data-animating] .content > :not(canvas),
 .pop[data-animating] > :not(canvas) {
+  --split: round(up, calc((1 - var(--p, 1)) * 3px), 1px);
   opacity: var(--p, 1);
-  filter: blur(calc((1 - var(--p, 1)) * 7px));
-  text-shadow:
-    calc((1 - var(--p, 1)) * 3px) 0 rgb(255 0 70 / 0.5),
-    calc((1 - var(--p, 1)) * -3px) 0 rgb(0 190 255 / 0.5);
+  filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 8px), 2px));
+  text-shadow: var(--split) 0 rgb(255 0 70 / 0.5), calc(var(--split) * -1) 0 rgb(0 190 255 / 0.5);
 }
 
 /* dialog (the contract lives in src/elements/dialog/dialog.css). The veil is white, the panel is black on white. */
 :root dialog, :root dialog::backdrop { --fx-rgb: 255, 255, 255; --fx-a: 0.86; }
 :root dialog::backdrop { backdrop-filter: blur(6px); }
-:root dialog[data-animating]::backdrop { backdrop-filter: blur(calc(var(--p, 1) * 6px)); }
+/* A fixed blur radius that fades with opacity: much cheaper than re-blurring the viewport with a new radius on every frame. */
+:root dialog[data-animating]::backdrop { opacity: var(--p, 1); }
 dialog { width: min(34rem, calc(100% - 2rem)); color: var(--ink); }
 .panel {
   background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 0;
   padding: 1.5rem; max-height: calc(100dvh - 2rem); overflow: auto;
 }
-dialog[data-animating] [data-fx-panel] { filter: blur(calc((1 - var(--p, 1)) * 6px)); }
+dialog[data-animating] [data-fx-panel] { filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 6px), 2px)); }
 .panel h2 { margin: 0 0 0.75rem; font-size: 2rem; line-height: 1; letter-spacing: -0.04em; }
 .panel p { margin: 0 0 1rem; }
 .panel label { display: block; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.25rem; }
@@ -138,6 +140,10 @@ dialog[data-animating] [data-fx-panel] { filter: blur(calc((1 - var(--p, 1)) * 6
 .pop { width: min(24rem, calc(100% - 2rem)); padding: 1.25rem; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 0; }
 .pop p { margin: 0 0 0.5rem; }
 .pop::backdrop { background: transparent; }
+/* The popover's own box appears from the effect: a black cover recedes, the box fades in with the first part of
+   the progress (so it is never shown complete before the effect starts) and its border follows --p. */
+.pop { --fx-cover: 0, 0, 0; }
+.pop[data-animating] { opacity: min(1, calc(var(--p, 1) * 6)); }
 
 /* the CSS side of the interactive demo (home): a hairline grid and a pointer-driven RGB split */
 .cols { position: fixed; inset: 0; z-index: -1; pointer-events: none; display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--gutter); max-width: 80rem; margin: 0 auto; padding: 0 var(--gutter); }

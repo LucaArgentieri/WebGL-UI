@@ -30,6 +30,8 @@ Documented differences: while closing, `open` stays `true` until the animation e
 
 While animating, `<details>`, `<dialog>` and popovers get `[data-animating]` and `--p` (0..1, the same progress the shader uses), and both are removed at the end. CSS can follow it for opacity, blur and the like (the showcase does). They are decoration hooks: nothing native depends on them.
 
+The cover an effect draws on `<details>` and popovers is the surface color unless the page sets the custom property `--fx-cover: r, g, b` (0..255) on the element. A dark cover makes the element's own box appear from the effect instead of showing it complete first; fade the box in with `--p` (the showcase does).
+
 ## `<dialog>` (MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
 
 | Feature | Status |

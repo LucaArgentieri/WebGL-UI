@@ -1,5 +1,5 @@
 import { resolveRenderer } from '../../core/renderer'
-import { readSurfaceColor } from '../../core/color'
+import { readCoverColor } from '../../core/color'
 import { dissolveEffect } from '../../effects/dissolve'
 import type { EffectDef, RendererSource } from '../../core/types'
 
@@ -106,7 +106,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
         duration: Math.max(120, (next ? duration : duration * 0.7) * distance),
         owner,
         time0: clock,
-        color: readSurfaceColor(popover),
+        color: readCoverColor(popover),
         layout: 'host',
         onFrame: (p, t) => {
           if (id !== runId) return // frame of a superseded animation: writes nothing
