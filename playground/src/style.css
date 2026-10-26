@@ -26,7 +26,7 @@ body {
 main {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 1.5rem var(--gutter) 5rem;
+  padding: 3rem var(--gutter) 5rem;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--gutter);
@@ -144,8 +144,6 @@ dialog[data-animating] [data-fx-panel] { filter: blur(calc((1 - var(--p, 1)) * 6
 .cols span { border-left: 1px solid var(--ink); opacity: 0.12; }
 .cols span:last-child { border-right: 1px solid var(--ink); }
 .rgb { --sx: 0; --sy: 0; text-shadow: calc(var(--sx) * 3px) calc(var(--sy) * 1.5px) rgb(255 0 70 / 0.45), calc(var(--sx) * -3px) calc(var(--sy) * -1.5px) rgb(0 190 255 / 0.45); }
-.topbar { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; border-bottom: 2px solid var(--ink); padding-bottom: 0.5rem; margin-bottom: 4rem; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.topbar a { text-decoration: none; }
 .cols-2 { display: grid; gap: var(--gutter); grid-template-columns: 1fr; }
 @media (min-width: 52rem) { .cols-2 { grid-template-columns: 1fr 1fr; } }
 
