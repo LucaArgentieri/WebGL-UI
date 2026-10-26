@@ -2,7 +2,7 @@
 
 Accessible-by-default WebGL effects for native HTML elements. Functions-first, framework-agnostic.
 
-WebGL UI adds WebGL animation to native elements (`<dialog>`, `<details>`, and next `popover`, `<progress>`…) **without replacing them**. The native element stays the source of truth for state, events, focus and ARIA; WebGL only paints the surface. Scope and behavior follow the HTML specification as documented on MDN, and every element ships with a native-parity checklist and a stress test.
+WebGL UI adds WebGL animation to native elements (`<dialog>`, `<details>`, `popover`, and next `<progress>`…) **without replacing them**. The native element stays the source of truth for state, events, focus and ARIA; WebGL only paints the surface. Scope and behavior follow the HTML specification as documented on MDN, and every element ships with a native-parity checklist and a stress test.
 
 > Status: v0, experimental. The goal of this first version is to find out whether the idea is sound and usable. Not published to npm yet.
 
@@ -46,6 +46,14 @@ createDialogFx(dialog, { renderer })
 dialog.showModal() // same signature as the native method, now animated
 ```
 
+```ts
+import { createRenderer, createPopoverFx } from 'webgl-ui'
+
+const renderer = createRenderer()
+document.querySelectorAll('[popover]').forEach(p => createPopoverFx(p, { renderer }))
+// popovertarget buttons and showPopover()/hidePopover()/togglePopover() are now animated
+```
+
 Custom effects are raw GLSL ES 3.00 fragment shaders:
 
 ```ts
@@ -84,6 +92,6 @@ docs/            parity checklists, architecture
 ## Roadmap
 
 - Backends: TSL (three.js) as an optional package with its own renderer, never a core dependency.
-- Elements: `popover`, `<progress>`, `<input type="checkbox">`, `<input type="range">`, `<img>`/`<picture>`.
+- Elements: `<progress>`, `<input type="checkbox">`, `<input type="range">`, `<img>`/`<picture>`.
 - Package split (`core`, `element` web components, `three`) once the API settles.
 - Firefox and WebKit in the e2e matrix.

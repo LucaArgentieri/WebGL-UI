@@ -91,3 +91,8 @@ dialog { width: min(28rem, calc(100% - 2rem)); color: inherit; }
 }
 .panel input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
 .row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; margin-top: 1.25rem; }
+
+/* popover */
+.pop { width: min(22rem, calc(100% - 2rem)); padding: 1.125rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.pop p { margin: 0 0 0.5rem; }
+.pop::backdrop { background: transparent; }

@@ -49,3 +49,24 @@ Documented differences:
 - While closing, `open` stays `true` and `close` / focus restore arrive when the animation ends.
 - A non-cancelable `cancel` (browser anti-abuse for repeated Esc without user activation) closes the dialog immediately, without animation.
 - The canvas is inserted inside the `<dialog>` during the animation.
+
+## `popover` (MDN: https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
+
+| Feature | Status |
+| --- | --- |
+| `showPopover()` | native call, synchronous (same errors); animation starts after |
+| `hidePopover()` | animated; the native `hidePopover()` runs at the end |
+| `togglePopover(force)` | wrapped; returns the logical state (where it is heading) |
+| `popovertarget` / `popovertargetaction` buttons | click intercepted (the browser runs an internal algorithm, not the JS methods) and routed to the wrapped methods |
+| `popover="auto"` light dismiss, Esc | native, instant (see differences) |
+| `popover="manual"` | no light dismiss, closes only through the button or a script |
+| `toggle` event | native; closing fires it at the end of the animation |
+| Top layer, focus handling | native, started synchronously by `showPopover()` |
+| Reduced motion / no WebGL | pure native |
+
+Documented differences:
+
+- Closes the browser does by itself (Esc, light dismiss, another auto popover opening) are instant: they cannot be cancelled, so they are not animated.
+- While closing through the button or a script, the popover stays open (`:popover-open`) until the animation ends.
+- `invoketarget` / `commandfor` invokers are not intercepted yet; they work natively without animation on close.
+- The canvas is inserted inside the popover during the animation.

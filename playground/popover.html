@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebGL UI: popover</title>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<main>
+  <h1>popover</h1>
+  <p class="lead">Native <code>popover</code> elements. The content appears with a WebGL dissolve; the top layer, light dismiss, focus and <code>popovertarget</code> buttons stay native. Esc and light dismiss close instantly: the browser does them and they cannot be vetoed.</p>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="t1" popovertarget="p1">Auto popover</button>
+    <button type="button" class="btn" id="t2" popovertarget="p2">Manual popover</button>
+    <button type="button" class="btn" id="stress">Stress test: 80 operations</button>
+  </div>
+  <p class="result" id="result" role="status"></p>
+
+  <div id="p1" popover="auto" class="pop">
+    <p><strong>popover="auto"</strong></p>
+    <p>Closes with Esc or by clicking outside, natively.</p>
+  </div>
+
+  <div id="p2" popover="manual" class="pop">
+    <p><strong>popover="manual"</strong></p>
+    <p>No light dismiss: only the button or a script closes it.</p>
+    <button type="button" class="btn" id="close2" popovertarget="p2" popovertargetaction="hide">Close</button>
+  </div>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./src/popover.ts"></script>
+</body>
+</html>

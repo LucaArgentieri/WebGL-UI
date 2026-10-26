@@ -17,7 +17,8 @@ export default defineConfig({
         index: r('./playground/index.html'),
         details: r('./playground/details.html'),
         dialog: r('./playground/dialog.html'),
-        mixed: r('./playground/mixed.html')
+        mixed: r('./playground/mixed.html'),
+        popover: r('./playground/popover.html')
       }
     }
   }
