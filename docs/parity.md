@@ -28,6 +28,8 @@ Source of truth: the MDN pages of each element (attributes, DOM interface, event
 
 Documented differences: while closing, `open` stays `true` until the animation ends, so assistive technology announces it expanded for that time.
 
+While animating, `<details>`, `<dialog>` and popovers get `[data-animating]` and `--p` (0..1, the same progress the shader uses), and both are removed at the end. CSS can follow it for opacity, blur and the like (the showcase does). They are decoration hooks: nothing native depends on them.
+
 ## `<dialog>` (MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
 
 | Feature | Status |

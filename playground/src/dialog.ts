@@ -1,4 +1,4 @@
-import { createRenderer, createDialogFx, backdropEffect } from 'webgl-ui'
+import { createRenderer, createDialogFx, swissVeilEffect } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
@@ -27,7 +27,7 @@ dialogs.forEach(d => {
 
 const renderer = createRenderer()
 const trace = createTrace()
-const fxs = dialogs.map(d => createDialogFx(d, { renderer, trace: trace.push }))
+const fxs = dialogs.map(d => createDialogFx(d, { renderer, effect: swissVeilEffect, trace: trace.push }))
 
 document.getElementById('openA')!.addEventListener('click', () => dlgA.showModal())
 document.getElementById('openB')!.addEventListener('click', () => dlgB.showModal())
@@ -76,7 +76,7 @@ function stress() {
     globalCheck() {
       const p: string[] = []
       if (document.querySelector('dialog canvas')) p.push('canvas still in the DOM')
-      if (!renderer.isReady(backdropEffect)) p.push('renderer not ready anymore')
+      if (!renderer.isReady(swissVeilEffect)) p.push('renderer not ready anymore')
       const active = document.activeElement
       if (!dialogs.some(d => d.open) && active && active.closest('dialog')) p.push('focus left inside a closed dialog')
       return p
@@ -98,7 +98,7 @@ stressBtn.addEventListener('click', async () => {
 })
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-renderer.prepare(backdropEffect).then(ready => {
+renderer.prepare(swissVeilEffect).then(ready => {
   status.textContent = !ready
     ? 'WebGL2 is not available: the dialogs use native behavior.'
     : reduced
@@ -108,7 +108,7 @@ renderer.prepare(backdropEffect).then(ready => {
 
 Object.assign(window, {
   __webglUi: {
-    ready: () => renderer.prepare(backdropEffect),
+    ready: () => renderer.prepare(swissVeilEffect),
     runStress: stress
   }
 })

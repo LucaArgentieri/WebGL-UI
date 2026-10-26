@@ -3,28 +3,86 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WebGL UI playground</title>
+<title>WebGL UI</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="./src/style.css">
 </head>
 <body>
+<div class="cols" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 <main>
-  <h1>WebGL UI</h1>
-  <p class="lead">Playground for native HTML elements animated with WebGL. The native element stays the source of truth; WebGL only paints the surface.</p>
-  <ul class="links">
-    <li><a href="./details.html">&lt;details&gt;<small>Dissolve reveal + height transition</small></a></li>
-    <li><a href="./dialog.html">&lt;dialog&gt;<small>WebGL backdrop, native focus trap, Esc and returnValue</small></a></li>
-    <li><a href="./popover.html">popover<small>Dissolve reveal, native top layer, light dismiss and popovertarget</small></a></li>
-    <li><a href="./tsl.html">TSL<small>Same details, effect written in three.js TSL on its own renderer</small></a></li>
+  <div class="topbar">
+    <span>WebGL UI</span>
+    <span>v0, experimental</span>
+    <nav aria-label="Project"><a href="./docs/">Docs</a> &nbsp; <a href="https://github.com/LucaArgentieri/WebGL-UI">Source</a></nav>
+  </div>
+
+  <h1 class="rgb">Native first.<br>WebGL second.</h1>
+  <p class="lead">Accessible-by-default WebGL effects for native HTML elements. The element keeps its state, its keyboard and its place in the accessibility tree; WebGL only paints the surface.</p>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="open-dialog">Open dialog</button>
+    <button type="button" class="btn" popovertarget="home-pop">Popover</button>
+  </div>
+
+  <p class="result" role="status"><span id="status"></span></p>
+
+  <details>
+    <summary>This list is the demo</summary>
+    <div class="content">
+      <p>Each row is a native <code>&lt;details&gt;</code>. Press Enter or Space on a title: the columns recede with their own delay, the content moves from transparent and blurred to sharp, and the edge carries a slight red and blue shift.</p>
+      <p>The attribute <code>open</code> changes the instant you press; only the surface is animated.</p>
+    </div>
+  </details>
+  <details>
+    <summary>What stays native</summary>
+    <div class="content">
+      <p>State, events, focus, Esc, the top layer, light dismiss and the accessibility tree. Nothing is reimplemented: the library wraps the native calls and lets the browser do the work.</p>
+    </div>
+  </details>
+  <details>
+    <summary>What WebGL paints</summary>
+    <div class="content">
+      <p>One canvas, one WebGL context, shared by every element on the page. It is <code>aria-hidden</code>, takes no pointer events and exists only while an animation runs.</p>
+      <p>Opacity and blur come from CSS, which follows the same progress as the shader through <code>--p</code>.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Without WebGL</summary>
+    <div class="content">
+      <p>With <code>prefers-reduced-motion</code>, without WebGL2 or after a lost context, every element behaves exactly like the native one.</p>
+    </div>
+  </details>
+
+  <h2 class="sr-only">Playground</h2>
+  <ul class="links" style="margin-top: 4rem">
+    <li><a href="./details.html">details<small>Dissolve reveal and height transition, with a stress test</small></a></li>
+    <li><a href="./dialog.html">dialog<small>WebGL backdrop, native focus trap, Esc and returnValue</small></a></li>
+    <li><a href="./popover.html">popover<small>Native top layer, light dismiss and popovertarget</small></a></li>
+    <li><a href="./mixed.html">mixed<small>Several elements and effects on one renderer and one context</small></a></li>
+    <li><a href="./tsl.html">tsl<small>The same details with an effect written in three.js TSL</small></a></li>
     <li><a href="./docs/">docs<small>Architecture and native-parity checklists</small></a></li>
-    <li><a href="./mixed.html">mixed<small>Several elements and effects on one renderer and one WebGL context</small></a></li>
   </ul>
-  <p class="status" id="status" role="status"></p>
 </main>
-<script type="module">
-  const gl = document.createElement('canvas').getContext('webgl2')
-  document.getElementById('status').textContent = gl
-    ? 'WebGL2 is available.'
-    : 'WebGL2 is not available: every element falls back to its native behavior.'
-</script>
+
+<dialog id="home-dialog" closedby="any" aria-labelledby="home-dialog-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="home-dialog-title">A native dialog</h2>
+      <p>Focus is trapped, Esc closes it and the rest of the page is inert: all of it comes from the browser. The veil behind it is the shader.</p>
+      <div class="row">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn primary" value="ok">OK</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<div id="home-pop" popover="auto" class="pop">
+  <p><strong>A native popover</strong></p>
+  <p>Esc or a click outside closes it, natively. The button closes it with the animation.</p>
+  <button type="button" class="btn" popovertarget="home-pop" popovertargetaction="hide">Close</button>
+</div>
+
+<script type="module" src="./src/home.ts"></script>
 </body>
 </html>

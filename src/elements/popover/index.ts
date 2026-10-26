@@ -29,6 +29,7 @@ type Invoker = HTMLButtonElement | HTMLInputElement
  * `popovertarget` buttons are intercepted; the native methods still do the real work (top layer, light dismiss,
  * focus, `toggle` events). Native closes the browser does by itself (Esc, light dismiss, another auto popover
  * opening) stay instant: they cannot be vetoed, so they are not animated.
+ * While animating, the library sets [data-animating] and --p (0..1) on the popover, like the dialog does.
  */
 export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions): PopoverFx {
   const duration = options.duration ?? 500
@@ -56,10 +57,16 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
   }
   void resolveRenderer(options.renderer).prepare(effect)
 
+  function cleanup() {
+    popover.removeAttribute('data-animating')
+    popover.style.removeProperty('--p')
+  }
+
   // The only place that really closes/reopens: brings the popover to its final state.
   function settle() {
     trace(`${label} settle target=${target} open=${isOpen()}`)
     running = false
+    cleanup()
     progress = target ? 1 : 0
     if (target) {
       if (!isOpen()) nativeShow.call(popover)
@@ -73,6 +80,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
     runId++
     resolveRenderer(options.renderer).cancel(owner)
     running = false
+    cleanup()
   }
 
   async function animateTo(next: boolean) {
@@ -87,6 +95,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
     if (distance < 0.001) { settle(); return }
 
     running = true
+    popover.setAttribute('data-animating', '')
     let completed = false
     try {
       // Starts from the current progress: a reversal halfway through does not jump.
@@ -103,6 +112,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
           if (id !== runId) return // frame of a superseded animation: writes nothing
           progress = p
           clock = t
+          popover.style.setProperty('--p', p.toFixed(4)) // CSS can follow the same progress as the shader
         }
       })
     } catch (err) {
@@ -185,6 +195,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
     running = false
     target = false
     progress = 0
+    cleanup()
   }
 
   document.addEventListener('click', onInvokerClick, true)

@@ -54,6 +54,8 @@ document.querySelectorAll('[popover]').forEach(p => createPopoverFx(p, { rendere
 // popovertarget buttons and showPopover()/hidePopover()/togglePopover() are now animated
 ```
 
+Built-in effects: `dissolveEffect`, `wipeEffect`, `backdropEffect`, and the Swiss-grid pair `swissEffect` / `swissVeilEffect` used by the showcase (12 columns, a soft opacity edge and a light RGB shift). The elements also expose `--p` and `[data-animating]`, so CSS can add opacity or blur that follows the shader.
+
 Custom effects are raw GLSL ES 3.00 fragment shaders:
 
 ```ts

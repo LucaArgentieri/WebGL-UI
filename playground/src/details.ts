@@ -1,10 +1,10 @@
-import { createRenderer, createDetailsFx, dissolveEffect } from 'webgl-ui'
+import { createRenderer, createDetailsFx, swissEffect } from 'webgl-ui'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
 const renderer = createRenderer()
 const trace = createTrace()
 const list = [...document.querySelectorAll<HTMLDetailsElement>('details')]
-const fxs = list.map(d => createDetailsFx(d, { renderer, trace: trace.push }))
+const fxs = list.map(d => createDetailsFx(d, { renderer, effect: swissEffect, trace: trace.push }))
 
 const summaryOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>(':scope > summary')!
 const status = document.getElementById('status')!
@@ -47,7 +47,7 @@ stressBtn.addEventListener('click', async () => {
 })
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-renderer.prepare(dissolveEffect).then(ready => {
+renderer.prepare(swissEffect).then(ready => {
   status.textContent = !ready
     ? 'WebGL2 is not available: the details use native behavior.'
     : reduced
@@ -57,7 +57,7 @@ renderer.prepare(dissolveEffect).then(ready => {
 
 Object.assign(window, {
   __webglUi: {
-    ready: () => renderer.prepare(dissolveEffect),
+    ready: () => renderer.prepare(swissEffect),
     runStress: stress
   }
 })

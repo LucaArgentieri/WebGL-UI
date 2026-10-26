@@ -1,10 +1,10 @@
-import { createRenderer, createPopoverFx, dissolveEffect } from 'webgl-ui'
+import { createRenderer, createPopoverFx, swissEffect } from 'webgl-ui'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
 const renderer = createRenderer()
 const trace = createTrace()
 const list = [...document.querySelectorAll<HTMLElement>('[popover]')]
-const fxs = list.map(p => createPopoverFx(p, { renderer, trace: trace.push }))
+const fxs = list.map(p => createPopoverFx(p, { renderer, effect: swissEffect, trace: trace.push }))
 
 const invokerOf = (p: HTMLElement) => document.querySelector<HTMLElement>(`#t${p.id.slice(1)}`)!
 const nativeHide = HTMLElement.prototype.hidePopover
@@ -53,7 +53,7 @@ stressBtn.addEventListener('click', async () => {
 })
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-renderer.prepare(dissolveEffect).then(ready => {
+renderer.prepare(swissEffect).then(ready => {
   status.textContent = !ready
     ? 'WebGL2 is not available: the popovers use native behavior.'
     : reduced
@@ -63,7 +63,7 @@ renderer.prepare(dissolveEffect).then(ready => {
 
 Object.assign(window, {
   __webglUi: {
-    ready: () => renderer.prepare(dissolveEffect),
+    ready: () => renderer.prepare(swissEffect),
     runStress: stress
   }
 })

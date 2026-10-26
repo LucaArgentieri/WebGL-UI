@@ -23,6 +23,7 @@ export interface DetailsFx {
 /**
  * WebGL reveal + height transition for a native <details>.
  * The native element stays the source of truth: the `open` attribute is only written by settle().
+ * While animating, the library sets [data-animating] and --p (0..1) on the details, like the dialog does.
  */
 export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxOptions): DetailsFx {
   const duration = options.duration ?? 800
@@ -67,6 +68,8 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
   }
 
   function unlockLayout() {
+    details.removeAttribute('data-animating')
+    details.style.removeProperty('--p')
     details.style.height = ''
     if (prevOverflow !== null) { details.style.overflow = prevOverflow; prevOverflow = null }
     if (prevPosition !== null) { content!.style.position = prevPosition; prevPosition = null }
@@ -93,6 +96,7 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
     if (distance < 0.001) { settle(); return }
 
     running = true
+    details.setAttribute('data-animating', '')
     lockLayout()
     if (next) details.open = true // when closing it stays true until the end: the content must stay visible
     const closed = summary!.offsetHeight + (details.offsetHeight - details.clientHeight)
@@ -113,6 +117,7 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
           if (id !== runId) return // frame of a superseded animation: writes nothing
           progress = p
           clock = t
+          details.style.setProperty('--p', p.toFixed(4)) // CSS can follow the same progress as the shader
           // The content keeps its full size (and the canvas with it): the details clips it.
           details.style.height = closed + content!.offsetHeight * p + 'px'
         }
