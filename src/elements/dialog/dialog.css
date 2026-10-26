@@ -35,3 +35,18 @@ dialog[data-animating] [data-fx-panel] {
   opacity: var(--p, 1);
   transform: translateY(calc((1 - var(--p, 1)) * 14px)) scale(calc(0.97 + 0.03 * var(--p, 1)));
 }
+
+/*
+ * layout: 'host': the shader paints over the dialog box (the panel appears from it) and CSS owns the backdrop:
+ * it fades in with the same progress. The panel box fades in during the first part of the progress, so it is
+ * never shown complete before the effect starts. Style your own panel contents with --p as needed.
+ */
+dialog[data-fx-host][data-animating]::backdrop {
+  background: rgba(var(--fx-rgb), var(--fx-a));
+  opacity: var(--p, 1);
+}
+
+dialog[data-fx-host][data-animating] [data-fx-panel] {
+  opacity: min(1, calc(var(--p, 1) * 6));
+  transform: none;
+}

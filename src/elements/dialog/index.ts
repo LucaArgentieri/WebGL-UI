@@ -1,11 +1,18 @@
 import { resolveRenderer } from '../../core/renderer'
 import { backdropEffect } from '../../effects/backdrop'
-import type { EffectDef, RendererSource, Vec3 } from '../../core/types'
+import { readCoverColor } from '../../core/color'
+import type { EffectDef, FxLayout, RendererSource, Vec3 } from '../../core/types'
 
 export interface DialogFxOptions {
   renderer: RendererSource
   /** Effect to use. Default: backdrop. */
   effect?: EffectDef
+  /**
+   * 'viewport' (default): the effect paints the backdrop, behind the panel.
+   * 'host': the effect paints over the dialog box, so the panel itself appears from it; the backdrop is left to
+   * CSS and fades in with --p (see dialog.css). The cover color is `--fx-cover` on the dialog, else the surface.
+   */
+  layout?: FxLayout
   /** Opening duration in ms. Closing takes 65% of it. Default 700. */
   duration?: number
   /** Debug hook for internal decisions. */
@@ -41,6 +48,7 @@ function readDim(el: Element): { rgb: Vec3; alpha: number } {
 export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptions): DialogFx {
   const duration = options.duration ?? 700
   const effect = options.effect ?? backdropEffect
+  const layout = options.layout ?? 'viewport'
   const trace = options.trace ?? (() => {})
   const proto = HTMLDialogElement.prototype
   const nativeShowModal = proto.showModal
@@ -120,9 +128,9 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
         duration: Math.max(120, (next ? duration : duration * 0.65) * distance),
         owner,
         time0: clock,
-        color: dim.rgb,
-        alpha: dim.alpha,
-        layout: 'viewport',
+        color: layout === 'host' ? readCoverColor(dialog) : dim.rgb,
+        alpha: layout === 'host' ? 1 : dim.alpha,
+        layout,
         onFrame: (p, t) => {
           if (id !== runId) return // frame of a superseded animation: writes nothing
           progress = p
@@ -201,6 +209,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
     cleanup()
   }
 
+  if (layout === 'host') dialog.setAttribute('data-fx-host', '')
   dialog.showModal = showModal
   dialog.close = close
   dialog.addEventListener('cancel', onCancel)
@@ -213,6 +222,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
     destroy() {
       abortRun()
       runId++
+      dialog.removeAttribute('data-fx-host')
       Reflect.deleteProperty(dialog, 'showModal') // back to the prototype's native method
       Reflect.deleteProperty(dialog, 'close')
       dialog.removeEventListener('cancel', onCancel)

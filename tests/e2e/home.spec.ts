@@ -17,7 +17,7 @@ test.describe('home (showcase)', () => {
   test('details, dialog and popover share one canvas; --p and data-animating follow the animation and are cleaned up', async ({ page }) => {
     await countCanvases(page)
     await page.goto('/')
-    await expect(page.locator('#status')).toContainText('One renderer, two effects')
+    await expect(page.locator('#status')).toContainText('One renderer, one effect')
 
     const d = page.locator('details').first()
     await d.locator('summary').click()
@@ -31,7 +31,12 @@ test.describe('home (showcase)', () => {
 
     await page.locator('#open-dialog').click()
     await expect(page.locator('#home-dialog')).toHaveJSProperty('open', true)
-    await page.waitForTimeout(1000)
+    // layout 'host': the effect paints over the dialog box itself, and CSS owns the backdrop (it follows --p)
+    await expect(page.locator('#home-dialog')).toHaveAttribute('data-fx-host', '')
+    await expect(page.locator('#home-dialog > canvas')).toHaveCount(1)
+    const op = await page.evaluate(() => parseFloat(getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').opacity))
+    expect(op).toBeLessThanOrEqual(1)
+    await page.waitForTimeout(1200)
     await page.keyboard.press('Escape')
     await expect(page.locator('#home-dialog')).toHaveJSProperty('open', false, { timeout: 3000 })
 
