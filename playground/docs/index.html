@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="./docs.css">
+<title>Introduction · WebGL UI</title>
+</head>
+<body>
+<div class="docs-shell">
+<!-- docs-nav -->
+<main>
+<h1>WebGL UI</h1>
+<p class="lead">Accessible-by-default WebGL effects for native HTML elements. The element keeps its state, its keyboard and its place in the accessibility tree; WebGL only paints the surface.</p>
+
+<div class="example">
+  <span class="example-label">Live example: a native <code>&lt;details&gt;</code> with the ink effect</span>
+  <details data-fx="details" data-effect="ink">
+    <summary>Open me</summary>
+    <div class="content"><p>The attribute <code>open</code> changed the moment you pressed. What you just saw was only paint.</p></div>
+  </details>
+</div>
+
+<h2 id="install">Install</h2>
+<p>Not on npm yet. The library is plain TypeScript with no dependencies: copy <code>src/</code> into your project, or import it from the repository.</p>
+
+<h2 id="quick-start">Quick start</h2>
+<pre><code class="language-html">&lt;details&gt;
+  &lt;summary&gt;Shipping&lt;/summary&gt;
+  &lt;div&gt;Orders leave the warehouse within two days.&lt;/div&gt;
+&lt;/details&gt;</code></pre>
+<pre><code class="language-ts">import { createRenderer, createDetailsFx, inkEffect } from &#x27;webgl-ui&#x27;
+
+// One renderer per page: one canvas and one WebGL context, shared by every element.
+const renderer = createRenderer()
+
+document.querySelectorAll(&#x27;details&#x27;).forEach(d =&gt; createDetailsFx(d, { renderer, effect: inkEffect }))</code></pre>
+<p>That is all. Keyboard, <code>open</code>, the <code>toggle</code> event, find-in-page and screen readers keep working as they do natively.</p>
+
+<h2 id="components">Components</h2>
+<ul class="cards">
+  <li><a href="./details.html"><strong>Details</strong><span>Reveal and height transition for <code>&lt;details&gt;</code>.</span></a></li>
+  <li><a href="./dialog.html"><strong>Dialog</strong><span>Backdrop, or the modal itself appearing from the effect.</span></a></li>
+  <li><a href="./popover.html"><strong>Popover</strong><span><code>popover</code> elements and <code>popovertarget</code> buttons.</span></a></li>
+  <li><a href="./effects.html"><strong>Renderer and effects</strong><span>Built-in effects, your own GLSL, TSL.</span></a></li>
+</ul>
+
+<h2 id="principles">Principles</h2>
+<ol class="plain">
+  <li><strong>Native first.</strong> Never reimplement what the browser already does: focus trap, Esc, <code>inert</code>, roles, focus restore.</li>
+  <li><strong>WebGL is decoration.</strong> The canvas is <code>aria-hidden</code>, takes no focus or pointer events, holds no content, and exists only while an animation runs.</li>
+  <li><strong>Progressive enhancement.</strong> No WebGL2, <code>prefers-reduced-motion</code>, a lost context: the element behaves exactly like the native one.</li>
+  <li><strong>Functions, not classes.</strong> Small composable functions, no global state.</li>
+  <li><strong>CSS can follow.</strong> While animating, elements expose <code>[data-animating]</code> and <code>--p</code>, the same progress the shader uses.</li>
+</ol>
+<p>Every component has a parity table against MDN: <a href="./reference/parity.html">native parity</a>. For the inner workings, see <a href="./reference/architecture.html">architecture</a>.</p>
+<p class="status" id="docs-status" role="status"></p>
+</main>
+</div>
+<script type="module" src="./docs.ts"></script>
+</body>
+</html>

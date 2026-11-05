@@ -1,18 +1,24 @@
-// Renders docs/*.md to dist-playground/docs/*.html (no framework: marked + a small template).
+// Reference pages (docs/*.md → HTML). Used by the build (CLI below) and by the dev server (vite.config.ts),
+// so /docs/reference/*.html works in both.
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { marked } from 'marked'
 
 const src = new URL('../docs/', import.meta.url)
-const out = new URL('../dist-playground/docs/', import.meta.url)
-mkdirSync(out, { recursive: true })
-
 const escapeHtml = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-const page = (title, body) => `<!DOCTYPE html>
+export const referencePages = () => readdirSync(src).filter(f => f.endsWith('.md')).sort().map(f => f.replace(/\.md$/, ''))
+
+export function renderReference(name) {
+  const md = readFileSync(new URL(`${name}.md`, src), 'utf8')
+  const title = md.match(/^#\s+(.+)$/m)?.[1] ?? name
+  const body = marked.parse(md).replace(/href="([^"#:]+)\.md(#[^"]*)?"/g, 'href="$1.html$2"')
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>${escapeHtml(title)} · WebGL UI</title>
 <style>
 :root { --paper:#f4efe4; --sheet:#fbf8f0; --ink:#1b1815; color-scheme: light; }
@@ -26,31 +32,28 @@ h1 { font-size:clamp(2.75rem,9vw,5rem); font-weight:400; line-height:1; letter-s
 h2 { font-size:1.875rem; font-weight:400; letter-spacing:-.02em; margin-top:3.5rem; }
 h3 { font-weight:400; font-style:italic; font-size:1.3125rem; }
 code { font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.82em; background:rgba(27,24,21,.07); padding:.05em .3em; }
-pre { background:var(--sheet); padding:1.25rem; overflow-x:auto; box-shadow:0 1px 2px rgba(27,24,21,.12); }
+pre { background:var(--sheet); padding:1.25rem; overflow-x:auto; }
 pre code { background:none; padding:0; }
 table { border-collapse:collapse; display:block; overflow-x:auto; font-size:1rem; }
 th, td { padding:.5rem 1.25rem .5rem 0; text-align:left; vertical-align:top; }
 th { font-style:italic; font-weight:400; }
+tbody tr:nth-child(odd) { background:rgba(27,24,21,.035); }
 </style>
 </head>
 <body>
 <main>
-<nav><a href="../">Playground</a><a href="./">Docs</a></nav>
+<nav aria-label="Documentation"><a href="../index.html">&larr; Documentation</a><a href="../cookbook.html">Cookbook</a><a href="../../">Showcase</a></nav>
 ${body}
 </main>
 </body>
 </html>
 `
-
-const files = readdirSync(src).filter(f => f.endsWith('.md')).sort()
-const entries = []
-for (const f of files) {
-  const md = readFileSync(new URL(f, src), 'utf8')
-  const title = md.match(/^#\s+(.+)$/m)?.[1] ?? f
-  const html = marked.parse(md).replace(/href="([^"#:]+)\.md(#[^"]*)?"/g, 'href="$1.html$2"')
-  writeFileSync(new URL(f.replace(/\.md$/, '.html'), out), page(title, html))
-  entries.push({ href: f.replace(/\.md$/, '.html'), title })
 }
-const list = entries.map(e => `<li><a href="./${e.href}">${escapeHtml(e.title)}</a></li>`).join('\n')
-writeFileSync(new URL('index.html', out), page('Docs', `<h1>Docs</h1>\n<ul>\n${list}\n</ul>`))
-console.log(`docs: ${entries.length} pages -> dist-playground/docs`)
+
+// CLI: write every reference page next to the built site.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const out = new URL('../dist-playground/docs/reference/', import.meta.url)
+  mkdirSync(out, { recursive: true })
+  for (const name of referencePages()) writeFileSync(new URL(`${name}.html`, out), renderReference(name))
+  console.log(`docs: ${referencePages().length} reference pages -> dist-playground/docs/reference`)
+}

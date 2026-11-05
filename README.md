@@ -8,7 +8,7 @@ WebGL UI adds WebGL animation to native elements (`<dialog>`, `<details>`, `popo
 
 ## Try it
 
-Live playground and showcase: https://lucaargentieri.github.io/WebGL-UI/ (deployed from `main` by GitHub Pages).
+Live showcase: https://lucaargentieri.github.io/WebGL-UI/ · Documentation with live examples and a cookbook: https://lucaargentieri.github.io/WebGL-UI/docs/ (deployed from `main` by GitHub Pages; source in `playground/docs/`).
 
 ```bash
 npm install
@@ -107,7 +107,8 @@ src/elements/    one folder per element, named like its MDN page
 packages/tsl/    optional TSL backend (three.js peer dependency)
 playground/      Vite multi-page app
 tests/e2e/       Playwright tests (real Chromium, software WebGL)
-docs/            parity checklists, architecture
+docs/            parity checklists, architecture (rendered as the reference section)
+playground/docs/ documentation site: components, effects, cookbook
 ```
 
 ## Roadmap

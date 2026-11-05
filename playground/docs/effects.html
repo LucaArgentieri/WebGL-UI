@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="./docs.css">
+<title>Renderer and effects · WebGL UI</title>
+</head>
+<body>
+<div class="docs-shell">
+<!-- docs-nav -->
+<main>
+<h1>Renderer and effects</h1>
+<p class="lead">A renderer owns one canvas and one WebGL context. Effects are definitions it instantiates on demand; any number of them share the same context.</p>
+
+<h2 id="gallery">Built-in effects</h2>
+<div class="gallery">
+<div class="swatch">
+  <div class="swatch-stage">Ink</div>
+  <p><code>inkEffect</code></p>
+  <p style="font-size:1rem;font-style:italic">Cover receding with an organic, fibrous edge.</p>
+  <button type="button" class="btn" data-play="ink">Play</button>
+</div>
+<div class="swatch">
+  <div class="swatch-stage">Dissolve</div>
+  <p><code>dissolveEffect</code></p>
+  <p style="font-size:1rem;font-style:italic">Fractal noise with a glowing edge. Default for details and popover.</p>
+  <button type="button" class="btn" data-play="dissolve">Play</button>
+</div>
+<div class="swatch">
+  <div class="swatch-stage">Wipe</div>
+  <p><code>wipeEffect</code></p>
+  <p style="font-size:1rem;font-style:italic">Left to right, noisy edge.</p>
+  <button type="button" class="btn" data-play="wipe">Play</button>
+</div>
+<div class="swatch">
+  <div class="swatch-stage">Veil</div>
+  <p><code>inkVeilEffect</code></p>
+  <p style="font-size:1rem;font-style:italic">Backdrop spreading like ink. For dialog, viewport layout.</p>
+  <button type="button" class="btn" data-play="ink-veil" data-veil>Play</button>
+</div>
+<div class="swatch">
+  <div class="swatch-stage">Backdrop</div>
+  <p><code>backdropEffect</code></p>
+  <p style="font-size:1rem;font-style:italic">Backdrop from the center. Default for dialog.</p>
+  <button type="button" class="btn" data-play="backdrop" data-veil>Play</button>
+</div>
+</div>
+
+<h2 id="renderer">Renderer</h2>
+<pre><code class="language-ts">import { createRenderer } from &#x27;webgl-ui&#x27;
+const renderer = createRenderer()</code></pre>
+<table><thead><tr><th scope="col">Member</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>canvas</code></td><td>The canvas, <code>aria-hidden</code>, attached only while an animation runs.</td></tr><tr><td><code>prepare(effect)</code></td><td>Starts initializing an effect (idempotent); resolves <code>true</code> when it can render. Elements call it at creation.</td></tr><tr><td><code>isReady(effect)</code></td><td>Whether the effect can render now.</td></tr><tr><td><code>play(host, options)</code></td><td>Runs one animation on <code>host</code>; resolves <code>true</code> when it finishes, <code>false</code> if cancelled. A new <code>play</code> cancels the previous one.</td></tr><tr><td><code>cancel(owner?)</code></td><td>Stops the active animation (only if it belongs to <code>owner</code>, when given).</td></tr><tr><td><code>dispose()</code></td><td>Frees the context and every effect.</td></tr></tbody></table>
+<p>A lost WebGL context re-initializes every effect when it comes back; in between, elements are native.</p>
+
+<h2 id="glsl">Your own GLSL effect</h2>
+<p>A fragment shader in GLSL ES 3.00. It may declare any of these uniforms and must write <strong>premultiplied alpha</strong>. See the <a href="./cookbook.html#own-effect">cookbook recipe</a> for a complete one.</p>
+<table><thead><tr><th scope="col">Uniform</th><th scope="col">Type</th><th scope="col">Value</th></tr></thead><tbody><tr><td><code>uProgress</code></td><td>float</td><td>0 → 1 while showing, 1 → 0 while hiding (eased).</td></tr><tr><td><code>uTime</code></td><td>float</td><td>Seconds, continuous across reversals.</td></tr><tr><td><code>uResolution</code></td><td>vec2</td><td>Canvas size in physical pixels.</td></tr><tr><td><code>uColor</code></td><td>vec3</td><td>Cover or backdrop color, sRGB 0..1.</td></tr><tr><td><code>uAlpha</code></td><td>float</td><td>Backdrop alpha (dialog); 1 elsewhere.</td></tr><tr><td><code>uPointer</code></td><td>vec2</td><td>Normalized pointer position (reserved).</td></tr></tbody></table>
+<pre><code class="language-ts">import { defineGlslEffect } from &#x27;webgl-ui&#x27;
+const fade = defineGlslEffect(&#x27;fade&#x27;, `#version 300 es
+precision highp float;
+uniform float uProgress;
+uniform vec3 uColor;
+out vec4 outColor;
+void main() {
+  float a = 1.0 - uProgress;
+  outColor = vec4(uColor * a, a);
+}`)</code></pre>
+<p>A dialog backdrop effect must end, at <code>uProgress = 1</code>, on a uniform <code>uColor</code> with alpha <code>uAlpha</code>: that is what CSS shows after the hand-over.</p>
+
+<h2 id="tsl">TSL effects (three.js)</h2>
+<p>The optional package <code>packages/tsl</code> builds effects as TSL node graphs; three.js is loaded lazily and is never a core dependency. A canvas holds one kind of context, so TSL effects need a renderer of their own.</p>
+<pre><code class="language-ts">import { createRenderer, createDetailsFx } from &#x27;webgl-ui&#x27;
+import { defineTslEffect } from &#x27;webgl-ui-tsl&#x27;
+
+const fade = defineTslEffect(&#x27;fade&#x27;, ({ progress, color, uv }, { vec4, smoothstep }) =&gt; {
+  const a = smoothstep(progress.sub(0.1), progress.add(0.1), uv.y).oneMinus()
+  return vec4(color.mul(a), a) // premultiplied; uv origin at the top left
+})
+
+const tslRenderer = createRenderer()
+createDetailsFx(details, { renderer: tslRenderer, effect: fade })</code></pre>
+<p>Live: <a href="../tsl.html">TSL playground page</a>.</p>
+<p class="status" id="docs-status" role="status"></p>
+</main>
+</div>
+<script type="module" src="./docs.ts"></script>
+</body>
+</html>

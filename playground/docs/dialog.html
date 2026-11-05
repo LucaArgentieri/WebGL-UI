@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="./docs.css">
+<title>Dialog · WebGL UI</title>
+</head>
+<body>
+<div class="docs-shell">
+<!-- docs-nav -->
+<main>
+<h1>Dialog</h1>
+<p class="lead">A modal <code>&lt;dialog&gt;</code> whose opening and closing are animated, while <code>showModal()</code>, the focus trap, Esc, <code>returnValue</code> and focus restore stay native.</p>
+
+<div class="example">
+  <span class="example-label">Live example: two layouts</span>
+  <div class="actions">
+    <button type="button" class="btn primary" data-open-dialog="dlg-host">The modal appears from the ink</button>
+    <button type="button" class="btn" data-open-dialog="dlg-viewport">The backdrop is the effect</button>
+  </div>
+</div>
+
+<dialog id="dlg-host" data-fx="dialog" data-effect="ink" data-layout="host" closedby="any" aria-labelledby="dlg-host-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="dlg-host-title">layout: 'host'</h2>
+      <p>The effect is painted over the dialog box, so the modal itself appears from it. The veil behind is plain CSS.</p>
+      <div class="row"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok">OK</button></div>
+    </form>
+  </div>
+</dialog>
+<dialog id="dlg-viewport" data-fx="dialog" data-effect="ink-veil" closedby="any" aria-labelledby="dlg-viewport-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="dlg-viewport-title">layout: 'viewport'</h2>
+      <p>The default: the effect paints the backdrop behind the panel, and the panel fades in with <code>--p</code>.</p>
+      <div class="row"><button class="btn primary" value="ok">OK</button></div>
+    </form>
+  </div>
+</dialog>
+
+<h2 id="usage">Usage</h2>
+<pre><code class="language-html">&lt;dialog id=&quot;confirm&quot; closedby=&quot;any&quot; aria-labelledby=&quot;confirm-title&quot;&gt;
+  &lt;div class=&quot;panel&quot; data-fx-panel&gt;
+    &lt;form method=&quot;dialog&quot;&gt;
+      &lt;h2 id=&quot;confirm-title&quot;&gt;Save changes?&lt;/h2&gt;
+      &lt;button value=&quot;cancel&quot;&gt;Cancel&lt;/button&gt;
+      &lt;button value=&quot;ok&quot;&gt;Save&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;</code></pre>
+<pre><code class="language-ts">import { createRenderer, createDialogFx, inkEffect } from &#x27;webgl-ui&#x27;
+import &#x27;webgl-ui/src/elements/dialog/dialog.css&#x27; // the CSS contract
+
+const renderer = createRenderer()
+const dialog = document.querySelector&lt;HTMLDialogElement&gt;(&#x27;#confirm&#x27;)!
+
+// Register your own `cancel` listeners BEFORE this line: whoever vetoes the close first wins.
+createDialogFx(dialog, { renderer, effect: inkEffect, layout: &#x27;host&#x27; })
+
+dialog.showModal() // same signature as the native method, now animated</code></pre>
+
+<h2 id="options">Options</h2>
+<table><thead><tr><th scope="col">Option</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>renderer</code></td><td><code>Renderer | () =&gt; Renderer</code></td><td>required</td><td>The shared renderer.</td></tr><tr><td><code>effect</code></td><td><code>EffectDef</code></td><td><code>backdropEffect</code></td><td>With <code>&#39;host&#39;</code> use a cover effect such as <code>inkEffect</code>; with <code>&#39;viewport&#39;</code> a backdrop effect such as <code>inkVeilEffect</code>.</td></tr><tr><td><code>layout</code></td><td><code>&#39;viewport&#39; | &#39;host&#39;</code></td><td><code>&#39;viewport&#39;</code></td><td><code>viewport</code>: the effect is the backdrop. <code>host</code>: the effect covers the dialog box and the modal appears from it; the backdrop is CSS.</td></tr><tr><td><code>duration</code></td><td><code>number</code></td><td><code>700</code></td><td>Opening in ms; closing takes 65%.</td></tr><tr><td><code>trace</code></td><td><code>(message) =&gt; void</code></td><td>none</td><td>Debug hook.</td></tr></tbody></table>
+
+<h2 id="returns">Returns</h2>
+<table><thead><tr><th scope="col">Member</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>showModal()</code></td><td>Native call, synchronous (same errors), then the animation. Also installed on the element.</td></tr><tr><td><code>close(returnValue?)</code></td><td>Animated; the native <code>close()</code> runs at the end, with the <code>close</code> event and focus restore.</td></tr><tr><td><code>destroy()</code></td><td>Restores the native methods and removes the listeners.</td></tr><tr><td><code>debug()</code></td><td><code>{ open, target, running, progress }</code>.</td></tr></tbody></table>
+
+<h2 id="css">CSS contract</h2>
+<p>Import <code>src/elements/dialog/dialog.css</code> or copy it. It expects:</p>
+<table><thead><tr><th scope="col">Hook</th><th scope="col">Meaning</th></tr></thead><tbody><tr><td><code>[data-fx-panel]</code></td><td>The visible surface, inside a transparent <code>&lt;dialog&gt;</code> box.</td></tr><tr><td><code>--fx-rgb</code>, <code>--fx-a</code></td><td>Backdrop color and alpha, read by both CSS and shader, so the hand-over at the end is invisible.</td></tr><tr><td><code>[data-animating]</code>, <code>--p</code></td><td>Set on the dialog while animating.</td></tr><tr><td><code>[data-fx-host]</code></td><td>Present with <code>layout: &#39;host&#39;</code>: the backdrop fades in with <code>--p</code>, the panel box with the first part of it.</td></tr><tr><td><code>--fx-cover</code></td><td>Cover color for <code>layout: &#39;host&#39;</code>. A dark cover makes the modal appear from a block of ink.</td></tr></tbody></table>
+
+<h2 id="behavior">Behavior and accessibility</h2>
+<ul class="plain">
+  <li>Top layer, <code>inert</code>, focus trap and initial focus are native and start synchronously with <code>showModal()</code>.</li>
+  <li>Esc, <code>closedby</code>, <code>requestClose()</code> and <code>&lt;form method="dialog"&gt;</code> are intercepted only to animate; an earlier <code>preventDefault</code> on <code>cancel</code> wins.</li>
+  <li>While closing, <code>open</code> stays <code>true</code>; <code>close</code> and focus restore arrive at the end.</li>
+  <li><code>show()</code> (non-modal) is not wrapped. <code>commandfor</code> buttons work natively but are not animated yet (<a href="https://github.com/LucaArgentieri/WebGL-UI/issues/2">#2</a>).</li>
+</ul>
+<p>Full table: <a href="./reference/parity.html">native parity, dialog</a>.</p>
+<p class="status" id="docs-status" role="status"></p>
+</main>
+</div>
+<script type="module" src="./docs.ts"></script>
+</body>
+</html>

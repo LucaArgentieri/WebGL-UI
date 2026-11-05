@@ -1,0 +1,56 @@
+/* Documentation layout on top of the showcase styles (paper, ink, one serif). */
+.docs-shell { display: grid; grid-template-columns: 13.5rem minmax(0, 1fr); gap: 4rem; max-width: 74rem; margin: 0 auto; padding: 0 1.5rem; }
+.docs-shell main { margin: 0; max-width: 46rem; padding: 4rem 0 8rem; }
+.docs-nav { position: sticky; top: 0; align-self: start; max-height: 100dvh; overflow: auto; padding: 4.25rem 0 2rem; font-size: 1rem; }
+.docs-brand { display: block; margin-bottom: 2rem; font-size: 1.375rem; text-decoration: none; }
+.docs-nav-group { margin: 1.5rem 0 0.25rem; font-size: 0.875rem; font-style: italic; opacity: 0.7; }
+.docs-nav ul { list-style: none; margin: 0; padding: 0; }
+.docs-nav li a { display: block; padding: 0.2rem 0; text-decoration: none; }
+.docs-nav li a:hover { text-decoration: underline; }
+.docs-nav a[aria-current="page"] { font-style: italic; text-decoration: underline; text-decoration-thickness: 2px; }
+@media (max-width: 52rem) {
+  .docs-shell { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .docs-nav { position: static; max-height: none; padding: 2rem 0 0; }
+  .docs-nav ul { display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+  .docs-shell main { padding-top: 3rem; }
+}
+
+.docs-shell h1 { font-size: clamp(2.75rem, 8vw, 4.75rem); margin-bottom: 1.5rem; }
+.docs-shell h2 { font-size: 1.875rem; font-weight: 400; letter-spacing: -0.015em; line-height: 1.15; margin: 4rem 0 1rem; scroll-margin-top: 1rem; }
+.docs-shell h3 { font-size: 1.3125rem; font-weight: 400; font-style: italic; margin: 2.5rem 0 0.5rem; }
+.docs-shell p, .docs-shell li { max-width: 40rem; }
+.docs-shell ul.plain { padding-left: 1.25rem; }
+
+/* live examples: a sheet of paper */
+.example { background: var(--sheet); padding: 1.75rem; margin: 1.5rem 0 0.75rem; }
+.example > :first-child { margin-top: 0; }
+.example .actions { margin-bottom: 1rem; }
+.example details { background: var(--sheet); }
+.example details .content { background: var(--sheet); }
+.example-label { display: block; font-size: 0.875rem; font-style: italic; opacity: 0.7; margin-bottom: 0.75rem; }
+
+/* code */
+pre { position: relative; background: var(--sheet); padding: 1.25rem 1.5rem; margin: 0.75rem 0 1.5rem; overflow-x: auto; font-size: 0.875rem; line-height: 1.55; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.copy { position: absolute; top: 0.5rem; right: 0.5rem; font: inherit; font-family: var(--font); font-size: 0.875rem; font-style: italic; color: var(--ink); background: var(--sheet); border: 0; padding: 0.25rem 0.5rem; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; }
+.copy:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* tables: no rules, a faint tint every other row */
+.docs-shell table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; font-size: 1rem; margin: 1rem 0 2rem; }
+.docs-shell th, .docs-shell td { padding: 0.55rem 1.25rem 0.55rem 0.5rem; text-align: left; vertical-align: top; }
+.docs-shell th { font-style: italic; font-weight: 400; }
+.docs-shell tbody tr:nth-child(odd) { background: rgb(var(--ink-rgb) / 0.035); }
+.docs-shell td:first-child { white-space: nowrap; }
+
+/* effect gallery */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+.swatch { background: var(--sheet); padding: 1rem; }
+.swatch-stage { position: relative; height: 8rem; display: grid; place-items: center; background: var(--paper); font-size: 1.5rem; font-style: italic; }
+.swatch p { margin: 0.75rem 0 0.25rem; }
+.swatch code { font-size: 0.8em; }
+
+.cards { list-style: none; padding: 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+.cards a { display: block; background: var(--sheet); padding: 1.25rem; text-decoration: none; height: 100%; }
+.cards a:hover strong { text-decoration: underline; }
+.cards strong { display: block; font-size: 1.5rem; font-weight: 400; margin-bottom: 0.25rem; }
+.cards span { font-size: 1rem; font-style: italic; }
