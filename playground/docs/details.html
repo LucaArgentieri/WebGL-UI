@@ -27,6 +27,18 @@
   </details>
 </div>
 
+<div class="example">
+  <span class="example-label">Live example: an exclusive accordion (<code>name="faq"</code>)</span>
+  <details data-fx="details" data-effect="ink" name="faq">
+    <summary>Shipping</summary>
+    <div class="content"><p>Orders leave the warehouse within two days.</p><p>Opening another row closes this one.</p></div>
+  </details>
+  <details data-fx="details" data-effect="ink" name="faq">
+    <summary>Returns</summary>
+    <div class="content"><p>Thirty days, no questions asked.</p></div>
+  </details>
+</div>
+
 <h2 id="usage">Usage</h2>
 <pre><code class="language-html">&lt;details&gt;
   &lt;summary&gt;Title&lt;/summary&gt;
@@ -53,7 +65,8 @@ fx.destroy()</code></pre>
 
 <h2 id="behavior">Behavior and accessibility</h2>
 <ul class="plain">
-  <li>Enter and Space on the summary, the <code>toggle</code> event, <code>name</code> accordions and find-in-page are native.</li>
+  <li>Enter and Space on the summary, the <code>toggle</code> event and find-in-page are native.</li>
+  <li>Exclusive accordions (<code>name</code>): the browser closes the open sibling at once, as always; the library only animates its height, so the page does not jump.</li>
   <li>While closing, <code>open</code> stays <code>true</code> until the end, so the content stays visible; assistive technology announces it expanded for that time.</li>
   <li>Reduced motion, no WebGL2, a lost context: the click is not intercepted at all.</li>
 </ul>

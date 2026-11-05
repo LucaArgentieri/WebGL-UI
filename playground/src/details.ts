@@ -3,8 +3,11 @@ import { runStress, createTrace, sleep, formatResult } from './stress'
 
 const renderer = createRenderer()
 const trace = createTrace()
-const list = [...document.querySelectorAll<HTMLDetailsElement>('details')]
-const fxs = list.map(d => createDetailsFx(d, { renderer, effect: inkEffect, trace: trace.push }))
+const all = [...document.querySelectorAll<HTMLDetailsElement>('details')]
+const fxAll = all.map(d => createDetailsFx(d, { renderer, effect: inkEffect, trace: trace.push }))
+// The stress test drives the independent details; the exclusive accordion has its own test.
+const list = all.filter(d => !d.name)
+const fxs = fxAll.filter((_, i) => !all[i]!.name)
 
 const summaryOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>(':scope > summary')!
 const status = document.getElementById('status')!

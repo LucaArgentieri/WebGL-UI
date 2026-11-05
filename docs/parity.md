@@ -25,7 +25,7 @@ Source of truth: the MDN pages of each element (attributes, DOM interface, event
 | `open` attribute / property | native; written only by `settle()` |
 | Enter / Space on `<summary>` | native click, intercepted to animate |
 | `toggle` event | native, fires when `open` changes (at the start of opening, at the end of closing) |
-| `name` (exclusive accordion) | opening one closes the others natively and instantly |
+| `name` (exclusive accordion) | opening one closes the others natively and instantly (the invariant "at most one open" always holds); the closed one collapses with a plain height animation instead of jumping. A details closed this way while it was still animating gives its animation up |
 | Find-in-page opening a closed details | native, no animation |
 | Reduced motion / no WebGL | pure native |
 

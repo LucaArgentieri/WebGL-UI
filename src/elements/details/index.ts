@@ -4,6 +4,36 @@ import { readCoverColor } from '../../core/color'
 import { dissolveEffect } from '../../effects/dissolve'
 import type { EffectDef, RendererSource } from '../../core/types'
 
+// Exclusive accordions (<details name>): the details the browser closes when another one opens collapses with a
+// plain height animation instead of jumping. Shared by every details, hence module level.
+const collapsing = new WeakMap<HTMLDetailsElement, { anim: Animation; overflow: string }>()
+
+function stopCollapse(el: HTMLDetailsElement) {
+  const c = collapsing.get(el)
+  if (!c) return
+  collapsing.delete(el)
+  c.anim.cancel()
+  el.style.overflow = c.overflow
+}
+
+function collapse(el: HTMLDetailsElement, from: number, ms: number) {
+  stopCollapse(el)
+  const to = el.offsetHeight
+  if (from - to < 1) return
+  const overflow = el.style.overflow
+  el.style.overflow = 'hidden'
+  const anim = el.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: ms, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' })
+  collapsing.set(el, { anim, overflow })
+  anim.onfinish = () => { if (collapsing.get(el)?.anim === anim) stopCollapse(el) }
+}
+
+/** The open details of the same exclusive accordion (same `name`, same tree), except `el`. */
+function openSiblings(el: HTMLDetailsElement): HTMLDetailsElement[] {
+  if (!el.name) return []
+  const root = el.getRootNode() as Document | ShadowRoot
+  return [...root.querySelectorAll<HTMLDetailsElement>('details[name]')].filter(d => d !== el && d.name === el.name && d.open)
+}
+
 export interface DetailsFxOptions {
   renderer: RendererSource
   /** Effect to use. Default: dissolve. */
@@ -96,9 +126,15 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
     if (distance < 0.001) { settle(); return }
 
     running = true
+    stopCollapse(details)
     details.setAttribute('data-animating', '')
     lockLayout()
+    // Opening a details of an exclusive accordion makes the browser close the open sibling at once:
+    // measure it first, so it can collapse smoothly instead of jumping.
+    const siblings = next && !details.open ? openSiblings(details) : []
+    const heights = siblings.map(d => d.offsetHeight)
     if (next) details.open = true // when closing it stays true until the end: the content must stay visible
+    siblings.forEach((d, i) => collapse(d, heights[i]!, duration * 0.7))
     const closed = summary!.offsetHeight + (details.offsetHeight - details.clientHeight)
 
     let completed = false
@@ -143,9 +179,18 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
     void animateTo(!target)
   }
 
-  // External changes (native toggle, find-in-page, script) while not animating.
+  // External changes (native toggle, find-in-page, script).
   function onToggle() {
-    if (!running) { target = details.open; progress = target ? 1 : 0 }
+    if (!running) { target = details.open; progress = target ? 1 : 0; return }
+    // Closed by the browser while animating (another details of the same `name` opened): give the run up,
+    // otherwise settle() would reopen it at the end and close the other one.
+    if (!details.open) {
+      trace('details closed natively while animating')
+      runId++
+      resolveRenderer(options.renderer).cancel(owner)
+      target = false
+      settle()
+    }
   }
 
   summary.addEventListener('click', onClick)
@@ -154,6 +199,7 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
   return {
     destroy() {
       if (running) { runId++; resolveRenderer(options.renderer).cancel(owner); settle() }
+      stopCollapse(details)
       summary.removeEventListener('click', onClick)
       details.removeEventListener('toggle', onToggle)
     },

@@ -41,6 +41,21 @@
     </div>
   </details>
 
+  <h2 style="font-weight:400;margin:4rem 0 1rem">Exclusive accordion</h2>
+  <p>Three details with the same <code>name</code>: opening one closes the others. The one the browser closes collapses smoothly instead of jumping.</p>
+  <details id="g1" name="faq">
+    <summary>First question</summary>
+    <div class="content"><p>Only one of these three can be open at a time; the browser enforces it.</p><p>A second paragraph, so the collapse has some height to travel.</p></div>
+  </details>
+  <details id="g2" name="faq">
+    <summary>Second question</summary>
+    <div class="content"><p>Opening this one closed the previous one at once, natively; only its height is animated.</p></div>
+  </details>
+  <details id="g3" name="faq">
+    <summary>Third question</summary>
+    <div class="content"><p>Keyboard, find-in-page and the <code>toggle</code> event behave as without the library.</p></div>
+  </details>
+
   <p class="status" id="status" role="status"></p>
 </main>
 <script type="module" src="./src/details.ts"></script>
