@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./src/style.css">
+<title>WebGL UI: swap</title>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; WebGL UI</a>
+  <h1>swap</h1>
+  <p class="lead">A region whose content is replaced, like a page of a paginated list. The ink covers the old text, your code swaps the DOM underneath, and the new text is revealed; the height follows and focus lands on the new content.</p>
+
+  <section class="swap-region" id="region" aria-live="polite" aria-label="Quotes">
+    <article>
+      <h2 class="swap-title">Page 1</h2>
+      <p>Form follows function — that has been misunderstood. Form and function should be one.</p>
+      <button type="button" class="btn" data-next>Next page</button>
+    </article>
+  </section>
+
+  <h2 style="font-weight:400;margin:4rem 0 1rem">With a view transition</h2>
+  <p>The same swap run inside <code>document.startViewTransition()</code>: the browser morphs the region's box.</p>
+  <section class="swap-region" id="region-vt" aria-live="polite" aria-label="Quotes, view transition">
+    <article>
+      <h2 class="swap-title">Page 1</h2>
+      <p>Less, but better.</p>
+      <button type="button" class="btn" data-next>Next page</button>
+    </article>
+  </section>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./src/swap.ts"></script>
+</body>
+</html>

@@ -136,3 +136,9 @@ dialog[data-animating]:not([data-fx-host]) [data-fx-panel] { filter: blur(round(
 /* progress and meter (the contract lives in src/elements/progress/progress.css) */
 .fx-bar { --fx-track: rgb(var(--ink-rgb) / 0.1); --fx-fill: var(--ink); --fx-bar-height: 0.625rem; }
 .fx-bar-thick { --fx-bar-height: 1.25rem; }
+
+/* swap regions: the background is the cover color */
+.swap-region { background: var(--paper); margin: 0 0 2rem; padding: 1.5rem 0; }
+.swap-region:focus { outline: none; }
+.swap-region:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.swap-title { font-size: 1.75rem; font-weight: 400; margin: 0 0 0.75rem; }

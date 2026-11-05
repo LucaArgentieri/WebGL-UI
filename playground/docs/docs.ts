@@ -1,5 +1,5 @@
 import {
-  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, defineGlslEffect, readCoverColor, inkImageEffect,
+  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, createSwapFx, defineGlslEffect, readCoverColor, inkImageEffect,
   inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import '../../src/elements/progress/progress.css'
@@ -32,6 +32,17 @@ document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
   const effect = effectOf(el)
   if (el.dataset.fx === 'details') createDetailsFx(el as HTMLDetailsElement, { renderer, effect })
   if (el.dataset.fx === 'popover') createPopoverFx(el, { renderer, effect })
+  if (el.dataset.fx === 'swap') {
+    const fx = createSwapFx(el, { renderer, effect })
+    const lines = ['Less, but better.', 'Typography is what language looks like.', 'The details are not the details. They make the design.', 'White space is an active element, not a passive background.']
+    let page = 1
+    el.closest('.example')?.querySelector('[data-swap-next]')?.addEventListener('click', () => {
+      const n = ++page
+      void fx.run(() => {
+        el.innerHTML = Array.from({ length: n % 2 ? 1 : 2 }, (_, i) => `<p style="margin:0 0 .5rem">Page ${n}. ${lines[(n + i) % lines.length]}</p>`).join('')
+      })
+    })
+  }
   if (el.dataset.fx === 'progress') createProgressFx(el as HTMLProgressElement, { renderer, effect })
   if (el.dataset.fx === 'image') {
     const fx = createImageFx(el as HTMLImageElement, { renderer, effect })

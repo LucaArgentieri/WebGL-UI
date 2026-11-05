@@ -107,3 +107,16 @@ Documented differences: while loading, a watched image's stage carries `[data-fx
 | Reduced motion and other preferences / no WebGL | native bar, never hidden |
 
 Documented differences: the CSS contract (`progress.css`) replaces the platform look of the bar with a flat track and fill, so that the effect's last frame and the native bar match exactly.
+
+## Content swaps (`createSwapFx`)
+
+Not an element: a helper around a DOM update you make. Its contract is about what it must not break.
+
+| Feature | Status |
+| --- | --- |
+| The DOM update | yours, applied at once under the cover; nothing cloned or faked |
+| Focus | if it was inside the region and the update removed it, it moves to the region (`tabindex="-1"`) |
+| Announcements | the author's (`aria-live` on the region, or a status message) |
+| `document.startViewTransition` | opt-in (`viewTransition: true`); the region gets a temporary `view-transition-name` |
+| A failing update | the region is uncovered and left as it was |
+| Reduced motion and other preferences / no WebGL | the update runs immediately; focus still handled |

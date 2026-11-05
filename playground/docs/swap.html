@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="./docs.css">
+<title>Swap · WebGL UI</title>
+</head>
+<body>
+<div class="docs-shell">
+<!-- docs-nav -->
+<main>
+<h1>Swap</h1>
+<p class="lead">Animated content swaps for a region: tabs, pagination, filtered lists. The ink covers the old content, your code changes the DOM underneath, the new content is revealed. The height follows, and focus lands on the new content.</p>
+
+<div class="example">
+  <span class="example-label">Live example</span>
+  <section class="swap-region" data-fx="swap" aria-live="polite" aria-label="Quotes" style="background:var(--sheet)">
+    <p style="margin:0">Page 1. Less, but better.</p>
+  </section>
+  <button type="button" class="btn" data-swap-next>Next page</button>
+</div>
+
+<h2 id="usage">Usage</h2>
+<pre><code class="language-ts">import { createRenderer, createSwapFx } from &#x27;webgl-ui&#x27;
+
+const renderer = createRenderer()
+const results = document.querySelector&lt;HTMLElement&gt;(&#x27;#results&#x27;)!
+const swap = createSwapFx(results, { renderer })
+
+async function showPage(n: number) {
+  const html = await fetchPage(n)            // anything: fetch, template, framework render
+  await swap.run(() =&gt; { results.innerHTML = html })
+}</code></pre>
+<p>The region's background is the cover color (or set <code>--fx-cover</code>). The update may be sync or async; while it runs, the region stays covered.</p>
+
+<h2 id="options">Options</h2>
+<table><thead><tr><th scope="col">Option</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>renderer</code></td><td><code>Renderer | () =&gt; Renderer</code></td><td>required</td><td>The shared renderer.</td></tr><tr><td><code>effect</code></td><td><code>EffectDef</code></td><td><code>inkEffect</code></td><td>Any cover effect.</td></tr><tr><td><code>duration</code></td><td><code>number</code></td><td><code>600</code></td><td>Reveal in ms; covering takes 60%.</td></tr><tr><td><code>viewTransition</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Run the update inside <code>document.startViewTransition()</code> where it exists: the browser morphs the region&#39;s box and cross-fades the rest of the page. Otherwise the library animates the height itself, in every engine.</td></tr></tbody></table>
+
+<h2 id="returns">Returns</h2>
+<table><thead><tr><th scope="col">Member</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>run(update)</code></td><td>Covers, runs <code>update</code>, reveals. Calls are queued; the promise resolves after the reveal.</td></tr><tr><td><code>destroy()</code></td><td>Cancels a running animation; later calls just run the update.</td></tr></tbody></table>
+
+<h2 id="behavior">Behavior and accessibility</h2>
+<ul class="plain">
+  <li>The DOM change is yours and happens at once, under the cover: nothing is cloned or faked.</li>
+  <li>If focus was inside the region and the update removed it, focus moves to the region (made focusable with <code>tabindex="-1"</code>), so the next Tab continues in the new content. View transitions do not do this by themselves.</li>
+  <li>Announcing the change is your call: <code>aria-live="polite"</code> on the region, as in the example, or a status message.</li>
+  <li>A failing update uncovers the region and leaves it as it was.</li>
+  <li>Reduced motion and the other preferences, or no WebGL2: the update runs immediately, focus is still handled.</li>
+</ul>
+<p class="status" id="docs-status" role="status"></p>
+</main>
+</div>
+<script type="module" src="./docs.ts"></script>
+</body>
+</html>
