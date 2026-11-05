@@ -17,6 +17,7 @@ export { effectsAllowed, NATIVE_PREFERENCES, MAX_DURATION } from './core/prefere
 export { DISSOLVE_FRAG, dissolveEffect } from './effects/dissolve'
 export { BACKDROP_FRAG, backdropEffect } from './effects/backdrop'
 export { WIPE_FRAG, wipeEffect } from './effects/wipe'
+export { INK_BAR_FRAG, inkBarEffect } from './effects/bar'
 export { INK_FRAG, INK_VEIL_FRAG, INK_IMAGE_FRAG, inkEffect, inkVeilEffect, inkImageEffect } from './effects/ink'
 
 export { createDetailsFx } from './elements/details'
@@ -27,3 +28,5 @@ export { createPopoverFx } from './elements/popover'
 export type { PopoverFx, PopoverFxOptions } from './elements/popover'
 export { createImageFx } from './elements/image'
 export type { ImageFx, ImageFxOptions } from './elements/image'
+export { createProgressFx } from './elements/progress'
+export type { ProgressFx, ProgressFxOptions } from './elements/progress'

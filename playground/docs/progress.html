@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="./docs.css">
+<title>Progress and meter · WebGL UI</title>
+</head>
+<body>
+<div class="docs-shell">
+<!-- docs-nav -->
+<main>
+<h1>Progress and meter</h1>
+<p class="lead">Value changes of a native <code>&lt;progress&gt;</code> or <code>&lt;meter&gt;</code> run like ink, with a wet front that dries before it stops. The value, the role and what assistive technology announces stay native.</p>
+
+<div class="example">
+  <span class="example-label">Live example</span>
+  <p style="margin:0 0 .5rem"><label for="ex-pr">Upload</label></p>
+  <div class="fx-bar"><progress id="ex-pr" data-fx="progress" max="100" value="30">30%</progress></div>
+  <div class="actions" style="margin:1rem 0 0">
+    <button type="button" class="btn primary" data-step="ex-pr" data-by="25">+ 25%</button>
+    <button type="button" class="btn" data-step="ex-pr" data-by="-25">− 25%</button>
+  </div>
+</div>
+
+<h2 id="usage">Usage</h2>
+<pre><code class="language-html">&lt;label for=&quot;upload&quot;&gt;Upload&lt;/label&gt;
+&lt;div class=&quot;fx-bar&quot;&gt;&lt;progress id=&quot;upload&quot; max=&quot;100&quot; value=&quot;0&quot;&gt;0%&lt;/progress&gt;&lt;/div&gt;</code></pre>
+<pre><code class="language-ts">import { createRenderer, createProgressFx } from &#x27;webgl-ui&#x27;
+import &#x27;webgl-ui/src/elements/progress/progress.css&#x27; // the CSS contract
+
+const renderer = createRenderer()
+const bar = document.querySelector&lt;HTMLProgressElement&gt;(&#x27;#upload&#x27;)!
+createProgressFx(bar, { renderer })
+
+bar.value = 60 // animated: the library watches value, max and min</code></pre>
+<pre><code class="language-css">.fx-bar {
+  --fx-track: rgb(0 0 0 / 0.1);  /* the stage background */
+  --fx-fill: #1b1815;            /* the fill, for the native bar and the effect */
+  --fx-bar-height: 0.625rem;
+}</code></pre>
+
+<h2 id="options">Options</h2>
+<table><thead><tr><th scope="col">Option</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>renderer</code></td><td><code>Renderer | () =&gt; Renderer</code></td><td>required</td><td>The shared renderer.</td></tr><tr><td><code>effect</code></td><td><code>EffectDef</code></td><td><code>inkBarEffect</code></td><td>A bar effect: it receives <code>uValue</code> (from, to) and <code>uRtl</code> through <code>params</code>.</td></tr><tr><td><code>duration</code></td><td><code>number</code></td><td><code>700</code></td><td>Duration of a change across the whole bar; shorter changes take less (at least 160 ms).</td></tr><tr><td><code>stage</code></td><td><code>HTMLElement</code></td><td>the parent</td><td>The box the canvas covers: <code>.fx-bar</code>.</td></tr></tbody></table>
+
+<h2 id="returns">Returns</h2>
+<table><thead><tr><th scope="col">Member</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>destroy()</code></td><td>Stops watching the element and settles a running animation.</td></tr><tr><td><code>debug()</code></td><td><code>{{ value, shown, running }}</code>, fractions of the bar.</td></tr></tbody></table>
+
+<h2 id="css">CSS contract</h2>
+<p><code>progress.css</code> styles the native bar flat with the stage&#39;s two colors, so the last frame of the effect and the native bar are the same picture (an e2e test compares them pixel by pixel). While animating, the stage has <code>[data-animating]</code> and <code>--p</code>, and the native bar is transparent; in every other case it shows.</p>
+
+<h2 id="behavior">Behavior and accessibility</h2>
+<ul class="plain">
+  <li>The new value is native at once; only the paint follows. Rapid updates chain from where the bar is drawn.</li>
+  <li>Indeterminate progress (no <code>value</code>) stays native, with the browser&#39;s own animation.</li>
+  <li>Right-to-left bars fill from the right. <code>meter</code> uses <code>min</code>, <code>max</code> and <code>value</code>; its <code>low</code> / <code>high</code> / <code>optimum</code> states keep their native meaning, but the contract paints a single fill color.</li>
+  <li>Forced colors: the system draws the bar (<code>appearance: auto</code>) and the effect stays off, like with reduced motion, more contrast, reduced transparency or no WebGL2.</li>
+</ul>
+<p class="status" id="docs-status" role="status"></p>
+</main>
+</div>
+<script type="module" src="./docs.ts"></script>
+</body>
+</html>

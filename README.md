@@ -2,7 +2,7 @@
 
 Accessible-by-default WebGL effects for native HTML elements. Functions-first, framework-agnostic.
 
-WebGL UI adds WebGL animation to native elements (`<dialog>`, `<details>`, `popover`, `<img>`, and next `<progress>`…) **without replacing them**. The native element stays the source of truth for state, events, focus and ARIA; WebGL only paints the surface. Scope and behavior follow the HTML specification as documented on MDN, and every element ships with a native-parity checklist and a stress test.
+WebGL UI adds WebGL animation to native elements (`<dialog>`, `<details>`, `popover`, `<img>`, `<progress>` and `<meter>`, and next form controls…) **without replacing them**. The native element stays the source of truth for state, events, focus and ARIA; WebGL only paints the surface. Scope and behavior follow the HTML specification as documented on MDN, and every element ships with a native-parity checklist and a stress test.
 
 > Status: v0, experimental. The goal of this first version is to find out whether the idea is sound and usable. Not published to npm yet.
 
@@ -114,5 +114,5 @@ playground/docs/ documentation site: components, effects, cookbook
 ## Roadmap
 
 - Backends: publish `webgl-ui-tsl` (today a source-only package in `packages/tsl`) and add more TSL effects.
-- Elements: `<progress>`, `<input type="checkbox">`, `<input type="range">`.
+- Elements: `<input type="checkbox">`, `<input type="range">`.
 - Package split (`core`, `element` web components, `three`) once the API settles.

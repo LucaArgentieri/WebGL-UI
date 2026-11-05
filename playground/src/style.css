@@ -6,8 +6,8 @@
   --paper: #f4efe4;
   --sheet: #fbf8f0;
   --ink: #1b1815;
-  --ink-rgb: 27, 24, 21;
-  --paper-rgb: 244, 239, 228;
+  --ink-rgb: 27 24 21; /* space-separated: used as rgb(var(--ink-rgb) / alpha) */
+  --paper-rgb: 244 239 228;
   --font: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, Georgia, serif;
   color-scheme: light;
   box-sizing: border-box;
@@ -132,3 +132,7 @@ dialog[data-animating]:not([data-fx-host]) [data-fx-panel] { filter: blur(round(
 .plate img { display: block; width: 100%; height: auto; }
 .plate-wide img { aspect-ratio: 21 / 9; object-fit: cover; }
 [data-fx-pending] img { opacity: 0; }
+
+/* progress and meter (the contract lives in src/elements/progress/progress.css) */
+.fx-bar { --fx-track: rgb(var(--ink-rgb) / 0.1); --fx-fill: var(--ink); --fx-bar-height: 0.625rem; }
+.fx-bar-thick { --fx-bar-height: 1.25rem; }

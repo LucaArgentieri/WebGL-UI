@@ -1,0 +1,44 @@
+/*
+ * CSS contract for createProgressFx. The stage wraps the native <progress> or <meter> tightly; its background is
+ * the track and its `color` the fill. The native bar is styled flat with the same two colors, so the last frame
+ * of the effect and the native bar are the same picture. While animating ([data-animating]) the native bar is
+ * transparent and the canvas paints the fill; in every other case (forced colors included) the native bar shows.
+ */
+:where(.fx-bar) { --fx-bar-height: 0.5rem; } /* a default any page rule overrides */
+
+.fx-bar {
+  position: relative;
+  display: block;
+  background: var(--fx-track, rgb(0 0 0 / 0.08));
+  color: var(--fx-fill, currentColor);
+}
+
+.fx-bar > progress,
+.fx-bar > meter {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  height: var(--fx-bar-height);
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.fx-bar > progress::-webkit-progress-bar { background: transparent; }
+.fx-bar > progress::-webkit-progress-value { background: currentColor; }
+.fx-bar > progress::-moz-progress-bar { background: currentColor; }
+.fx-bar > meter::-webkit-meter-bar { background: transparent; border: 0; border-radius: 0; height: var(--fx-bar-height); }
+.fx-bar > meter::-webkit-meter-optimum-value,
+.fx-bar > meter::-webkit-meter-suboptimum-value,
+.fx-bar > meter::-webkit-meter-even-less-good-value { background: currentColor; }
+.fx-bar > meter::-moz-meter-bar { background: currentColor; }
+
+.fx-bar[data-animating] > progress,
+.fx-bar[data-animating] > meter { opacity: 0; }
+
+/* Forced colors: the system draws the bar; the library falls back to native anyway. */
+@media (forced-colors: active) {
+  .fx-bar > progress, .fx-bar > meter { appearance: auto; }
+}

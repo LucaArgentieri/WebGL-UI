@@ -1,7 +1,8 @@
 import {
-  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, defineGlslEffect, readCoverColor, inkImageEffect,
+  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, defineGlslEffect, readCoverColor, inkImageEffect,
   inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
+import '../../src/elements/progress/progress.css'
 
 /** The custom effect of the cookbook ("Your own effect"); the page shows this exact source. */
 export const BLINDS_FRAG = `#version 300 es
@@ -31,6 +32,7 @@ document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
   const effect = effectOf(el)
   if (el.dataset.fx === 'details') createDetailsFx(el as HTMLDetailsElement, { renderer, effect })
   if (el.dataset.fx === 'popover') createPopoverFx(el, { renderer, effect })
+  if (el.dataset.fx === 'progress') createProgressFx(el as HTMLProgressElement, { renderer, effect })
   if (el.dataset.fx === 'image') {
     const fx = createImageFx(el as HTMLImageElement, { renderer, effect })
     el.closest('.example')?.querySelector('[data-replay]')?.addEventListener('click', () => { void fx.reveal() })
@@ -41,6 +43,14 @@ document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
 })
 document.querySelectorAll<HTMLButtonElement>('[data-open-dialog]').forEach(b => {
   b.addEventListener('click', () => (document.getElementById(b.dataset.openDialog!) as HTMLDialogElement).showModal())
+})
+
+document.querySelectorAll<HTMLButtonElement>('[data-step]').forEach(b => {
+  b.addEventListener('click', () => {
+    const bar = document.getElementById(b.dataset.step!) as HTMLProgressElement
+    bar.value = Math.min(bar.max, Math.max(0, bar.value + Number(b.dataset.by)))
+    bar.textContent = `${Math.round((bar.value / bar.max) * 100)}%`
+  })
 })
 
 // Effect gallery: plays an effect on a plain box, straight through the renderer.

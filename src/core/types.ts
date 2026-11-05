@@ -19,6 +19,8 @@ export interface FxFrame {
   image?: TexImageSource | null
   /** uImageScale: maps the canvas uv to the image uv around the center (object-fit). [1, 1] = fill. */
   imageScale?: Vec2
+  /** Extra uniforms by name, for element-specific inputs (e.g. uValue for progress bars). */
+  params?: Record<string, number | readonly number[]>
 }
 
 /**
@@ -65,6 +67,8 @@ export interface PlayOptions {
   /** An image effects may sample as uImage (see createImageFx). */
   image?: TexImageSource | null
   imageScale?: Vec2
+  /** Extra uniforms by name (float, vec2, vec3 or vec4), passed to the effect on every frame. */
+  params?: Record<string, number | readonly number[]>
 }
 
 export interface Renderer {

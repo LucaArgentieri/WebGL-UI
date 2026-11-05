@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./src/style.css">
+<title>WebGL UI: progress and meter</title>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; WebGL UI</a>
+  <h1>progress and meter</h1>
+  <p class="lead">Native <code>&lt;progress&gt;</code> and <code>&lt;meter&gt;</code>. When the value changes, the ink runs to it with a wet front that dries before it stops; the value, the role and what assistive technology announces stay native.</p>
+
+  <p><label for="pr">Upload</label></p>
+  <div class="fx-bar"><progress id="pr" max="100" value="20">20%</progress></div>
+  <div class="actions" style="margin-top:1rem">
+    <button type="button" class="btn primary" id="plus">+ 25%</button>
+    <button type="button" class="btn" id="minus">− 25%</button>
+    <button type="button" class="btn" id="burst">Twenty quick updates</button>
+    <button type="button" class="btn" id="indeterminate">Indeterminate</button>
+  </div>
+
+  <p><label for="mt">Disk usage</label></p>
+  <div class="fx-bar fx-bar-thick"><meter id="mt" min="0" max="1" low="0.6" high="0.85" optimum="0.2" value="0.4">40%</meter></div>
+  <div class="actions" style="margin-top:1rem">
+    <button type="button" class="btn" id="meter-up">Use more</button>
+    <button type="button" class="btn" id="meter-down">Free some</button>
+  </div>
+
+  <p dir="rtl" style="margin-top:3rem"><label for="pr-rtl">التقدم</label></p>
+  <div class="fx-bar" dir="rtl"><progress id="pr-rtl" max="100" value="30" dir="rtl">30%</progress></div>
+  <div class="actions" style="margin-top:1rem"><button type="button" class="btn" id="rtl-plus">+ 25% (RTL)</button></div>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./src/progress.ts"></script>
+</body>
+</html>

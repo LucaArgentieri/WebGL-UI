@@ -93,3 +93,17 @@ Documented differences:
 | Reduced motion and other preferences / no WebGL | native load, never hidden |
 
 Documented differences: while loading, a watched image's stage carries `[data-fx-pending]`; the recommended CSS hides the image with `opacity` only, so it stays in the accessibility tree. `object-position` other than center is not reproduced in the sampled image.
+
+## `<progress>` / `<meter>` (MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress, https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter)
+
+| Feature | Status |
+| --- | --- |
+| `value`, `max`, `min` (reflected attributes, set by markup or script) | native; changes are observed and the paint follows |
+| Role and value announced by assistive technology | native, updated at once |
+| Indeterminate progress (`value` absent) | native, browser animation |
+| `low`, `high`, `optimum` (meter) | native meaning kept; the contract paints one fill color |
+| `dir="rtl"` | fills from the right |
+| Forced colors | system bar (`appearance: auto`), effect off |
+| Reduced motion and other preferences / no WebGL | native bar, never hidden |
+
+Documented differences: the CSS contract (`progress.css`) replaces the platform look of the bar with a flat track and fill, so that the effect's last frame and the native bar match exactly.

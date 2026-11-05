@@ -28,11 +28,13 @@ function compile(gl: WebGL2RenderingContext, type: number, source: string): WebG
  * Image effects may also declare `sampler2D uImage`, `vec2 uImageScale` and `float uHasImage`: the image is
  * uploaded once per source (flipped, so its uv matches gl_FragCoord / uResolution). An image that cannot be
  * uploaded (cross-origin without CORS) leaves uHasImage at 0: the effect must still work as a plain cover.
+ * Any other uniform can be fed by name through `params` (float, vec2, vec3, vec4).
  */
 export function createGlslEffect(fragmentSource: string): Effect {
   let gl: WebGL2RenderingContext | null = null
   let program: WebGLProgram | null = null
   const loc: Partial<Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>> = {}
+  const extra = new Map<string, WebGLUniformLocation | null>() // locations of `params`, looked up once
   let texture: WebGLTexture | null = null
   let uploaded: { source: TexImageSource; key: string } | null = null
   const failed = new WeakSet<object>()
@@ -87,6 +89,7 @@ export function createGlslEffect(fragmentSource: string): Effect {
       ctx.useProgram(prog)
       gl = ctx
       program = prog
+      extra.clear()
       texture = null // a new (or restored) context: any previous texture is gone
       uploaded = null
     },
@@ -108,6 +111,17 @@ export function createGlslEffect(fragmentSource: string): Effect {
         gl.uniform1i(loc.uImage, 0)
         gl.uniform1f(loc.uHasImage ?? null, ok ? 1 : 0)
         gl.uniform2f(loc.uImageScale ?? null, f.imageScale?.[0] ?? 1, f.imageScale?.[1] ?? 1)
+      }
+      if (f.params) {
+        for (const [name, value] of Object.entries(f.params)) {
+          if (!extra.has(name)) extra.set(name, gl.getUniformLocation(program, name))
+          const l = extra.get(name)!
+          if (!l) continue
+          if (typeof value === 'number') gl.uniform1f(l, value)
+          else if (value.length === 2) gl.uniform2f(l, value[0]!, value[1]!)
+          else if (value.length === 3) gl.uniform3f(l, value[0]!, value[1]!, value[2]!)
+          else if (value.length === 4) gl.uniform4f(l, value[0]!, value[1]!, value[2]!, value[3]!)
+        }
       }
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     },
