@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<title>Spike: HTML-in-Canvas</title>
+</head>
+<body>
+<main>
+  <a class="back" href="../">&larr; WebGL UI</a>
+  <h1>Spike: HTML&#8209;in&#8209;Canvas</h1>
+  <p class="lead">The ink runs through the element's own pixels: the text itself bleeds, not a cover over it. Where the browser supports HTML-in-Canvas, the article below is moved inside a drawable canvas at runtime; elsewhere it stays plain DOM.</p>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="play">Play</button>
+  </div>
+
+  <article id="sheet" class="spike-sheet">
+    <h2>Ink through the letters</h2>
+    <p>This paragraph is real text: select it, search it, read it with a screen reader. The <a href="#sheet" id="inner-link">link</a> and the button below are focusable and clickable while they are drawn by WebGL.</p>
+    <button type="button" class="btn" id="inner-button">Clicked <span id="count">0</span> times</button>
+  </article>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./html-in-canvas.ts"></script>
+</body>
+</html>

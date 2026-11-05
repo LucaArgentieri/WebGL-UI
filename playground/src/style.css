@@ -142,3 +142,8 @@ dialog[data-animating]:not([data-fx-host]) [data-fx-panel] { filter: blur(round(
 .swap-region:focus { outline: none; }
 .swap-region:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
 .swap-title { font-size: 1.75rem; font-weight: 400; margin: 0 0 0.75rem; }
+
+/* spike: HTML-in-Canvas */
+.spike-sheet { background: var(--paper); padding: 1.5rem 0; }
+.spike-sheet h2 { font-weight: 400; font-size: 2rem; margin: 0 0 0.75rem; }
+.spike-canvas { display: block; width: 100%; }

@@ -19,6 +19,8 @@ test.describe('documentation', () => {
   test('reference pages are served from docs/*.md', async ({ page }) => {
     await page.goto('/docs/reference/parity.html')
     await expect(page.locator('h1')).toHaveText('Native parity')
+    await page.goto('/docs/reference/html-in-canvas.html')
+    await expect(page.locator('h1')).toHaveText('Spike: HTML-in-Canvas')
   })
 
   test('live examples run on one shared canvas and clean up', async ({ page }) => {

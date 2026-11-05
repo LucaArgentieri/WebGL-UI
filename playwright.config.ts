@@ -11,8 +11,9 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        // Software WebGL, so the effects also run in headless CI
-        launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }
+        // Software WebGL, so the effects also run in headless CI. CanvasDrawElement enables HTML-in-Canvas in
+        // Chromium builds before 157, for the spike of issue #8 (it only adds an API the library does not use).
+        launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-blink-features=CanvasDrawElement'] }
       }
     },
     {
