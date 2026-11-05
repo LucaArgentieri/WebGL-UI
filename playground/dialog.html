@@ -15,6 +15,7 @@
 
   <div class="actions">
     <button type="button" class="btn primary" id="openA">Open dialog</button>
+    <button type="button" class="btn" id="cmdOpen" commandfor="dlgA" command="show-modal">Open (command)</button>
     <button type="button" class="btn" id="stress">Stress test: 80 operations</button>
   </div>
   <p class="result" id="result" role="status"></p>
@@ -33,6 +34,7 @@
       <div class="row">
         <button class="btn" value="cancel">Cancel</button>
         <button class="btn" type="button" id="openB">Another dialog</button>
+        <button class="btn" type="button" id="cmdClose" commandfor="dlgA" command="close" value="via-command">Close (command)</button>
         <button class="btn primary" value="ok">Save</button>
       </div>
     </form>

@@ -3,8 +3,11 @@ import { runStress, createTrace, sleep, formatResult } from './stress'
 
 const renderer = createRenderer()
 const trace = createTrace()
-const list = [...document.querySelectorAll<HTMLElement>('[popover]')]
-const fxs = list.map(p => createPopoverFx(p, { renderer, effect: inkEffect, trace: trace.push }))
+const all = [...document.querySelectorAll<HTMLElement>('[popover]')]
+const fxAll = all.map(p => createPopoverFx(p, { renderer, effect: inkEffect, trace: trace.push }))
+// The stress test drives auto and manual popovers: opening an auto popover closes hints natively, by design.
+const list = all.filter(p => p.getAttribute('popover') !== 'hint')
+const fxs = fxAll.filter((_, i) => all[i]!.getAttribute('popover') !== 'hint')
 
 const invokerOf = (p: HTMLElement) => document.querySelector<HTMLElement>(`#t${p.id.slice(1)}`)!
 const nativeHide = HTMLElement.prototype.hidePopover

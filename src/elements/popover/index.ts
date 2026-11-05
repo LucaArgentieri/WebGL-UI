@@ -187,6 +187,15 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
     else togglePopover()
   }
 
+  /* `commandfor` buttons fire a cancelable `command` event on the popover: route it to the animated methods */
+  function onCommand(e: Event) {
+    const { command } = e as Event & { command?: string }
+    if (e.defaultPrevented || !fxAvailable()) return
+    if (command === 'show-popover') { e.preventDefault(); showPopover() }
+    else if (command === 'hide-popover') { e.preventDefault(); hidePopover() }
+    else if (command === 'toggle-popover') { e.preventDefault(); togglePopover() }
+  }
+
   /* Native closes we cannot veto: Esc, light dismiss, another auto popover opening, or our own settle() */
   function onToggle() {
     trace(`${label} toggle event open=${isOpen()} running=${running} target=${target}`)
@@ -200,6 +209,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
 
   document.addEventListener('click', onInvokerClick, true)
   popover.addEventListener('toggle', onToggle)
+  popover.addEventListener('command', onCommand)
 
   return {
     showPopover,
@@ -212,6 +222,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
       Reflect.deleteProperty(popover, 'togglePopover')
       document.removeEventListener('click', onInvokerClick, true)
       popover.removeEventListener('toggle', onToggle)
+      popover.removeEventListener('command', onCommand)
     },
     debug: () => ({ open: isOpen(), target, running, progress: +progress.toFixed(3) })
   }

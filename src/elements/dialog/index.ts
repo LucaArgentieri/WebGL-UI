@@ -197,6 +197,21 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
     close(submitter ? submitter.value : undefined)
   }
 
+  // `commandfor` buttons (command="show-modal" / "close") fire a cancelable `command` event on the dialog.
+  // "request-close" is left to the browser: it goes through `cancel`, which is already animated.
+  function onCommand(e: Event) {
+    const { command, source } = e as Event & { command?: string; source?: Element | null }
+    if (e.defaultPrevented || !fxAvailable()) return
+    if (command === 'show-modal') {
+      e.preventDefault()
+      showModal()
+    } else if (command === 'close') {
+      e.preventDefault()
+      const value = source instanceof HTMLButtonElement ? source.value : undefined
+      close(value)
+    }
+  }
+
   function onClose() {
     // Native close: ours, or a non-cancelable Esc.
     trace(`${label} close event open=${dialog.open} running=${running} target=${target}`)
@@ -213,6 +228,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   dialog.showModal = showModal
   dialog.close = close
   dialog.addEventListener('cancel', onCancel)
+  dialog.addEventListener('command', onCommand)
   dialog.addEventListener('submit', onSubmit)
   dialog.addEventListener('close', onClose)
 
@@ -226,6 +242,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
       Reflect.deleteProperty(dialog, 'showModal') // back to the prototype's native method
       Reflect.deleteProperty(dialog, 'close')
       dialog.removeEventListener('cancel', onCancel)
+      dialog.removeEventListener('command', onCommand)
       dialog.removeEventListener('submit', onSubmit)
       dialog.removeEventListener('close', onClose)
     },

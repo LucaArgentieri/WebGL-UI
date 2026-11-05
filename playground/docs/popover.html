@@ -56,7 +56,7 @@ createPopoverFx(document.querySelector&lt;HTMLElement&gt;(&#x27;#menu&#x27;)!, {
 <ul class="plain">
   <li>Esc, light dismiss and another auto popover opening close it <strong>instantly</strong>: the browser does them and they cannot be vetoed, so they are not animated.</li>
   <li><code>popovertarget</code> buttons run an internal algorithm, not the JS methods, so their click is intercepted and routed to the animated methods.</li>
-  <li><code>commandfor</code> buttons are not animated yet (<a href="https://github.com/LucaArgentieri/WebGL-UI/issues/2">#2</a>).</li>
+  <li><code>commandfor</code> buttons (<code>show-popover</code>, <code>hide-popover</code>, <code>toggle-popover</code>) are animated through their cancelable <code>command</code> event. <code>popover="hint"</code> works like the other values.</li>
 </ul>
 <p>Full table: <a href="./reference/parity.html">native parity, popover</a>.</p>
 <p class="status" id="docs-status" role="status"></p>

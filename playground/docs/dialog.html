@@ -78,7 +78,7 @@ dialog.showModal() // same signature as the native method, now animated</code></
   <li>Top layer, <code>inert</code>, focus trap and initial focus are native and start synchronously with <code>showModal()</code>.</li>
   <li>Esc, <code>closedby</code>, <code>requestClose()</code> and <code>&lt;form method="dialog"&gt;</code> are intercepted only to animate; an earlier <code>preventDefault</code> on <code>cancel</code> wins.</li>
   <li>While closing, <code>open</code> stays <code>true</code>; <code>close</code> and focus restore arrive at the end.</li>
-  <li><code>show()</code> (non-modal) is not wrapped. <code>commandfor</code> buttons work natively but are not animated yet (<a href="https://github.com/LucaArgentieri/WebGL-UI/issues/2">#2</a>).</li>
+  <li><code>commandfor</code> buttons with <code>command="show-modal"</code> or <code>"close"</code> are animated (the button's <code>value</code> becomes <code>returnValue</code>); <code>"request-close"</code> goes through <code>cancel</code>. <code>show()</code> (non-modal) is not wrapped.</li>
 </ul>
 <p>Full table: <a href="./reference/parity.html">native parity, dialog</a>.</p>
 <p class="status" id="docs-status" role="status"></p>

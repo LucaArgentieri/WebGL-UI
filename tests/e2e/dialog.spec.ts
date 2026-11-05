@@ -188,3 +188,24 @@ test.describe('dialog', () => {
     })
   }
 })
+
+test.describe('dialog: command invokers', () => {
+  test('command="show-modal" and command="close" are animated; the button value becomes returnValue', async ({ page }) => {
+    await page.goto('/dialog.html')
+    await isReady(page)
+    test.skip(!(await page.evaluate(() => 'commandForElement' in HTMLButtonElement.prototype)), 'no command invokers in this browser')
+    const dlg = page.locator('#dlgA')
+    await page.locator('#cmdOpen').click()
+    await expect(dlg).toHaveJSProperty('open', true)
+    expect(await dlg.evaluate(d => d.matches(':modal'))).toBe(true)
+    await expect(page.locator('dialog canvas')).toHaveCount(1)
+    await expect(page.locator('dialog canvas')).toHaveCount(0, { timeout: 3000 })
+
+    await page.locator('#cmdClose').click()
+    await expect(dlg).toHaveJSProperty('open', true) // still open while the closing animation runs
+    await expect(page.locator('dialog canvas')).toHaveCount(1)
+    await expect(dlg).toHaveJSProperty('open', false, { timeout: 3000 })
+    expect(await dlg.evaluate(d => (d as HTMLDialogElement).returnValue)).toBe('via-command')
+    await expect(page.locator('#cmdOpen')).toBeFocused()
+  })
+})

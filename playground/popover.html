@@ -16,6 +16,8 @@
   <div class="actions">
     <button type="button" class="btn primary" id="t1" popovertarget="p1">Auto popover</button>
     <button type="button" class="btn" id="t2" popovertarget="p2">Manual popover</button>
+    <button type="button" class="btn" id="c2" commandfor="p2" command="toggle-popover">commandfor</button>
+    <button type="button" class="btn" id="t3" popovertarget="p3">Hint popover</button>
     <button type="button" class="btn" id="stress">Stress test: 80 operations</button>
   </div>
   <p class="result" id="result" role="status"></p>
@@ -29,6 +31,11 @@
     <p><strong>popover="manual"</strong></p>
     <p>No light dismiss: only the button or a script closes it.</p>
     <button type="button" class="btn" id="close2" popovertarget="p2" popovertargetaction="hide">Close</button>
+  </div>
+
+  <div id="p3" popover="hint" class="pop">
+    <p><strong>popover="hint"</strong></p>
+    <p>A hint does not close auto popovers.</p>
   </div>
 
   <p class="status" id="status" role="status"></p>

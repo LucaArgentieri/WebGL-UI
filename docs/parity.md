@@ -39,6 +39,7 @@ The cover an effect draws on `<details>` and popovers is the surface color unles
 | `showModal()` | native call, synchronous (same errors); animation starts after |
 | `close(returnValue)` | animated; the native `close()` runs at the end |
 | `show()` (non-modal) | not wrapped |
+| `commandfor` + `command="show-modal"` / `"close"` | cancelable `command` event intercepted and animated; `close` uses the button's `value` as `returnValue`. `request-close` stays native and goes through `cancel` (animated) |
 | `requestClose()` | goes through `cancel`, covered by a test where supported |
 | `cancel` event (Esc, light dismiss) | intercepted to animate; an earlier `preventDefault` wins |
 | `close` event, `returnValue` | native; delivered at the end of the closing animation |
@@ -62,6 +63,8 @@ Documented differences:
 | `showPopover()` | native call, synchronous (same errors); animation starts after |
 | `hidePopover()` | animated; the native `hidePopover()` runs at the end |
 | `togglePopover(force)` | wrapped; returns the logical state (where it is heading) |
+| `commandfor` + `command` (`show-popover`, `hide-popover`, `toggle-popover`) | cancelable `command` event intercepted and routed to the wrapped methods; an earlier `preventDefault` wins |
+| `popover="hint"` | wrapped like the other values; opening an auto popover closes hints natively (instant) |
 | `popovertarget` / `popovertargetaction` buttons | click intercepted (the browser runs an internal algorithm, not the JS methods) and routed to the wrapped methods |
 | `popover="auto"` light dismiss, Esc | native, instant (see differences) |
 | `popover="manual"` | no light dismiss, closes only through the button or a script |
@@ -73,5 +76,4 @@ Documented differences:
 
 - Closes the browser does by itself (Esc, light dismiss, another auto popover opening) are instant: they cannot be cancelled, so they are not animated.
 - While closing through the button or a script, the popover stays open (`:popover-open`) until the animation ends.
-- `invoketarget` / `commandfor` invokers are not intercepted yet; they work natively without animation on close.
 - The canvas is inserted inside the popover during the animation.

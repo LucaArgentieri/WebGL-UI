@@ -119,3 +119,42 @@ test.describe('popover', () => {
     })
   }
 })
+
+test.describe('popover: command invokers and hint', () => {
+  test('commandfor="…" command="toggle-popover" is animated both ways', async ({ page }) => {
+    await page.goto('/popover.html')
+    await isReady(page)
+    test.skip(!(await page.evaluate(() => 'commandForElement' in HTMLButtonElement.prototype)), 'no command invokers in this browser')
+    await page.locator('#c2').click()
+    expect(await open(page, 'p2')).toBe(true)
+    await expect(page.locator('#p2 canvas')).toHaveCount(1)
+    await expect(page.locator('#p2 canvas')).toHaveCount(0, { timeout: 3000 })
+    await page.locator('#c2').click()
+    expect(await open(page, 'p2')).toBe(true) // still open while the closing animation runs
+    await expect(page.locator('#p2 canvas')).toHaveCount(1)
+    await expect.poll(() => open(page, 'p2'), { timeout: 3000 }).toBe(false)
+  })
+
+  test('popover="hint" is animated and does not close an open auto popover', async ({ page }) => {
+    await page.goto('/popover.html')
+    await isReady(page)
+    test.skip(!(await page.evaluate(() => { const d = document.createElement('div'); d.popover = 'hint' as never; return d.popover === 'hint' })), 'no popover="hint" in this browser')
+    await page.locator('#t1').click()
+    await page.waitForTimeout(800)
+    await page.evaluate(() => document.getElementById('p3')!.showPopover())
+    await expect(page.locator('#p3 canvas')).toHaveCount(1)
+    await page.waitForTimeout(800)
+    expect(await open(page, 'p3')).toBe(true)
+    expect(await open(page, 'p1')).toBe(true)
+  })
+
+  test('without WebGL2, command invokers are native', async ({ page }) => {
+    await disableWebGL2(page)
+    await page.goto('/popover.html')
+    test.skip(!(await page.evaluate(() => 'commandForElement' in HTMLButtonElement.prototype)), 'no command invokers in this browser')
+    await page.locator('#c2').click()
+    expect(await open(page, 'p2')).toBe(true)
+    await page.locator('#c2').click()
+    expect(await open(page, 'p2')).toBe(false)
+  })
+})
