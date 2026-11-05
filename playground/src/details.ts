@@ -1,4 +1,4 @@
-import { createRenderer, createDetailsFx, inkEffect } from 'webgl-ui'
+import { createRenderer, createDetailsFx, inkEffect, effectsAllowed } from 'webgl-ui'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
 const renderer = createRenderer()
@@ -46,12 +46,12 @@ stressBtn.addEventListener('click', async () => {
   stressBtn.disabled = false
 })
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const reduced = !effectsAllowed()
 renderer.prepare(inkEffect).then(ready => {
   status.textContent = !ready
     ? 'WebGL2 is not available: the details use native behavior.'
     : reduced
-      ? 'Reduced motion: the details use native behavior.'
+      ? 'Reduced motion or another accessibility preference: the details use native behavior.'
       : 'GLSL on WebGL2. Tap a title to open or close.'
 })
 

@@ -51,7 +51,7 @@ document.querySelectorAll(&#x27;details&#x27;).forEach(d =&gt; createDetailsFx(d
 <ol class="plain">
   <li><strong>Native first.</strong> Never reimplement what the browser already does: focus trap, Esc, <code>inert</code>, roles, focus restore.</li>
   <li><strong>WebGL is decoration.</strong> The canvas is <code>aria-hidden</code>, takes no focus or pointer events, holds no content, and exists only while an animation runs.</li>
-  <li><strong>Progressive enhancement.</strong> No WebGL2, <code>prefers-reduced-motion</code>, a lost context: the element behaves exactly like the native one.</li>
+  <li><strong>Progressive enhancement.</strong> No WebGL2, a lost context, or a preference for reduced motion, forced colors, more contrast or reduced transparency: the element behaves exactly like the native one.</li>
   <li><strong>Functions, not classes.</strong> Small composable functions, no global state.</li>
   <li><strong>CSS can follow.</strong> While animating, elements expose <code>[data-animating]</code> and <code>--p</code>, the same progress the shader uses.</li>
 </ol>

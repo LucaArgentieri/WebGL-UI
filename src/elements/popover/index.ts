@@ -1,4 +1,5 @@
 import { resolveRenderer } from '../../core/renderer'
+import { effectsAllowed } from '../../core/preferences'
 import { readCoverColor } from '../../core/color'
 import { dissolveEffect } from '../../effects/dissolve'
 import type { EffectDef, RendererSource } from '../../core/types'
@@ -37,7 +38,6 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
   const trace = options.trace ?? (() => {})
   const nativeShow = HTMLElement.prototype.showPopover
   const nativeHide = HTMLElement.prototype.hidePopover
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   const owner = popover
   const label = popover.id || 'popover'
   const isOpen = () => popover.matches(':popover-open')
@@ -53,7 +53,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
   const fxAvailable = () => {
     const r = resolveRenderer(options.renderer)
     if (!r.isReady(effect)) { void r.prepare(effect); return false }
-    return !reduce.matches
+    return effectsAllowed()
   }
   void resolveRenderer(options.renderer).prepare(effect)
 

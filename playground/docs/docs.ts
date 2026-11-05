@@ -1,7 +1,6 @@
 import {
   createRenderer, createDetailsFx, createDialogFx, createPopoverFx, defineGlslEffect, readCoverColor,
-  inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef
-} from 'webgl-ui'
+  inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 
 /** The custom effect of the cookbook ("Your own effect"); the page shows this exact source. */
@@ -46,7 +45,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-play]').forEach(b => {
   const stage = b.closest('.swatch')!.querySelector<HTMLElement>('.swatch-stage')!
   void renderer.prepare(effect)
   b.addEventListener('click', () => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!effectsAllowed()) return
     const veil = b.dataset.veil !== undefined
     void renderer.play(stage, {
       effect, from: 0, to: 1, duration: 1100, owner: stage, layout: 'host',
@@ -84,3 +83,6 @@ if (status) {
     status.textContent = ready ? '' : 'WebGL2 is not available here: the examples use the native behavior.'
   })
 }
+
+// Test hook (e2e pixel probes): the page's renderer and its effects.
+Object.assign(window, { __docs: { renderer, effects } })

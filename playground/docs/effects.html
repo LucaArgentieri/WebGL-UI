@@ -70,6 +70,15 @@ void main() {
 }`)</code></pre>
 <p>A dialog backdrop effect must end, at <code>uProgress = 1</code>, on a uniform <code>uColor</code> with alpha <code>uAlpha</code>: that is what CSS shows after the hand-over.</p>
 
+<h2 id="rules">Rules for effect authors</h2>
+<ul class="plain">
+  <li>Write premultiplied alpha. A cover effect is fully transparent at <code>uProgress = 1</code>; a backdrop effect ends on a uniform <code>uColor</code> × <code>uAlpha</code>.</li>
+  <li>No periodic change in luminance faster than three times per second (WCAG 2.3.1). One sweep per interaction is the model.</li>
+  <li>Durations are capped at five seconds (<code>MAX_DURATION</code>, WCAG 2.2.2).</li>
+  <li>Never carry meaning in the effect alone: the native element must say everything.</li>
+  <li>Effects step aside entirely under reduced motion, forced colors, more contrast and reduced transparency (<code>effectsAllowed()</code>); nothing to do in the shader.</li>
+</ul>
+
 <h2 id="tsl">TSL effects (three.js)</h2>
 <p>The optional package <code>packages/tsl</code> builds effects as TSL node graphs; three.js is loaded lazily and is never a core dependency. A canvas holds one kind of context, so TSL effects need a renderer of their own.</p>
 <pre><code class="language-ts">import { createRenderer, createDetailsFx } from &#x27;webgl-ui&#x27;

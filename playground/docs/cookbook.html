@@ -80,9 +80,11 @@ createDetailsFx(details, { renderer, effect: blindsEffect })</code></pre>
 <table><thead><tr><th scope="col"></th><th scope="col"><code>viewport</code> (default)</th><th scope="col"><code>host</code></th></tr></thead><tbody><tr><td>The effect paints</td><td>the backdrop, behind the panel</td><td>over the dialog box</td></tr><tr><td>The panel</td><td>fades in with <code>--p</code></td><td>appears from the effect</td></tr><tr><td>The backdrop</td><td>the shader, then CSS</td><td>CSS, fading in with <code>--p</code></td></tr><tr><td>Effects</td><td><code>inkVeilEffect</code>, <code>backdropEffect</code></td><td><code>inkEffect</code>, <code>dissolveEffect</code>, …</td></tr></tbody></table>
 
 <h2 id="fallbacks">7. Test the fallbacks</h2>
-<p>Nothing to write: without WebGL2, with reduced motion or after a lost context, elements are native. To check it with Playwright:</p>
-<pre><code class="language-ts">// reduced motion
+<p>Nothing to write: without WebGL2, after a lost context, or with reduced motion, forced colors, more contrast or reduced transparency, elements are native. To check it with Playwright:</p>
+<pre><code class="language-ts">// reduced motion, forced colors, more contrast
 await page.emulateMedia({ reducedMotion: &#x27;reduce&#x27; })
+await page.emulateMedia({ forcedColors: &#x27;active&#x27; })
+await page.emulateMedia({ contrast: &#x27;more&#x27; })
 
 // no WebGL2
 await page.addInitScript(() =&gt; {

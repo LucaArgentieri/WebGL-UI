@@ -11,7 +11,10 @@ Source of truth: the MDN pages of each element (attributes, DOM interface, event
 - Keyboard: Enter, Space, Esc, Tab, Shift+Tab, repeated keys.
 - Focus enters and returns where the native element would put it.
 - Screen readers: no content lives only in the canvas; the canvas is `aria-hidden`.
-- Find-in-page, print, forced-colors, `prefers-reduced-motion`, RTL, zoom, resize mid-animation.
+- Find-in-page, print, RTL, zoom, resize mid-animation.
+- Native fallback (no canvas, no interception) under `prefers-reduced-motion: reduce`, `forced-colors: active`, `prefers-contrast: more` and `prefers-reduced-transparency: reduce` (`effectsAllowed()`), tested with emulation.
+- Animations never last more than 5 s (`MAX_DURATION`, WCAG 2.2.2); effects must not flash more than three times per second (WCAG 2.3.1).
+- Tabbing during an animation never lands on the canvas.
 - Every unavoidable difference is documented below.
 - The stress test passes.
 

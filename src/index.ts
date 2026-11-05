@@ -12,6 +12,7 @@ export type {
 export { createRenderer, resolveRenderer } from './core/renderer'
 export { createGlslEffect, defineGlslEffect, FULLSCREEN_VERT } from './core/glsl'
 export { readSurfaceColor, readCoverColor } from './core/color'
+export { effectsAllowed, NATIVE_PREFERENCES, MAX_DURATION } from './core/preferences'
 
 export { DISSOLVE_FRAG, dissolveEffect } from './effects/dissolve'
 export { BACKDROP_FRAG, backdropEffect } from './effects/backdrop'

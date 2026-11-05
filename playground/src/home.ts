@@ -1,4 +1,4 @@
-import { createRenderer, createDetailsFx, createDialogFx, createPopoverFx, inkEffect } from 'webgl-ui'
+import { createRenderer, createDetailsFx, createDialogFx, createPopoverFx, inkEffect, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 
 // One renderer for the whole page: one canvas, one WebGL context, two effects.
@@ -13,11 +13,11 @@ document.getElementById('open-dialog')!.addEventListener('click', () => dialog.s
 
 createPopoverFx(document.getElementById('home-pop')!, { renderer, effect: inkEffect, duration: 600 })
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const reduced = !effectsAllowed()
 renderer.prepare(inkEffect).then(ready => {
   document.getElementById('status')!.textContent = !ready
     ? 'WebGL2 is not available: every element uses its native behavior.'
     : reduced
-      ? 'Reduced motion: every element uses its native behavior.'
+      ? 'Reduced motion or another accessibility preference: every element uses its native behavior.'
       : 'One renderer, one effect. Open a row, the dialog or the popover.'
 })

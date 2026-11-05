@@ -84,7 +84,7 @@ const tslRenderer = createRenderer() // separate from the GLSL one
 createDetailsFx(details, { renderer: tslRenderer, effect: fade })
 ```
 
-Without WebGL2, with `prefers-reduced-motion: reduce`, or after a lost context, the elements behave exactly like the native ones. Until an effect has finished initializing (it starts at creation and is instant for GLSL) the element is native too.
+Without WebGL2, after a lost context, or when the user prefers reduced motion, forced colors, more contrast or reduced transparency, the elements behave exactly like the native ones. Until an effect has finished initializing (it starts at creation and is instant for GLSL) the element is native too.
 
 ## Principles
 

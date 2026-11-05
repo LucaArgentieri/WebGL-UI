@@ -1,4 +1,5 @@
 import { resolveRenderer } from '../../core/renderer'
+import { effectsAllowed } from '../../core/preferences'
 import { backdropEffect } from '../../effects/backdrop'
 import { readCoverColor } from '../../core/color'
 import type { EffectDef, FxLayout, RendererSource, Vec3 } from '../../core/types'
@@ -53,7 +54,6 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   const proto = HTMLDialogElement.prototype
   const nativeShowModal = proto.showModal
   const nativeClose = proto.close
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   const owner = dialog
   const label = dialog.id || 'dialog'
 
@@ -69,7 +69,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   const fxAvailable = () => {
     const r = resolveRenderer(options.renderer)
     if (!r.isReady(effect)) { void r.prepare(effect); return false }
-    return !reduce.matches
+    return effectsAllowed()
   }
   void resolveRenderer(options.renderer).prepare(effect)
 

@@ -1,7 +1,6 @@
 import {
   createRenderer, createDetailsFx, createDialogFx,
-  dissolveEffect, wipeEffect, backdropEffect
-} from 'webgl-ui'
+  dissolveEffect, wipeEffect, backdropEffect, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
@@ -99,12 +98,12 @@ stressBtn.addEventListener('click', async () => {
   stressBtn.disabled = false
 })
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const reduced = !effectsAllowed()
 prepareAll().then(ready => {
   status.textContent = !ready.every(Boolean)
     ? 'WebGL2 is not available: the elements use native behavior.'
     : reduced
-      ? 'Reduced motion: the elements use native behavior.'
+      ? 'Reduced motion or another accessibility preference: the elements use native behavior.'
       : 'One renderer, three effects (dissolve, wipe, backdrop). Tap an element.'
 })
 

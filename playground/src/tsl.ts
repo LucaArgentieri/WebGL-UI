@@ -1,4 +1,4 @@
-import { createRenderer, createDetailsFx } from 'webgl-ui'
+import { createRenderer, createDetailsFx, effectsAllowed } from 'webgl-ui'
 import { radialEffect, uvProbeEffect, halfRedEffect } from './tslEffects'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
@@ -47,12 +47,12 @@ stressBtn.addEventListener('click', async () => {
   stressBtn.disabled = false
 })
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const reduced = !effectsAllowed()
 renderer.prepare(radialEffect).then(ready => {
   status.textContent = !ready
     ? 'Neither WebGPU nor WebGL2 is available: the details use native behavior.'
     : reduced
-      ? 'Reduced motion: the details use native behavior.'
+      ? 'Reduced motion or another accessibility preference: the details use native behavior.'
       : 'TSL on three.js. Tap a title to open or close.'
 })
 

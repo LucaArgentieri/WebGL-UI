@@ -1,4 +1,4 @@
-import { createRenderer, createPopoverFx, inkEffect } from 'webgl-ui'
+import { createRenderer, createPopoverFx, inkEffect, effectsAllowed } from 'webgl-ui'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
 const renderer = createRenderer()
@@ -55,12 +55,12 @@ stressBtn.addEventListener('click', async () => {
   stressBtn.disabled = false
 })
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const reduced = !effectsAllowed()
 renderer.prepare(inkEffect).then(ready => {
   status.textContent = !ready
     ? 'WebGL2 is not available: the popovers use native behavior.'
     : reduced
-      ? 'Reduced motion: the popovers use native behavior.'
+      ? 'Reduced motion or another accessibility preference: the popovers use native behavior.'
       : 'GLSL on WebGL2. Tap a button to open or close.'
 })
 

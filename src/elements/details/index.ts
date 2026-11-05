@@ -1,4 +1,5 @@
 import { resolveRenderer } from '../../core/renderer'
+import { effectsAllowed } from '../../core/preferences'
 import { readCoverColor } from '../../core/color'
 import { dissolveEffect } from '../../effects/dissolve'
 import type { EffectDef, RendererSource } from '../../core/types'
@@ -34,14 +35,13 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
   if (!summary || !content) {
     throw new Error('[webgl-ui] createDetailsFx needs a <summary> and a content element')
   }
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   const owner = details
 
   // Starts initializing the effect on the renderer (idempotent); until it is ready the details is native.
   const fxAvailable = () => {
     const r = resolveRenderer(options.renderer)
     if (!r.isReady(effect)) { void r.prepare(effect); return false }
-    return !reduce.matches
+    return effectsAllowed()
   }
   void resolveRenderer(options.renderer).prepare(effect)
 

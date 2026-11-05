@@ -1,4 +1,5 @@
 import type { Effect, EffectDef, PlayOptions, Renderer, RendererSource } from './types'
+import { MAX_DURATION } from './preferences'
 
 const easeInOut = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
 
@@ -116,7 +117,7 @@ export function createRenderer(): Renderer {
         if (!inst.ready) return finish(false)
         fit()
         const elapsed = Math.max(now - t0, 0)
-        const k = Math.min(elapsed / o.duration, 1)
+        const k = Math.min(elapsed / Math.min(o.duration, MAX_DURATION), 1)
         const progress = o.from + (o.to - o.from) * easeInOut(k)
         const time = time0 + elapsed / 1000
         o.onFrame?.(progress, time)

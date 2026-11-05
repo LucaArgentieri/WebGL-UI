@@ -1,4 +1,4 @@
-import { createRenderer, createDialogFx, inkVeilEffect } from 'webgl-ui'
+import { createRenderer, createDialogFx, inkVeilEffect, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
@@ -97,12 +97,12 @@ stressBtn.addEventListener('click', async () => {
   stressBtn.disabled = false
 })
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const reduced = !effectsAllowed()
 renderer.prepare(inkVeilEffect).then(ready => {
   status.textContent = !ready
     ? 'WebGL2 is not available: the dialogs use native behavior.'
     : reduced
-      ? 'Reduced motion: the dialogs use native behavior.'
+      ? 'Reduced motion or another accessibility preference: the dialogs use native behavior.'
       : 'GLSL on WebGL2. Open the dialog to see the backdrop.'
 })
 
