@@ -37,6 +37,9 @@ void main() {
   float t = mix(-0.12, 1.12, uProgress);
   float cover = smoothstep(t - 0.035, t + 0.035, v);
   float soak = (1.0 - smoothstep(0.0, 0.09, abs(v - t))) * smoothstep(0.0, 0.15, uProgress) * (1.0 - smoothstep(0.85, 1.0, uProgress));
+  // The darkened edge fades out near the canvas borders: the canvas is a rectangle, the ink must not look cut by it.
+  vec2 border = min(gl_FragCoord.xy, uResolution - gl_FragCoord.xy);
+  soak *= smoothstep(0.0, 28.0, min(border.x, border.y));
 
   vec3 ink = vec3(0.10, 0.09, 0.08);
   vec3 col = mix(uColor, ink, soak * 0.45);
@@ -68,6 +71,8 @@ void main() {
   float t = mix(-0.12, 1.12, uProgress);
   float cover = 1.0 - smoothstep(t - 0.05, t + 0.05, v);
   float soak = (1.0 - smoothstep(0.0, 0.09, abs(v - t))) * smoothstep(0.0, 0.15, uProgress) * (1.0 - smoothstep(0.85, 1.0, uProgress));
+  vec2 border = min(gl_FragCoord.xy, uResolution - gl_FragCoord.xy);
+  soak *= smoothstep(0.0, 28.0, min(border.x, border.y));
 
   vec3 ink = vec3(0.10, 0.09, 0.08);
   vec3 col = mix(uColor, ink, soak * 0.35);

@@ -81,6 +81,15 @@ summary:hover { font-style: italic; }
 .content p:last-child { margin-bottom: 0; }
 @media (max-width: 36rem) { .content { padding-left: 0; } }
 
+/* While a details opens or closes it clips its content at a height that grows with --p: the visible part of the
+   content is exactly its top --p fraction. A mask fades that clip edge, so neither the text nor the ink is cut by
+   a hard horizontal line. The fade band shrinks to nothing at the end, so removing the mask changes no pixel. */
+details[data-animating] .content {
+  --band: min(3.5rem, calc((1 - var(--p, 1)) * 14rem));
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(var(--p, 1) * 100% - var(--band)), transparent calc(var(--p, 1) * 100%));
+  mask-image: linear-gradient(to bottom, #000 calc(var(--p, 1) * 100% - var(--band)), transparent calc(var(--p, 1) * 100%));
+}
+
 /* The progress the shader uses is exposed as --p: opacity and blur follow it. The blur radius changes in whole
    pixels (round()): a new radius means a new raster of the text, so a handful of steps cost far fewer frames
    than a different radius on every one. */
