@@ -83,7 +83,9 @@ export function createRenderer(): Renderer {
     return new Promise<boolean>(resolve => {
       applyLayout(o.layout ?? 'host')
       host.append(canvas)
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      // A viewport-sized effect (a dialog backdrop) is soft by nature and covers the most pixels: it is drawn at half
+      // resolution and scaled up by the compositor, a quarter of the fragment work for no visible difference.
+      const dpr = Math.min(window.devicePixelRatio || 1, 2) * (o.layout === 'viewport' ? 0.5 : 1)
       const fit = () => {
         // Assigning width/height clears the canvas: only when the size actually changes.
         const w = Math.max(1, Math.round(canvas.clientWidth * dpr))
@@ -94,6 +96,7 @@ export function createRenderer(): Renderer {
       const t0 = performance.now()
       const time0 = o.time0 ?? 0
       let raf = 0
+      let deadline: ReturnType<typeof setTimeout> | undefined
       let done = false
 
       const myStop = () => finish(false)
@@ -101,6 +104,7 @@ export function createRenderer(): Renderer {
         if (done) return
         done = true
         cancelAnimationFrame(raf)
+        clearTimeout(deadline)
         // Only if this is still the active animation: an old one must not remove the canvas from a newer one.
         if (stop === myStop) {
           canvas.remove()
@@ -115,6 +119,15 @@ export function createRenderer(): Renderer {
       const frame = (now: number) => {
         if (done) return // a queued frame after the end or a cancel must write nothing
         if (!inst.ready) return finish(false)
+        try {
+          draw(now)
+        } catch (err) {
+          // An effect (or an onFrame hook) that throws must not leave the canvas on the page.
+          console.warn('[webgl-ui] animation frame failed', err)
+          finish(false)
+        }
+      }
+      const draw = (now: number) => {
         fit()
         const elapsed = Math.max(now - t0, 0)
         const k = Math.min(elapsed / Math.min(o.duration, MAX_DURATION), 1)
@@ -135,6 +148,9 @@ export function createRenderer(): Renderer {
         if (k < 1) raf = requestAnimationFrame(frame)
         else finish(true)
       }
+      // The end of an animation is when native work happens (a dialog's close event, focus restore): it must not
+      // depend on the frame cadence. If frames stall (a busy or throttled page), this deadline draws the last one.
+      deadline = setTimeout(() => frame(performance.now()), Math.min(o.duration, MAX_DURATION) + 250)
       frame(performance.now()) // first frame right away: no flash of the underlying content
     })
   }

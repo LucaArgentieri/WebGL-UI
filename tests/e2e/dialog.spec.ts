@@ -19,7 +19,9 @@ test.describe('dialog', () => {
     await expect(page.locator('#a-name')).toBeFocused()
     await expect(page.locator('dialog canvas')).toHaveCount(1)
     await expect(dlg).toHaveAttribute('data-animating', '')
-    await expect(page.locator('dialog canvas')).toHaveCount(0, { timeout: 3000 })
+    // This checks the clean-up, not the speed: software-rendered WebKit on a busy CI runner can take seconds
+    // per frame for a viewport-sized effect, so the budget is generous.
+    await expect(page.locator('dialog canvas')).toHaveCount(0, { timeout: 8000 })
     await expect(dlg).not.toHaveAttribute('data-animating', '')
     expect(await dlg.evaluate(d => (d as HTMLElement).style.getPropertyValue('--p'))).toBe('')
   })

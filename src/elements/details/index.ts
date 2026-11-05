@@ -163,6 +163,9 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
     }
 
     if (id !== runId) { trace(`details run#${id} superseded`); return }
+    // Closed by the browser during an opening run (another details of the same `name` opened): stay closed.
+    // The `toggle` event saying so may still be queued, so check the element itself before settle() writes `open`.
+    if (target && !details.open) { trace('details closed natively during the run'); target = false }
     settle() // finished, or interrupted from outside (another element, lost context)
   }
 
