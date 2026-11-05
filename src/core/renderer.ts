@@ -127,7 +127,9 @@ export function createRenderer(): Renderer {
           size: [canvas.width, canvas.height],
           pointer: [0.5, 0.5],
           color: o.color,
-          alpha: o.alpha ?? 1
+          alpha: o.alpha ?? 1,
+          image: o.image ?? null,
+          imageScale: o.imageScale ?? [1, 1]
         })
         if (k < 1) raf = requestAnimationFrame(frame)
         else finish(true)

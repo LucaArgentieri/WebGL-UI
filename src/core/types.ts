@@ -15,6 +15,10 @@ export interface FxFrame {
   color: Vec3
   /** uAlpha */
   alpha: number
+  /** uImage: an image the effect may sample (same-origin or CORS-clean), or null. */
+  image?: TexImageSource | null
+  /** uImageScale: maps the canvas uv to the image uv around the center (object-fit). [1, 1] = fill. */
+  imageScale?: Vec2
 }
 
 /**
@@ -58,6 +62,9 @@ export interface PlayOptions {
   layout?: FxLayout
   /** Called synchronously on every frame, before rendering, with the same progress the shader gets. */
   onFrame?: (progress: number, time: number) => void
+  /** An image effects may sample as uImage (see createImageFx). */
+  image?: TexImageSource | null
+  imageScale?: Vec2
 }
 
 export interface Renderer {

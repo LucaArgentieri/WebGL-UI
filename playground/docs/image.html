@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="./docs.css">
+<title>Image · WebGL UI</title>
+</head>
+<body>
+<div class="docs-shell">
+<!-- docs-nav -->
+<main>
+<h1>Image</h1>
+<p class="lead">A reveal for <code>&lt;img&gt;</code>, also inside <code>&lt;picture&gt;</code>. Along the receding ink the picture itself bleeds through: the effect samples the image as a texture. The image is never altered.</p>
+
+<div class="example">
+  <span class="example-label">Live example: press Replay</span>
+  <figure class="plate" style="margin:0 0 1rem">
+    <img data-fx="image" src="../plate.svg" alt="Plate No. 1: a black disc with a red center, and an ink stroke" width="1200" height="800">
+  </figure>
+  <button type="button" class="btn" data-replay>Replay</button>
+</div>
+
+<h2 id="usage">Usage</h2>
+<pre><code class="language-html">&lt;figure class=&quot;stage&quot;&gt;
+  &lt;img src=&quot;photo.jpg&quot; alt=&quot;…&quot; loading=&quot;lazy&quot; width=&quot;1200&quot; height=&quot;800&quot;&gt;
+&lt;/figure&gt;</code></pre>
+<pre><code class="language-css">.stage img { display: block; width: 100%; height: auto; }
+/* While the image loads, keep it invisible (opacity: it stays in the accessibility tree). */
+[data-fx-pending] img { opacity: 0; }</code></pre>
+<pre><code class="language-ts">import { createRenderer, createImageFx } from &#x27;webgl-ui&#x27;
+
+const renderer = createRenderer()
+document.querySelectorAll(&#x27;.stage img&#x27;).forEach(img =&gt; createImageFx(img, { renderer }))</code></pre>
+<p>The image's parent is the stage the canvas covers: it should wrap the image tightly. The reveal plays when the image loads (lazy loading included); an image that is already loaded is left alone unless you call <code>reveal()</code>.</p>
+
+<h2 id="options">Options</h2>
+<table><thead><tr><th scope="col">Option</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>renderer</code></td><td><code>Renderer | () =&gt; Renderer</code></td><td>required</td><td>The shared renderer.</td></tr><tr><td><code>effect</code></td><td><code>EffectDef</code></td><td><code>inkImageEffect</code></td><td>An image effect (samples <code>uImage</code>) or any cover effect.</td></tr><tr><td><code>duration</code></td><td><code>number</code></td><td><code>1100</code></td><td>Reveal duration in ms.</td></tr><tr><td><code>stage</code></td><td><code>HTMLElement</code></td><td>the image&#39;s parent</td><td>The box the canvas covers.</td></tr><tr><td><code>revealOnLoad</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Reveal when the image finishes loading.</td></tr></tbody></table>
+
+<h2 id="returns">Returns</h2>
+<table><thead><tr><th scope="col">Member</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>reveal()</code></td><td>Plays the reveal; resolves <code>true</code> when it finished.</td></tr><tr><td><code>destroy()</code></td><td>Stops watching the image and cancels its animation.</td></tr></tbody></table>
+
+<h2 id="css">CSS hooks</h2>
+<table><thead><tr><th scope="col">Hook</th><th scope="col">Where</th><th scope="col">Meaning</th></tr></thead><tbody><tr><td><code>[data-fx-pending]</code></td><td>stage</td><td>The image is loading and will be revealed: hide it with <code>opacity</code> only.</td></tr><tr><td><code>[data-animating]</code>, <code>--p</code></td><td>stage</td><td>While the reveal runs.</td></tr><tr><td><code>--fx-cover</code></td><td>stage</td><td>Cover color. Default: the stage background.</td></tr></tbody></table>
+
+<h2 id="sampling">Sampling the image</h2>
+<p>Effects may declare <code>uniform sampler2D uImage</code>, <code>vec2 uImageScale</code> and <code>float uHasImage</code>. The image is uploaded once per source, flipped so its uv matches <code>gl_FragCoord / uResolution</code>; <code>uImageScale</code> accounts for <code>object-fit: cover</code> and <code>contain</code> (centered).</p>
+<p>A cross-origin image without CORS cannot be read by WebGL. The library catches it and sets <code>uHasImage</code> to 0: the effect must then still work as a plain cover (the built-in one does). Add <code>crossorigin="anonymous"</code> on images served with CORS headers.</p>
+
+<h2 id="behavior">Behavior and accessibility</h2>
+<ul class="plain">
+  <li><code>alt</code>, <code>srcset</code>, <code>sizes</code>, lazy loading, decoding and layout are native and untouched.</li>
+  <li>The canvas is <code>aria-hidden</code> and exists only during the reveal; at the end it is transparent, so the real image takes over without a visible change.</li>
+  <li>Reduced motion, forced colors, more contrast, reduced transparency or no WebGL2: the image is never hidden, it loads natively.</li>
+</ul>
+<p class="status" id="docs-status" role="status"></p>
+</main>
+</div>
+<script type="module" src="./docs.ts"></script>
+</body>
+</html>

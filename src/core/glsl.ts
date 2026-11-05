@@ -7,7 +7,7 @@ void main() {
   gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
 }`
 
-const UNIFORMS = ['uTime', 'uProgress', 'uResolution', 'uPointer', 'uColor', 'uAlpha'] as const
+const UNIFORMS = ['uTime', 'uProgress', 'uResolution', 'uPointer', 'uColor', 'uAlpha', 'uImage', 'uImageScale', 'uHasImage'] as const
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
@@ -25,11 +25,45 @@ function compile(gl: WebGL2RenderingContext, type: number, source: string): WebG
 /**
  * Raw GLSL ES 3.00 backend. The fragment shader may declare any of the standard uniforms:
  * uTime, uProgress, uResolution, uPointer, uColor, uAlpha. It must write premultiplied alpha.
+ * Image effects may also declare `sampler2D uImage`, `vec2 uImageScale` and `float uHasImage`: the image is
+ * uploaded once per source (flipped, so its uv matches gl_FragCoord / uResolution). An image that cannot be
+ * uploaded (cross-origin without CORS) leaves uHasImage at 0: the effect must still work as a plain cover.
  */
 export function createGlslEffect(fragmentSource: string): Effect {
   let gl: WebGL2RenderingContext | null = null
   let program: WebGLProgram | null = null
   const loc: Partial<Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>> = {}
+  let texture: WebGLTexture | null = null
+  let uploaded: { source: TexImageSource; key: string } | null = null
+  const failed = new WeakSet<object>()
+
+  // Uploads the image once per source; false when it cannot be used (tainted, not decoded, lost context).
+  function bindImage(ctx: WebGL2RenderingContext, image: TexImageSource): boolean {
+    if (failed.has(image)) return false
+    const key = image instanceof HTMLImageElement ? image.currentSrc : ''
+    if (!texture) texture = ctx.createTexture()
+    ctx.activeTexture(ctx.TEXTURE0)
+    ctx.bindTexture(ctx.TEXTURE_2D, texture)
+    if (uploaded?.source !== image || uploaded.key !== key) {
+      try {
+        ctx.pixelStorei(ctx.UNPACK_FLIP_Y_WEBGL, true)
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.LINEAR)
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.LINEAR)
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_S, ctx.CLAMP_TO_EDGE)
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, ctx.CLAMP_TO_EDGE)
+        ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, image)
+        uploaded = { source: image, key }
+      } catch (err) {
+        console.warn('[webgl-ui] image cannot be used as a texture (cross-origin without CORS?): plain cover', err)
+        failed.add(image)
+        uploaded = null
+        return false
+      } finally {
+        ctx.pixelStorei(ctx.UNPACK_FLIP_Y_WEBGL, false)
+      }
+    }
+    return true
+  }
 
   return {
     init(canvas) {
@@ -53,6 +87,8 @@ export function createGlslEffect(fragmentSource: string): Effect {
       ctx.useProgram(prog)
       gl = ctx
       program = prog
+      texture = null // a new (or restored) context: any previous texture is gone
+      uploaded = null
     },
     render(f: FxFrame) {
       if (!gl || !program) return
@@ -67,11 +103,20 @@ export function createGlslEffect(fragmentSource: string): Effect {
       gl.uniform2f(loc.uPointer ?? null, f.pointer[0], f.pointer[1])
       gl.uniform3f(loc.uColor ?? null, f.color[0], f.color[1], f.color[2])
       gl.uniform1f(loc.uAlpha ?? null, f.alpha)
+      if (loc.uImage) {
+        const ok = !!f.image && bindImage(gl, f.image)
+        gl.uniform1i(loc.uImage, 0)
+        gl.uniform1f(loc.uHasImage ?? null, ok ? 1 : 0)
+        gl.uniform2f(loc.uImageScale ?? null, f.imageScale?.[0] ?? 1, f.imageScale?.[1] ?? 1)
+      }
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     },
     dispose() {
       if (gl && program) gl.deleteProgram(program)
+      if (gl && texture) gl.deleteTexture(texture)
       program = null
+      texture = null
+      uploaded = null
     }
   }
 }

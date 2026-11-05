@@ -31,7 +31,7 @@ function docsNav(): Plugin {
   }
 }
 
-const docs = ['index', 'details', 'dialog', 'popover', 'effects', 'cookbook']
+const docs = ['index', 'details', 'dialog', 'popover', 'image', 'effects', 'cookbook']
 
 // The playground is a plain multi-page Vite app that imports the library from source.
 export default defineConfig({
@@ -52,6 +52,7 @@ export default defineConfig({
         mixed: r('./playground/mixed.html'),
         popover: r('./playground/popover.html'),
         tsl: r('./playground/tsl.html'),
+        image: r('./playground/image.html'),
         ...Object.fromEntries(docs.map(d => [`docs-${d}`, r(`./playground/docs/${d}.html`)]))
       }
     }

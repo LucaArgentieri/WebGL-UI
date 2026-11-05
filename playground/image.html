@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./src/style.css">
+<title>WebGL UI: image</title>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; WebGL UI</a>
+  <h1>image</h1>
+  <p class="lead">A native <code>&lt;img&gt;</code> revealed when it loads. Along the receding ink the picture itself bleeds through, sampled as a texture; <code>alt</code>, <code>srcset</code>, lazy loading and layout are untouched.</p>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="load">Load the plate</button>
+    <button type="button" class="btn" id="replay">Replay</button>
+  </div>
+
+  <figure class="plate" id="stage1">
+    <img id="img1" alt="Plate No. 1: a black disc with a red center, and an ink stroke" width="1200" height="800">
+  </figure>
+
+  <figure class="plate plate-wide" id="stage2">
+    <img id="img2" src="./plate.svg" alt="The same plate, cropped with object-fit: cover" width="1200" height="800">
+  </figure>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./src/image.ts"></script>
+</body>
+</html>

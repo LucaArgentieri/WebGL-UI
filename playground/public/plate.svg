@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#ebe3d3"/>
+  <circle cx="790" cy="400" r="290" fill="#1b1815"/>
+  <circle cx="790" cy="400" r="190" fill="none" stroke="#ebe3d3" stroke-width="10"/>
+  <circle cx="790" cy="400" r="95" fill="#b5462f"/>
+  <path d="M90 640 C 260 520, 380 700, 560 590" fill="none" stroke="#1b1815" stroke-width="14" stroke-linecap="round"/>
+  <g font-family="Georgia, serif" fill="#1b1815">
+    <text x="90" y="200" font-size="120" font-style="italic">Plate</text>
+    <text x="90" y="300" font-size="120">No. 1</text>
+    <text x="92" y="380" font-size="30" font-style="italic">ink on paper, for WebGL UI</text>
+  </g>
+</svg>

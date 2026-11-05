@@ -126,3 +126,9 @@ dialog[data-animating]:not([data-fx-host]) [data-fx-panel] { filter: blur(round(
 
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+/* images: the stage wraps the image tightly; while it loads, keep it invisible (still in the a11y tree) */
+.plate { margin: 0 0 2rem; background: var(--paper); }
+.plate img { display: block; width: 100%; height: auto; }
+.plate-wide img { aspect-ratio: 21 / 9; object-fit: cover; }
+[data-fx-pending] img { opacity: 0; }

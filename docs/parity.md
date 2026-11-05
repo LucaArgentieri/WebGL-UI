@@ -80,3 +80,16 @@ Documented differences:
 - Closes the browser does by itself (Esc, light dismiss, another auto popover opening) are instant: they cannot be cancelled, so they are not animated.
 - While closing through the button or a script, the popover stays open (`:popover-open`) until the animation ends.
 - The canvas is inserted inside the popover during the animation.
+
+## `<img>` / `<picture>` (MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img)
+
+| Feature | Status |
+| --- | --- |
+| `alt`, `srcset`, `sizes`, `loading`, `decoding` | native, untouched |
+| `load` / `decode()` | the reveal starts after `decode()` resolves; the first frame (full cover) is drawn before the image is shown |
+| Layout, intrinsic size, `object-fit` | native; the effect samples the image with the same `cover` / `contain` fit (centered) |
+| Cross-origin without CORS | cannot be sampled: plain cover effect (`uHasImage = 0`), never an error |
+| `error` | the image is shown natively (no pending state left) |
+| Reduced motion and other preferences / no WebGL | native load, never hidden |
+
+Documented differences: while loading, a watched image's stage carries `[data-fx-pending]`; the recommended CSS hides the image with `opacity` only, so it stays in the accessibility tree. `object-position` other than center is not reproduced in the sampled image.

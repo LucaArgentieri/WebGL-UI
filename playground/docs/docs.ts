@@ -1,5 +1,5 @@
 import {
-  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, defineGlslEffect, readCoverColor,
+  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, defineGlslEffect, readCoverColor, inkImageEffect,
   inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 
@@ -20,7 +20,7 @@ void main() {
 const blindsEffect = defineGlslEffect('blinds', BLINDS_FRAG)
 
 const effects: Record<string, EffectDef> = {
-  ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
+  'ink-image': inkImageEffect, ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
 }
 
 // One renderer for the whole page: every example shares one canvas and one WebGL context.
@@ -31,6 +31,10 @@ document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
   const effect = effectOf(el)
   if (el.dataset.fx === 'details') createDetailsFx(el as HTMLDetailsElement, { renderer, effect })
   if (el.dataset.fx === 'popover') createPopoverFx(el, { renderer, effect })
+  if (el.dataset.fx === 'image') {
+    const fx = createImageFx(el as HTMLImageElement, { renderer, effect })
+    el.closest('.example')?.querySelector('[data-replay]')?.addEventListener('click', () => { void fx.reveal() })
+  }
   if (el.dataset.fx === 'dialog') {
     createDialogFx(el as HTMLDialogElement, { renderer, effect, layout: el.dataset.layout === 'host' ? 'host' : 'viewport' })
   }

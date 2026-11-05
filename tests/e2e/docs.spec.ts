@@ -1,6 +1,6 @@
 import { test, expect } from './fixtures'
 
-const pages = ['index', 'details', 'dialog', 'popover', 'effects', 'cookbook']
+const pages = ['index', 'details', 'dialog', 'popover', 'image', 'effects', 'cookbook']
 
 test.describe('documentation', () => {
   for (const name of pages) {
