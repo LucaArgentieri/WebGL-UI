@@ -88,6 +88,10 @@ createDetailsFx(details, { renderer: tslRenderer, effect: fade })
 
 Without WebGL2, after a lost context, or when the user prefers reduced motion, forced colors, more contrast or reduced transparency, the elements behave exactly like the native ones. Until an effect has finished initializing (it starts at creation and is instant for GLSL) the element is native too.
 
+## For contributors and coding agents
+
+[AGENTS.md](AGENTS.md) explains the philosophy, the mental model, how to add an element or an effect, the pitfalls already met and how to test. Read it before changing the library.
+
 ## Principles
 
 1. **Native first.** Never reimplement what the browser already does (focus trap, Esc, `inert`, ARIA role, focus restore).
