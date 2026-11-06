@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures'
+import { test, expect, sawCanvas } from './fixtures'
 import { disableWebGL2, isReady, runStress } from './helpers'
 
 test.describe('details', () => {
@@ -11,9 +11,8 @@ test.describe('details', () => {
     await page.goto('/details.html')
     await isReady(page)
     const d = page.locator('#d1')
-    await d.locator('summary').click()
+    await sawCanvas(page, '#d1', () => d.locator('summary').click()) // the effect ran
     await expect(d).toHaveJSProperty('open', true)
-    await expect(page.locator('details canvas')).toHaveCount(1) // the effect is running
     await expect(page.locator('details canvas')).toHaveCount(0, { timeout: 3000 })
     await expect(d).toHaveAttribute('open', '')
     await expect(d).not.toHaveAttribute('style', /height/)

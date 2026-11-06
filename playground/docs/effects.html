@@ -13,7 +13,7 @@
 <!-- docs-nav -->
 <main>
 <h1>Renderer and effects</h1>
-<p class="lead">A renderer owns one canvas and one WebGL context. Effects are definitions it instantiates on demand; any number of them share the same context.</p>
+<p class="lead">A renderer owns one canvas and one context: WebGL2 for GLSL effects, WebGPU for WGSL ones. Effects are definitions it instantiates on demand; any number of them share the same context.</p>
 
 <h2 id="gallery">Built-in effects</h2>
 <div class="gallery">
@@ -78,6 +78,27 @@ void main() {
   <li>Never carry meaning in the effect alone: the native element must say everything.</li>
   <li>Effects step aside entirely under reduced motion, forced colors, more contrast and reduced transparency (<code>effectsAllowed()</code>); nothing to do in the shader.</li>
 </ul>
+
+<h2 id="wgsl">WGSL effects (WebGPU)</h2>
+<p>The core also draws with WebGPU, with no dependency. A WGSL effect is one function returning premultiplied color; the standard inputs are in the uniform <code>fx</code>. Give it a GLSL twin as <code>fallback</code>: where WebGPU is missing (no <code>navigator.gpu</code>, no adapter) the fallback runs on WebGL2 instead, and with neither the elements are native.</p>
+<pre><code class="language-ts">import { createRenderer, createDetailsFx, defineWgslEffect, inkEffect, inkGpuEffect } from &#x27;webgl-ui&#x27;
+
+const fade = defineWgslEffect(&#x27;fade&#x27;, `
+fn effect(uv: vec2f, frag: vec2f) -&gt; vec4f {   // uv: 0..1, origin top left
+  let a = 1.0 - smoothstep(fx.progress - 0.1, fx.progress + 0.1, 1.0 - uv.y);
+  return vec4f(fx.color.xyz * a, a);
+}`, { fallback: inkEffect })
+
+// A canvas holds one kind of context: WGSL effects get a renderer of their own.
+const gpuRenderer = createRenderer()
+createDetailsFx(details, { renderer: gpuRenderer, effect: inkGpuEffect }) // the ink, in WGSL</code></pre>
+<table><thead><tr><th scope="col">Input</th><th scope="col">Value</th></tr></thead><tbody>
+<tr><td><code>fx.progress</code>, <code>fx.time</code></td><td>As <code>uProgress</code>, <code>uTime</code>.</td></tr>
+<tr><td><code>fx.resolution</code>, <code>fx.pointer</code></td><td>As <code>uResolution</code>, <code>uPointer</code>.</td></tr>
+<tr><td><code>fx.color.xyz</code>, <code>fx.alpha</code></td><td>As <code>uColor</code>, <code>uAlpha</code>.</td></tr>
+<tr><td><code>uv</code>, <code>frag</code></td><td>0..1 with the origin at the top left (the WebGPU convention); fragment position in pixels.</td></tr>
+</tbody></table>
+<p>Built in: <code>inkGpuEffect</code> and <code>inkVeilGpuEffect</code>, the ink and the veil in WGSL with their GLSL versions as fallbacks. Image sampling and <code>params</code> are GLSL-only for now. Live: <a href="../webgpu.html">WebGPU playground page</a>.</p>
 
 <h2 id="tsl">TSL effects (three.js)</h2>
 <p>The optional package <code>packages/tsl</code> builds effects as TSL node graphs; three.js is loaded lazily and is never a core dependency. A canvas holds one kind of context, so TSL effects need a renderer of their own.</p>

@@ -55,6 +55,7 @@ export default defineConfig({
         image: r('./playground/image.html'),
         progress: r('./playground/progress.html'),
         swap: r('./playground/swap.html'),
+        webgpu: r('./playground/webgpu.html'),
         'spike-html-in-canvas': r('./playground/spikes/html-in-canvas.html'),
         ...Object.fromEntries(docs.map(d => [`docs-${d}`, r(`./playground/docs/${d}.html`)]))
       }

@@ -68,6 +68,8 @@ const myEffect = defineGlslEffect('my-effect', `#version 300 es ...`)
 createDetailsFx(details, { renderer, effect: myEffect })
 ```
 
+Effects can also be written in WGSL and drawn with WebGPU, with no dependency: `defineWgslEffect(name, code, { fallback })` runs on WebGPU where an adapter exists and falls back to a GLSL effect on WebGL2 elsewhere (`inkGpuEffect`, `inkVeilGpuEffect` are built in). Like TSL effects, they need a renderer of their own.
+
 Effects can also be written in [TSL](https://threejs.org/docs/TSL.html) with the optional `packages/tsl` package (three.js is a peer dependency, loaded lazily; the core never imports it). A TSL effect needs a renderer of its own:
 
 ```ts
@@ -92,7 +94,7 @@ Without WebGL2, after a lost context, or when the user prefers reduced motion, f
 2. **WebGL is decoration.** The canvas is `aria-hidden`, takes no focus or pointer events and holds no content.
 3. **Progressive enhancement.** No WebGL, reduced motion, lost context: native behavior.
 4. **Functions, not classes.** Small composable functions, no hidden global state, tree-shakeable.
-5. **Backend-agnostic core.** An effect (`init`, `render`, `dispose`) can be raw GLSL today, TSL or anything else later. One renderer owns one canvas, so all its effects must target the same kind of context: a TSL effect needs its own renderer.
+5. **Backend-agnostic core.** An effect (`init`, `render`, `dispose`) can be raw GLSL, raw WGSL on WebGPU, TSL, or anything else. One renderer owns one canvas, so all its effects must target the same kind of context: a TSL effect needs its own renderer.
 
 ## Native parity
 

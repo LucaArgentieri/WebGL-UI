@@ -32,3 +32,21 @@ export const test = base.extend<{ consoleLog: void; webgl2Gate: void }>({
 })
 
 export { expect }
+
+/**
+ * Runs `action` and checks that a canvas was inserted under `selector` while it ran, even if the animation is
+ * already over when the check happens (a slow, software-rendered browser can be several frames behind).
+ */
+export async function sawCanvas(page: import('@playwright/test').Page, selector: string, action: () => Promise<unknown>) {
+  await page.evaluate(sel => {
+    const w = window as any
+    w.__sawCanvas = false
+    w.__sawCanvasObserver?.disconnect()
+    w.__sawCanvasObserver = new MutationObserver(records => {
+      for (const r of records) for (const n of r.addedNodes) if (n instanceof HTMLCanvasElement && n.closest(sel)) w.__sawCanvas = true
+    })
+    w.__sawCanvasObserver.observe(document.documentElement, { childList: true, subtree: true })
+  }, selector)
+  await action()
+  await expect.poll(() => page.evaluate(() => (window as any).__sawCanvas as boolean)).toBe(true)
+}

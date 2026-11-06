@@ -13,7 +13,8 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Software WebGL, so the effects also run in headless CI. CanvasDrawElement enables HTML-in-Canvas in
         // Chromium builds before 157, for the spike of issue #8 (it only adds an API the library does not use).
-        launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-blink-features=CanvasDrawElement'] }
+        // WebGPU on a software adapter (SwiftShader), so the WGSL backend runs in headless CI too.
+        launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-blink-features=CanvasDrawElement', '--enable-unsafe-webgpu', '--use-webgpu-adapter=swiftshader'] }
       }
     },
     {

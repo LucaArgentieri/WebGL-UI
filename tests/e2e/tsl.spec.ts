@@ -1,7 +1,24 @@
 import { test, expect } from './fixtures'
 import { disableWebGL2, isReady, runStress } from './helpers'
 
+// The pixel checks read screenshots, and headless browsers may not present WebGPU canvases: these tests hide
+// navigator.gpu so three.js takes its WebGL2 path. The WebGPU path is checked on its own below.
+const noWebGPU = (page: import('@playwright/test').Page) =>
+  page.addInitScript(() => { Object.defineProperty(Navigator.prototype, 'gpu', { get: () => undefined }) })
+
+test.describe('tsl backend on WebGPU', () => {
+  test('where WebGPU exists, the TSL effect initializes on it (and still runs without WebGL2)', async ({ page, browserName }) => {
+    await page.goto('/tsl.html')
+    const hasAdapter = await page.evaluate(async () => !!(await (navigator as any).gpu?.requestAdapter()))
+    test.skip(!hasAdapter, 'no WebGPU adapter in this browser')
+    expect(await isReady(page)).toBe(true)
+    expect(browserName).toBeTruthy()
+  })
+})
+
 test.describe('tsl backend', () => {
+  test.beforeEach(async ({ page }) => { await noWebGPU(page) })
+
   test('the TSL effect initializes (WebGPU or its WebGL2 fallback)', async ({ page }) => {
     await page.goto('/tsl.html')
     expect(await isReady(page)).toBe(true)

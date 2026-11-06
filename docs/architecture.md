@@ -45,3 +45,9 @@ Layouts: `host` (canvas covers a positioned host) and `viewport` (fixed, behind 
 ## Stress test
 
 Each playground page has one: random operations on several instances, several in the same tick, then invariants: final state equals the last operation, no leftover inline styles or attributes, no canvas in the DOM, renderer still ready. An element is not done until it passes (also run automatically by `npm run test:e2e`).
+
+## WGSL backend (`src/core/wgsl.ts`)
+
+`defineWgslEffect(name, code, { fallback })` returns an `EffectDef`. On `init` it requests a WebGPU adapter and device once per canvas, configures a `webgpu` context with premultiplied alpha and builds a pipeline from a prelude (uniform block `fx`, full-screen triangle) plus the effect's `fn effect(uv, frag) -> vec4f`. Without `navigator.gpu` or an adapter, the canvas is still free, so the `fallback` effect (GLSL) is initialized on it instead. Compilation errors are reported through `getCompilationInfo()` and make init fail (elements stay native).
+
+Headless browsers may not present WebGPU canvases on screen, so the e2e tests check WGSL effects by rendering them into an offscreen texture and reading the pixels back.

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./src/style.css">
+<title>WebGL UI: WebGPU</title>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; WebGL UI</a>
+  <h1>WebGPU</h1>
+  <p class="lead">The same ink, written in WGSL and drawn with WebGPU, no library needed. Where WebGPU is missing, each effect falls back to its GLSL twin on WebGL2; with neither, the elements are native.</p>
+
+  <p class="result" id="backend" role="status"></p>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="open">Open dialog</button>
+    <button type="button" class="btn" id="tp" popovertarget="gp">Popover</button>
+  </div>
+
+  <details id="g1">
+    <summary>Ink in WGSL</summary>
+    <div class="content"><p>A fragment function in WGSL, run by WebGPU on the renderer's canvas. The details, its keyboard and its <code>open</code> attribute are native as always.</p></div>
+  </details>
+  <details id="g2">
+    <summary>Fallback</summary>
+    <div class="content"><p>Without <code>navigator.gpu</code> or an adapter, the same element animates with the GLSL version of the effect.</p></div>
+  </details>
+</main>
+
+<div id="gp" popover class="pop"><p><strong>WebGPU popover</strong></p><p>The sheet is painted by a WGSL veil, behind the content.</p></div>
+
+<dialog id="gd" closedby="any" aria-labelledby="gd-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="gd-title">WebGPU dialog</h2>
+      <p>The sheet appears from nothing, drawn by WebGPU.</p>
+      <div class="row"><button class="btn primary" value="ok">OK</button></div>
+    </form>
+  </div>
+</dialog>
+
+<script type="module" src="./src/webgpu.ts"></script>
+</body>
+</html>
