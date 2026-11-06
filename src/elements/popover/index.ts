@@ -8,8 +8,15 @@ export interface PopoverFxOptions {
   renderer: RendererSource
   /** Effect to use. Default: dissolve. */
   effect?: EffectDef
-  /** Opening duration in ms. Closing takes 70% of it. Default 500. */
+  /** Opening duration in ms. Closing takes 70% of it. Default 800. */
   duration?: number
+  /**
+   * 'host' (default): the effect is drawn over the popover, like a cover that recedes.
+   * 'behind': the effect is drawn behind the content and paints the popover's surface, so the popover appears
+   * from nothing (use a veil effect such as inkVeilEffect, and keep the surface transparent while animating:
+   * [data-fx-behind][data-animating]). The surface color is `--fx-cover`, else the popover's background.
+   */
+  layout?: 'host' | 'behind'
   /** Debug hook for internal decisions. */
   trace?: (message: string) => void
 }
@@ -33,7 +40,8 @@ type Invoker = HTMLButtonElement | HTMLInputElement
  * While animating, the library sets [data-animating] and --p (0..1) on the popover, like the dialog does.
  */
 export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions): PopoverFx {
-  const duration = options.duration ?? 500
+  const duration = options.duration ?? 800
+  const layout = options.layout ?? 'host'
   const effect = options.effect ?? dissolveEffect
   const trace = options.trace ?? (() => {})
   const nativeShow = HTMLElement.prototype.showPopover
@@ -107,7 +115,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
         owner,
         time0: clock,
         color: readCoverColor(popover),
-        layout: 'host',
+        layout,
         onFrame: (p, t) => {
           if (id !== runId) return // frame of a superseded animation: writes nothing
           progress = p
@@ -210,6 +218,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
   document.addEventListener('click', onInvokerClick, true)
   popover.addEventListener('toggle', onToggle)
   popover.addEventListener('command', onCommand)
+  if (layout === 'behind') popover.setAttribute('data-fx-behind', '')
 
   return {
     showPopover,
@@ -223,6 +232,7 @@ export function createPopoverFx(popover: HTMLElement, options: PopoverFxOptions)
       document.removeEventListener('click', onInvokerClick, true)
       popover.removeEventListener('toggle', onToggle)
       popover.removeEventListener('command', onCommand)
+      popover.removeAttribute('data-fx-behind')
     },
     debug: () => ({ open: isOpen(), target, running, progress: +progress.toFixed(3) })
   }

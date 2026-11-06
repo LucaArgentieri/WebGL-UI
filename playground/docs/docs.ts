@@ -31,7 +31,7 @@ const effectOf = (el: HTMLElement) => effects[el.dataset.effect ?? '']
 document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
   const effect = effectOf(el)
   if (el.dataset.fx === 'details') createDetailsFx(el as HTMLDetailsElement, { renderer, effect })
-  if (el.dataset.fx === 'popover') createPopoverFx(el, { renderer, effect })
+  if (el.dataset.fx === 'popover') createPopoverFx(el, { renderer, effect, layout: el.dataset.layout === 'behind' ? 'behind' : 'host' })
   if (el.dataset.fx === 'swap') {
     const fx = createSwapFx(el, { renderer, effect })
     const lines = ['Less, but better.', 'Typography is what language looks like.', 'The details are not the details. They make the design.', 'White space is an active element, not a passive background.']
@@ -49,7 +49,8 @@ document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
     el.closest('.example')?.querySelector('[data-replay]')?.addEventListener('click', () => { void fx.reveal() })
   }
   if (el.dataset.fx === 'dialog') {
-    createDialogFx(el as HTMLDialogElement, { renderer, effect, layout: el.dataset.layout === 'host' ? 'host' : 'viewport' })
+    const layout = el.dataset.layout === 'host' || el.dataset.layout === 'behind' ? el.dataset.layout : 'viewport'
+    createDialogFx(el as HTMLDialogElement, { renderer, effect, layout })
   }
 })
 document.querySelectorAll<HTMLButtonElement>('[data-open-dialog]').forEach(b => {

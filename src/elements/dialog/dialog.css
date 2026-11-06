@@ -50,3 +50,9 @@ dialog[data-fx-host][data-animating] [data-fx-panel] {
   opacity: min(1, calc(var(--p, 1) * 6));
   transform: none;
 }
+
+/* layout: 'behind': the shader paints the panel's surface from nothing, behind its content. */
+dialog[data-fx-behind][data-animating] [data-fx-panel] {
+  opacity: 1;
+  background: transparent;
+}

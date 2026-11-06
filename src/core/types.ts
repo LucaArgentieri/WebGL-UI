@@ -44,10 +44,13 @@ export interface EffectDef {
 }
 
 /**
- * 'host': the canvas covers the host element (host must be a positioned box).
+ * 'host': the canvas covers the host element, over its content (host must be a positioned box).
+ * 'behind': the canvas covers the host element, behind its content (z-index -1): the host must be a stacking
+ *   context (a dialog or popover in the top layer is one; elsewhere use `isolation: isolate`). The effect can then
+ *   paint the host's own surface while the content stays on top.
  * 'viewport': the canvas covers the viewport, behind the host's content (use it inside a <dialog>).
  */
-export type FxLayout = 'host' | 'viewport'
+export type FxLayout = 'host' | 'behind' | 'viewport'
 
 export interface PlayOptions {
   effect: EffectDef

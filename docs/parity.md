@@ -57,7 +57,7 @@ Documented differences:
 - While closing, `open` stays `true` and `close` / focus restore arrive when the animation ends.
 - A non-cancelable `cancel` (browser anti-abuse for repeated Esc without user activation) closes the dialog immediately, without animation.
 - The canvas is inserted inside the `<dialog>` during the animation.
-- `layout: 'host'` paints the effect over the dialog box instead of the backdrop, so the panel itself appears from it; the backdrop is then plain CSS that fades in with `--p` (`dialog.css`, `[data-fx-host]`).
+- `layout: 'host'` paints the effect over the dialog box instead of the backdrop, and `layout: 'behind'` paints the panel's sheet behind its content, so the dialog appears from nothing; in both, the backdrop is plain CSS that fades in with `--p` (`dialog.css`, `[data-fx-host]`, `[data-fx-behind]`).
 
 ## `popover` (MDN: https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
 

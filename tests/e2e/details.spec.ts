@@ -134,3 +134,24 @@ test.describe('details: exclusive accordion (name)', () => {
     }
   })
 })
+
+test.describe('details: no layout shift', () => {
+  test('the height animation ends exactly on the natural height (no jump when the inline height goes)', async ({ page }) => {
+    await page.goto('/details.html')
+    await isReady(page)
+    const r = await page.evaluate(async () => {
+      const d = document.getElementById('d1')!
+      let last = 0
+      let stop = false
+      const tick = () => { if (d.hasAttribute('data-animating')) last = d.getBoundingClientRect().height; if (!stop) requestAnimationFrame(tick) }
+      requestAnimationFrame(tick)
+      d.querySelector('summary')!.click()
+      while (!d.hasAttribute('data-animating')) await new Promise(r => setTimeout(r, 5))
+      while (d.hasAttribute('data-animating')) await new Promise(r => setTimeout(r, 5))
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+      stop = true
+      return { last, natural: d.getBoundingClientRect().height }
+    })
+    expect(Math.abs(r.natural - r.last), JSON.stringify(r)).toBeLessThan(1)
+  })
+})

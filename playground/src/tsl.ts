@@ -60,6 +60,16 @@ Object.assign(window, {
   __webglUi: {
     ready: () => renderer.prepare(radialEffect),
     runStress: stress,
+    /** Test hook: holds the radial effect at a progress on a wide box (red cover over white). */
+    async hold(progress: number) {
+      if (!(await renderer.prepare(radialEffect))) return false
+      const host = document.createElement('div')
+      host.id = 'hold-host'
+      host.style.cssText = 'position:fixed;left:0;top:0;width:640px;height:80px;z-index:10;background:#fff'
+      document.body.append(host)
+      void renderer.play(host, { effect: radialEffect, from: progress, to: progress, duration: 3000, color: [1, 0, 0], layout: 'host' })
+      return true
+    },
     /** Test hook: holds the uv probe on screen for a while, inside #probe-host (screenshots read it back). */
     async probe(kind: 'uv' | 'half' = 'uv') {
       const effect = kind === 'half' ? halfRedEffect : uvProbeEffect

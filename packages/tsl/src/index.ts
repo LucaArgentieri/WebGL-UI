@@ -84,6 +84,8 @@ function createTslEffect(build: TslBuild, options: TslEffectOptions): Effect {
       material = m
       uniforms = u
       quad = new three.QuadMesh(m)
+      // Compile the material now, not on the first frame of the first animation (a visible stall).
+      try { await r.compileAsync(quad, quad.camera) } catch { /* compiled on first use instead */ }
     },
     render(f: FxFrame) {
       if (!renderer || !quad || !uniforms) return

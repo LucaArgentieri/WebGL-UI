@@ -158,3 +158,18 @@ test.describe('popover: command invokers and hint', () => {
     expect(await open(page, 'p2')).toBe(false)
   })
 })
+
+test.describe("popover: layout 'behind'", () => {
+  test('the effect paints the surface behind the content; the surface is transparent only while animating', async ({ page }) => {
+    await page.goto('/popover.html')
+    await isReady(page)
+    await expect(page.locator('#p1')).toHaveAttribute('data-fx-behind', '')
+    await page.locator('#t1').click()
+    const canvas = page.locator('#p1 canvas')
+    await expect(canvas).toHaveCount(1)
+    expect(await canvas.evaluate(c => getComputedStyle(c).zIndex)).toBe('-1')
+    expect(await page.locator('#p1').evaluate(p => getComputedStyle(p).backgroundColor)).toBe('rgba(0, 0, 0, 0)')
+    await expect(canvas).toHaveCount(0, { timeout: 4000 })
+    expect(await page.locator('#p1').evaluate(p => getComputedStyle(p).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)')
+  })
+})

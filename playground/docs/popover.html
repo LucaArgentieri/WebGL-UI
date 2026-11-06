@@ -22,11 +22,11 @@
     <button type="button" class="btn" popovertarget="pop-manual">Manual popover</button>
   </div>
 </div>
-<div id="pop-auto" popover="auto" class="pop" data-fx="popover" data-effect="ink">
+<div id="pop-auto" popover="auto" class="pop" data-fx="popover" data-effect="ink-veil" data-layout="behind">
   <p><strong>popover="auto"</strong></p>
   <p>Esc or a click outside close it, natively and instantly.</p>
 </div>
-<div id="pop-manual" popover="manual" class="pop" data-fx="popover" data-effect="ink">
+<div id="pop-manual" popover="manual" class="pop" data-fx="popover" data-effect="ink-veil" data-layout="behind">
   <p><strong>popover="manual"</strong></p>
   <p>Only the button or a script closes it.</p>
   <button type="button" class="btn" popovertarget="pop-manual" popovertargetaction="hide">Close</button>
@@ -35,22 +35,24 @@
 <h2 id="usage">Usage</h2>
 <pre><code class="language-html">&lt;button popovertarget=&quot;menu&quot;&gt;Menu&lt;/button&gt;
 &lt;div id=&quot;menu&quot; popover&gt;…&lt;/div&gt;</code></pre>
-<pre><code class="language-ts">import { createRenderer, createPopoverFx, inkEffect } from &#x27;webgl-ui&#x27;
+<pre><code class="language-ts">import { createRenderer, createPopoverFx, inkVeilEffect } from &#x27;webgl-ui&#x27;
 
 const renderer = createRenderer()
-createPopoverFx(document.querySelector&lt;HTMLElement&gt;(&#x27;#menu&#x27;)!, { renderer, effect: inkEffect })</code></pre>
-<pre><code class="language-css">/* The box appears from a block of ink instead of showing complete before the effect. */
-[popover] { --fx-cover: 27, 24, 21; }
-[popover][data-animating] { opacity: min(1, calc(var(--p, 1) * 6)); }</code></pre>
+// &#x27;behind&#x27;: the veil paints the popover&#x27;s surface behind its content: it appears from nothing.
+createPopoverFx(document.querySelector&lt;HTMLElement&gt;(&#x27;#menu&#x27;)!, { renderer, effect: inkVeilEffect, layout: &#x27;behind&#x27; })</code></pre>
+<pre><code class="language-css">/* The shader paints the surface: keep it transparent while animating, and say which color to paint. */
+[popover] { --fx-cover: 251, 248, 240; }
+[popover][data-fx-behind][data-animating] { background: transparent; }
+[popover][data-animating] &gt; :not(canvas) { opacity: var(--p, 1); }</code></pre>
 
 <h2 id="options">Options</h2>
-<table><thead><tr><th scope="col">Option</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>renderer</code></td><td><code>Renderer | () =&gt; Renderer</code></td><td>required</td><td>The shared renderer.</td></tr><tr><td><code>effect</code></td><td><code>EffectDef</code></td><td><code>dissolveEffect</code></td><td>Any cover effect.</td></tr><tr><td><code>duration</code></td><td><code>number</code></td><td><code>500</code></td><td>Opening in ms; closing takes 70%.</td></tr><tr><td><code>trace</code></td><td><code>(message) =&gt; void</code></td><td>none</td><td>Debug hook.</td></tr></tbody></table>
+<table><thead><tr><th scope="col">Option</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>renderer</code></td><td><code>Renderer | () =&gt; Renderer</code></td><td>required</td><td>The shared renderer.</td></tr><tr><td><code>effect</code></td><td><code>EffectDef</code></td><td><code>dissolveEffect</code></td><td>Any cover effect.</td></tr><tr><td><code>duration</code></td><td><code>number</code></td><td><code>800</code></td><td>Opening in ms; closing takes 70%.</td></tr><tr><td><code>layout</code></td><td><code>&#39;host&#39; | &#39;behind&#39;</code></td><td><code>&#39;host&#39;</code></td><td><code>host</code>: a cover over the popover recedes. <code>behind</code>: a veil paints the popover&#39;s surface behind its content, so it appears from nothing.</td></tr><tr><td><code>trace</code></td><td><code>(message) =&gt; void</code></td><td>none</td><td>Debug hook.</td></tr></tbody></table>
 
 <h2 id="returns">Returns</h2>
 <table><thead><tr><th scope="col">Member</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>showPopover(options?)</code></td><td>Native call, synchronous (same errors), then the animation. Also installed on the element.</td></tr><tr><td><code>hidePopover()</code></td><td>Animated; the native method runs at the end.</td></tr><tr><td><code>togglePopover(force?)</code></td><td>Returns the state it is heading to.</td></tr><tr><td><code>destroy()</code></td><td>Restores the native methods and removes the listeners.</td></tr><tr><td><code>debug()</code></td><td><code>{ open, target, running, progress }</code>.</td></tr></tbody></table>
 
 <h2 id="css">CSS hooks</h2>
-<table><thead><tr><th scope="col">Hook</th><th scope="col">Meaning</th></tr></thead><tbody><tr><td><code>[data-animating]</code>, <code>--p</code></td><td>Set on the popover while animating.</td></tr><tr><td><code>--fx-cover</code></td><td>Cover color as <code>r, g, b</code>. Default: the popover background.</td></tr></tbody></table>
+<table><thead><tr><th scope="col">Hook</th><th scope="col">Meaning</th></tr></thead><tbody><tr><td><code>[data-animating]</code>, <code>--p</code></td><td>Set on the popover while animating.</td></tr><tr><td><code>[data-fx-behind]</code></td><td>Present with <code>layout: &#39;behind&#39;</code>.</td></tr><tr><td><code>--fx-cover</code></td><td>The color the shader paints, as <code>r, g, b</code>. Default: the popover background.</td></tr></tbody></table>
 
 <h2 id="behavior">Behavior and accessibility</h2>
 <ul class="plain">

@@ -1,10 +1,10 @@
-import { createRenderer, createPopoverFx, inkEffect, effectsAllowed } from 'webgl-ui'
+import { createRenderer, createPopoverFx, inkVeilEffect, effectsAllowed } from 'webgl-ui'
 import { runStress, createTrace, sleep, formatResult } from './stress'
 
 const renderer = createRenderer()
 const trace = createTrace()
 const all = [...document.querySelectorAll<HTMLElement>('[popover]')]
-const fxAll = all.map(p => createPopoverFx(p, { renderer, effect: inkEffect, trace: trace.push }))
+const fxAll = all.map(p => createPopoverFx(p, { renderer, effect: inkVeilEffect, layout: 'behind', trace: trace.push }))
 // The stress test drives auto and manual popovers: opening an auto popover closes hints natively, by design.
 const list = all.filter(p => p.getAttribute('popover') !== 'hint')
 const fxs = fxAll.filter((_, i) => all[i]!.getAttribute('popover') !== 'hint')
@@ -56,7 +56,7 @@ stressBtn.addEventListener('click', async () => {
 })
 
 const reduced = !effectsAllowed()
-renderer.prepare(inkEffect).then(ready => {
+renderer.prepare(inkVeilEffect).then(ready => {
   status.textContent = !ready
     ? 'WebGL2 is not available: the popovers use native behavior.'
     : reduced
@@ -66,7 +66,7 @@ renderer.prepare(inkEffect).then(ready => {
 
 Object.assign(window, {
   __webglUi: {
-    ready: () => renderer.prepare(inkEffect),
+    ready: () => renderer.prepare(inkVeilEffect),
     runStress: stress
   }
 })

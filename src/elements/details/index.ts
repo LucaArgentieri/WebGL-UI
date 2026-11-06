@@ -135,7 +135,9 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
     const heights = siblings.map(d => d.offsetHeight)
     if (next) details.open = true // when closing it stays true until the end: the content must stay visible
     siblings.forEach((d, i) => collapse(d, heights[i]!, duration * 0.7))
-    const closed = summary!.offsetHeight + (details.offsetHeight - details.clientHeight)
+    // Fractional sizes: integer offsetHeight values would leave a sub-pixel jump when the inline height is removed.
+    const closed = summary!.getBoundingClientRect().height + (details.offsetHeight - details.clientHeight)
+    const full = content!.getBoundingClientRect().height
 
     let completed = false
     try {
@@ -155,7 +157,7 @@ export function createDetailsFx(details: HTMLDetailsElement, options: DetailsFxO
           clock = t
           details.style.setProperty('--p', p.toFixed(4)) // CSS can follow the same progress as the shader
           // The content keeps its full size (and the canvas with it): the details clips it.
-          details.style.height = closed + content!.offsetHeight * p + 'px'
+          details.style.height = closed + full * p + 'px'
         }
       })
     } catch (err) {

@@ -13,6 +13,9 @@
   box-sizing: border-box;
 }
 *, *::before, *::after { box-sizing: inherit; }
+/* Reserve the scrollbar's room: opening a details can make the page scroll, and a scrollbar appearing would
+   shift the whole layout sideways on systems with classic scrollbars. */
+html { scrollbar-gutter: stable; }
 body {
   margin: 0;
   background: var(--paper);
@@ -78,7 +81,9 @@ details[open] > summary::after { content: "\2212"; }
 summary:hover { font-style: italic; }
 .content { background: var(--paper); padding: 0 0 1.75rem 3.25rem; }
 .content p { margin: 0 0 0.9rem; max-width: 36rem; }
-.content p:last-child { margin-bottom: 0; }
+/* :last-of-type, not :last-child: while animating, the library appends its canvas to the content, and a
+   :last-child rule would stop matching and change the height at the end of the animation. */
+.content p:last-of-type { margin-bottom: 0; }
 @media (max-width: 36rem) { .content { padding-left: 0; } }
 
 /* While a details opens or closes it clips its content at a height that grows with --p: the visible part of the
@@ -118,11 +123,16 @@ dialog[data-animating]:not([data-fx-host]) [data-fx-panel] { filter: blur(round(
 .pop { width: min(24rem, calc(100% - 2rem)); padding: 1.5rem; color: var(--ink); background: var(--sheet); border: 0; border-radius: 0; box-shadow: 0 1px 2px rgb(var(--ink-rgb) / 0.12), 0 18px 44px rgb(var(--ink-rgb) / 0.2); }
 .pop p { margin: 0 0 0.5rem; }
 .pop::backdrop { background: transparent; }
-/* The box appears from the effect: an ink cover recedes, the box fades in with the first part of the progress
-   (so it is never shown complete before the effect starts). */
-.pop, dialog { --fx-cover: 27, 24, 21; }
-.pop[data-animating] { opacity: min(1, calc(var(--p, 1) * 6)); }
-.pop[data-animating] > :not(canvas) { opacity: var(--p, 1); }
+/* The surface appears from nothing: in layout 'behind' a veil effect paints it behind the content, so the box
+   stays transparent while animating and its shadow follows --p. --fx-cover is the sheet color. */
+.pop, dialog { --fx-cover: 251, 248, 240; }
+.pop[data-fx-behind][data-animating] {
+  background: transparent;
+  box-shadow: 0 1px 2px rgb(var(--ink-rgb) / calc(0.12 * var(--p, 1))), 0 18px 44px rgb(var(--ink-rgb) / calc(0.2 * var(--p, 1)));
+}
+dialog[data-fx-behind][data-animating] .panel {
+  box-shadow: 0 1px 2px rgb(var(--ink-rgb) / calc(0.12 * var(--p, 1))), 0 24px 60px rgb(var(--ink-rgb) / calc(0.22 * var(--p, 1)));
+}
 
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }

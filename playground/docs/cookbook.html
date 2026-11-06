@@ -16,7 +16,7 @@
 <p class="lead">Short recipes for common needs. Each one keeps the native element in charge.</p>
 <ol class="plain">
   <li><a href="#one-renderer">One renderer for the whole page</a></li>
-  <li><a href="#box-from-effect">Let the box appear from the effect</a></li>
+  <li><a href="#box-from-effect">Make a popover or dialog appear from nothing</a></li>
   <li><a href="#fade-blur">Fade and blur the content with <code>--p</code></a></li>
   <li><a href="#clip-edge">Soften the clip edge of a details</a></li>
   <li><a href="#own-effect">Your own effect in twenty lines</a></li>
@@ -29,20 +29,23 @@
 <p>Browsers limit the number of WebGL contexts. Create one renderer and pass it to every element, whatever effect each one uses: they share one canvas and one context, and only one animation runs at a time.</p>
 <pre><code class="language-ts">const renderer = createRenderer()
 createDetailsFx(faq, { renderer, effect: inkEffect })
-createDialogFx(confirm, { renderer, effect: inkEffect, layout: &#x27;host&#x27; })
+createDialogFx(confirm, { renderer, effect: inkVeilEffect, layout: &#x27;behind&#x27; })
 createPopoverFx(menu, { renderer, effect: wipeEffect })</code></pre>
 <p>To create it lazily, pass a function: <code>{ renderer: () =&gt; getRenderer() }</code>.</p>
 
-<h2 id="box-from-effect">2. Let the box appear from the effect</h2>
-<p>A cover in the surface color only hides the content: the box itself shows up complete, then its content appears. To make the whole box appear from the effect, use a dark cover and fade the box in during the first part of the progress.</p>
+<h2 id="box-from-effect">2. Make a popover or dialog appear from nothing</h2>
+<p>A cover in the surface color only hides the content: the box shows up complete, then its content appears. With <code>layout: 'behind'</code> the canvas sits behind the content and a veil effect paints the surface itself, so the box goes from invisible to visible through the ink, and the page shows through until the ink gets there.</p>
 <div class="example">
   <span class="example-label">Live example</span>
   <button type="button" class="btn primary" popovertarget="cb-pop">Open</button>
 </div>
-<div id="cb-pop" popover class="pop" data-fx="popover" data-effect="ink"><p>I came out of the ink.</p></div>
-<pre><code class="language-css">.pop, dialog { --fx-cover: 27, 24, 21; }                         /* ink */
-.pop[data-animating] { opacity: min(1, calc(var(--p, 1) * 6)); } /* box fades in early */</code></pre>
-<p>For a dialog, add <code>layout: 'host'</code>; <code>dialog.css</code> already fades the panel and the backdrop.</p>
+<div id="cb-pop" popover class="pop" data-fx="popover" data-effect="ink-veil" data-layout="behind"><p>I came out of nothing.</p></div>
+<pre><code class="language-ts">createPopoverFx(menu, { renderer, effect: inkVeilEffect, layout: &#x27;behind&#x27; })
+createDialogFx(confirm, { renderer, effect: inkVeilEffect, layout: &#x27;behind&#x27; })</code></pre>
+<pre><code class="language-css">.pop, dialog { --fx-cover: 251, 248, 240; }              /* the sheet color the shader paints */
+.pop[data-fx-behind][data-animating] { background: transparent; }
+.pop[data-animating] &gt; :not(canvas) { opacity: var(--p, 1); }</code></pre>
+<p>For a dialog, <code>dialog.css</code> already makes the panel transparent while animating and fades the backdrop.</p>
 
 <h2 id="fade-blur">3. Fade and blur the content with <code>--p</code></h2>
 <p>Elements expose the shader's progress as <code>--p</code>. CSS can follow it. Keep the canvas out of the selector, and change the blur radius in whole steps: every new radius re-rasterizes the text.</p>
@@ -77,7 +80,7 @@ createDetailsFx(details, { renderer, effect: blindsEffect })</code></pre>
 <p>Rules: write premultiplied alpha; at <code>uProgress = 1</code> a cover effect must be fully transparent; keep the luminance from flashing more than three times per second (WCAG 2.3.1).</p>
 
 <h2 id="dialog-layout">6. Choose the dialog layout</h2>
-<table><thead><tr><th scope="col"></th><th scope="col"><code>viewport</code> (default)</th><th scope="col"><code>host</code></th></tr></thead><tbody><tr><td>The effect paints</td><td>the backdrop, behind the panel</td><td>over the dialog box</td></tr><tr><td>The panel</td><td>fades in with <code>--p</code></td><td>appears from the effect</td></tr><tr><td>The backdrop</td><td>the shader, then CSS</td><td>CSS, fading in with <code>--p</code></td></tr><tr><td>Effects</td><td><code>inkVeilEffect</code>, <code>backdropEffect</code></td><td><code>inkEffect</code>, <code>dissolveEffect</code>, …</td></tr></tbody></table>
+<table><thead><tr><th scope="col"></th><th scope="col"><code>viewport</code> (default)</th><th scope="col"><code>host</code></th></tr></thead><tbody><tr><td>The effect paints</td><td>the backdrop, behind the panel</td><td>over the dialog box (<code>host</code>) or the panel&#39;s sheet behind its content (<code>behind</code>)</td></tr><tr><td>The panel</td><td>fades in with <code>--p</code></td><td>appears from the effect</td></tr><tr><td>The backdrop</td><td>the shader, then CSS</td><td>CSS, fading in with <code>--p</code></td></tr><tr><td>Effects</td><td><code>inkVeilEffect</code>, <code>backdropEffect</code></td><td><code>inkVeilEffect</code> (<code>behind</code>), <code>inkEffect</code> (<code>host</code>), …</td></tr></tbody></table>
 
 <h2 id="fallbacks">7. Test the fallbacks</h2>
 <p>Nothing to write: without WebGL2, after a lost context, or with reduced motion, forced colors, more contrast or reduced transparency, elements are native. To check it with Playwright:</p>

@@ -7,7 +7,7 @@ export interface ProgressFxOptions {
   renderer: RendererSource
   /** Effect to use. Default: inkBarEffect. It receives uValue (from, to) and uRtl. */
   effect?: EffectDef
-  /** Duration of a change across the whole bar, in ms; shorter changes take less. Default 700. */
+  /** Duration of a change across the whole bar, in ms; shorter changes take less. Default 1400. */
   duration?: number
   /** The box the canvas covers. Default: the element's parent (see progress.css). */
   stage?: HTMLElement
@@ -39,7 +39,7 @@ function fillColor(stage: Element): Vec3 {
  */
 export function createProgressFx(el: Bar, options: ProgressFxOptions): ProgressFx {
   const effect = options.effect ?? inkBarEffect
-  const duration = options.duration ?? 700
+  const duration = options.duration ?? 1400
   const stage = options.stage ?? (el.parentElement as HTMLElement | null)
   if (!stage) throw new Error('[webgl-ui] createProgressFx needs the element to be inside a stage element')
   const owner = el
@@ -70,7 +70,7 @@ export function createProgressFx(el: Bar, options: ProgressFxOptions): ProgressF
         effect,
         from: 0,
         to: 1,
-        duration: Math.max(160, duration * Math.abs(to - from)),
+        duration: Math.max(450, duration * Math.abs(to - from)),
         owner,
         time0: clock,
         layout: 'host',

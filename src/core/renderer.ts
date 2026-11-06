@@ -1,4 +1,4 @@
-import type { Effect, EffectDef, PlayOptions, Renderer, RendererSource } from './types'
+import type { Effect, EffectDef, FxLayout, PlayOptions, Renderer, RendererSource } from './types'
 import { MAX_DURATION } from './preferences'
 
 const easeInOut = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
@@ -62,7 +62,7 @@ export function createRenderer(): Renderer {
   let stop: (() => void) | null = null
   let stopOwner: unknown = null
 
-  function applyLayout(layout: 'host' | 'viewport') {
+  function applyLayout(layout: FxLayout) {
     const s = canvas.style
     s.inset = '0'
     s.width = '100%'
@@ -72,7 +72,7 @@ export function createRenderer(): Renderer {
       s.zIndex = '-1'
     } else {
       s.position = 'absolute'
-      s.zIndex = ''
+      s.zIndex = layout === 'behind' ? '-1' : ''
     }
   }
 

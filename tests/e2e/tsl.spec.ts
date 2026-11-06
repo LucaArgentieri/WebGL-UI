@@ -61,6 +61,33 @@ test.describe('tsl backend', () => {
     expect(Math.abs(px[2]! - 128)).toBeLessThan(8)
   })
 
+  test('the radial reveal is complete at the end even on a wide box (no jump when the canvas goes)', async ({ page }) => {
+    await page.goto('/tsl.html')
+    await isReady(page)
+    const reds = async (progress: number) => {
+      expect(await page.evaluate(p => (window as any).__webglUi.hold(p), progress)).toBe(true)
+      await page.waitForTimeout(250)
+      const png = (await page.locator('#hold-host').screenshot()).toString('base64')
+      const n = await page.evaluate(async b64 => {
+        const img = new Image()
+        img.src = 'data:image/png;base64,' + b64
+        await img.decode()
+        const c = document.createElement('canvas')
+        c.width = img.width; c.height = img.height
+        const ctx = c.getContext('2d')!
+        ctx.drawImage(img, 0, 0)
+        const d = ctx.getImageData(0, 0, c.width, c.height).data
+        let red = 0
+        for (let i = 0; i < d.length; i += 4) if (d[i]! > 200 && d[i + 1]! < 120) red++
+        return red / (c.width * c.height)
+      }, png)
+      await page.evaluate(() => { (window as any).__webglUi && document.getElementById('hold-host')?.remove() })
+      return n
+    }
+    expect(await reds(0)).toBeGreaterThan(0.9)  // fully covered at the start
+    expect(await reds(1)).toBeLessThan(0.01)   // nothing left to uncover at the end, corners included
+  })
+
   test('details animate with the TSL effect, open at once, canvas gone afterwards', async ({ page }) => {
     await page.goto('/tsl.html')
     await isReady(page)
