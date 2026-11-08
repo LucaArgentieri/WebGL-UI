@@ -38,6 +38,7 @@ native element ──(click / method / command / native event)──► element 
 - **Two families of effects**
   - *Cover*: fully covering at 0, fully transparent at 1 (`inkEffect`, `dissolveEffect`, `wipeEffect`). Used over content that is revealed.
   - *Veil*: transparent at 0, uniform `uColor × uAlpha` at 1 (`inkVeilEffect`, `backdropEffect`). Used for backdrops, and with `layout: 'behind'` to paint a surface that appears from nothing. Its last frame must equal the CSS that takes over.
+  - *Persisted backdrop*: when the last frame cannot be drawn by CSS (`halftoneEffect`: noise-sized dots), the dialog's `keepBackdrop` reads that frame in `onEnd` and hands it to the `::backdrop` as an image. The canvas still goes away; the image is plain CSS decoration.
 - **Layouts**: `host` (canvas over the host's content), `behind` (canvas behind the content, z-index −1, host must be a stacking context — dialogs and popovers in the top layer are), `viewport` (fixed, behind a dialog's panel; drawn at half resolution).
 - **Colors**: `--fx-cover: r, g, b` (0–255, commas) on the element chooses what the shader paints; otherwise the surface background. Dialog backdrops use `--fx-rgb` / `--fx-a`, read by both CSS and shader.
 
@@ -70,7 +71,7 @@ createPopoverFx(menu, { renderer, effect: inkVeilEffect, layout: 'behind' })
 | Need | Function | Notes |
 | --- | --- | --- |
 | `<details>` reveal + height | `createDetailsFx` | content is the first non-summary child; exclusive accordions supported |
-| Modal `<dialog>` | `createDialogFx` | needs `dialog.css` and a `[data-fx-panel]`; layouts `viewport` / `behind` / `host` |
+| Modal `<dialog>` | `createDialogFx` | needs `dialog.css` and a `[data-fx-panel]`; layouts `viewport` / `behind` / `host`; `keepBackdrop`, `paintsPanel` |
 | `popover` | `createPopoverFx` | methods, `popovertarget`, `commandfor`; Esc/light dismiss stay instant |
 | `<img>` / `<picture>` | `createImageFx` | effects may sample the image (`uImage`); `[data-fx-pending]` while loading |
 | `<progress>` / `<meter>` | `createProgressFx` | needs `progress.css`; extra uniforms via `params` |

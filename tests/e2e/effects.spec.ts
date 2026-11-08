@@ -53,3 +53,40 @@ test.describe('effects draw what they promise', () => {
     })
   }
 })
+
+test.describe('halftone backdrop', () => {
+  test('transparent at 0; at 1 a veil with a screen of dots (not uniform), so it needs keepBackdrop', async ({ page }) => {
+    await page.goto('/docs/effects.html')
+    const start = await probe(page, 'halftone', 0, [1, 1, 1], 0.9)
+    expect(near(start, [255, 255, 255]), `start: ${start}`).toBe(true)
+    // sample a row across the box at the end: dots make it vary, the veil keeps it light
+    const row = await page.evaluate(async () => {
+      const { renderer, effects } = (window as any).__docs
+      const host = document.createElement('div')
+      host.id = 'probe2'
+      host.style.cssText = 'position:fixed;left:0;top:0;width:480px;height:320px;z-index:10;background:#fff'
+      document.body.append(host)
+      await renderer.prepare(effects.halftone)
+      void renderer.play(host, { effect: effects.halftone, from: 1, to: 1, duration: 3000, color: [1, 1, 1], alpha: 0.9, scale: 1 })
+      return true
+    })
+    expect(row).toBe(true)
+    await page.waitForTimeout(250)
+    const png = (await page.locator('#probe2').screenshot()).toString('base64')
+    const stats = await page.evaluate(async b64 => {
+      const img = new Image()
+      img.src = 'data:image/png;base64,' + b64
+      await img.decode()
+      const c = document.createElement('canvas')
+      c.width = img.width; c.height = img.height
+      const ctx = c.getContext('2d')!
+      ctx.drawImage(img, 0, 0)
+      const d = ctx.getImageData(0, 0, c.width, c.height).data
+      let min = 255, max = 0
+      for (let i = 0; i < d.length; i += 4) { min = Math.min(min, d[i]!); max = Math.max(max, d[i]!) }
+      return { min, max }
+    }, png)
+    expect(stats.max - stats.min, JSON.stringify(stats)).toBeGreaterThan(40) // ink dots on a light veil
+    expect(stats.max, JSON.stringify(stats)).toBeGreaterThan(220)
+  })
+})

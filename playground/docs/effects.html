@@ -42,6 +42,12 @@
   <button type="button" class="btn" data-play="ink-veil" data-veil>Play</button>
 </div>
 <div class="swatch">
+  <div class="swatch-stage">Halftone</div>
+  <p><code>halftoneEffect</code></p>
+  <p style="font-size:1rem;font-style:italic">A screen of ink dots sized by noise. For dialog backdrops, with keepBackdrop.</p>
+  <button type="button" class="btn" data-play="halftone" data-veil>Play</button>
+</div>
+<div class="swatch">
   <div class="swatch-stage">Backdrop</div>
   <p><code>backdropEffect</code></p>
   <p style="font-size:1rem;font-style:italic">Backdrop from the center. Default for dialog.</p>
@@ -72,7 +78,7 @@ void main() {
 
 <h2 id="rules">Rules for effect authors</h2>
 <ul class="plain">
-  <li>Write premultiplied alpha. A cover effect is fully transparent at <code>uProgress = 1</code>; a backdrop effect ends on a uniform <code>uColor</code> × <code>uAlpha</code>.</li>
+  <li>Write premultiplied alpha. A cover effect is fully transparent at <code>uProgress = 1</code>; a backdrop effect ends on a uniform <code>uColor</code> × <code>uAlpha</code>, unless it is used with <code>keepBackdrop</code>, which hands its last frame to CSS as an image (<code>halftoneEffect</code>).</li>
   <li>No periodic change in luminance faster than three times per second (WCAG 2.3.1). One sweep per interaction is the model.</li>
   <li>Durations are capped at five seconds (<code>MAX_DURATION</code>, WCAG 2.2.2).</li>
   <li>Never carry meaning in the effect alone: the native element must say everything.</li>

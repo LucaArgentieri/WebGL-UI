@@ -17,7 +17,7 @@ test.describe('home (showcase)', () => {
   test('details, dialog and popover share one canvas; --p and data-animating follow the animation and are cleaned up', async ({ page }) => {
     await countCanvases(page)
     await page.goto('/')
-    await expect(page.locator('#status')).toContainText('One renderer, two effects')
+    await expect(page.locator('#status')).toContainText('One renderer, three effects')
 
     const d = page.locator('details').first()
     await d.locator('summary').click()
@@ -30,15 +30,19 @@ test.describe('home (showcase)', () => {
     expect(await d.evaluate(el => el.style.getPropertyValue('--p'))).toBe('')
 
     await page.locator('#open-dialog').click()
-    await expect(page.locator('#home-dialog')).toHaveJSProperty('open', true)
-    // layout 'behind': the effect paints the panel's surface inside the dialog, and CSS owns the backdrop (it follows --p)
-    await expect(page.locator('#home-dialog')).toHaveAttribute('data-fx-host', '')
+    const dlg = page.locator('#home-dialog')
+    await expect(dlg).toHaveJSProperty('open', true)
+    // halftone backdrop drawn by the shader, which also paints the panel's sheet (paintsPanel → [data-fx-behind])
+    await expect(dlg).toHaveAttribute('data-fx-behind', '')
     await expect(page.locator('#home-dialog > canvas')).toHaveCount(1)
-    const op = await page.evaluate(() => parseFloat(getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').opacity))
-    expect(op).toBeLessThanOrEqual(1)
-    await page.waitForTimeout(1200)
+    // keepBackdrop: when the opening ends, its last frame becomes the ::backdrop image and the canvas goes
+    await expect(dlg).toHaveAttribute('data-fx-snapshot', '', { timeout: 6000 })
+    await expect(page.locator('canvas')).toHaveCount(0)
+    expect(await page.evaluate(() => getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').backgroundImage)).toContain('data:image/png')
     await page.keyboard.press('Escape')
-    await expect(page.locator('#home-dialog')).toHaveJSProperty('open', false, { timeout: 3000 })
+    await expect(dlg).toHaveJSProperty('open', false, { timeout: 4000 })
+    await expect(dlg).not.toHaveAttribute('data-fx-snapshot', '')
+    expect(await dlg.evaluate(el => (el as HTMLElement).style.getPropertyValue('--fx-backdrop-image'))).toBe('')
 
     await page.getByRole('button', { name: 'Popover' }).click()
     expect(await page.evaluate(() => document.getElementById('home-pop')!.matches(':popover-open'))).toBe(true)

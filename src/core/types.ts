@@ -67,6 +67,13 @@ export interface PlayOptions {
   layout?: FxLayout
   /** Called synchronously on every frame, before rendering, with the same progress the shader gets. */
   onFrame?: (progress: number, time: number) => void
+  /**
+   * Called once, right after the last frame of an animation that reached its end, before the canvas is removed:
+   * the only moment its pixels can be read (e.g. canvas.toDataURL()) to hand them over to CSS.
+   */
+  onEnd?: (canvas: HTMLCanvasElement) => void
+  /** Resolution of the canvas relative to the device pixels. Default 1, or 0.5 with layout 'viewport'. */
+  scale?: number
   /** An image effects may sample as uImage (see createImageFx). */
   image?: TexImageSource | null
   imageScale?: Vec2

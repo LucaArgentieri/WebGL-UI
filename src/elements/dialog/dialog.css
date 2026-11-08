@@ -54,5 +54,11 @@ dialog[data-fx-host][data-animating] [data-fx-panel] {
 /* layout: 'behind': the shader paints the panel's surface from nothing, behind its content. */
 dialog[data-fx-behind][data-animating] [data-fx-panel] {
   opacity: 1;
+  transform: none;
   background: transparent;
+}
+
+/* keepBackdrop: the last frame of the opening, handed over to CSS (not while an animation draws it). */
+dialog[data-fx-snapshot]:not([data-animating])::backdrop {
+  background: var(--fx-backdrop-image) 0 0 / 100% 100% no-repeat;
 }

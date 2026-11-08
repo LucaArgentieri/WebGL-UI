@@ -85,7 +85,7 @@ export function createRenderer(): Renderer {
       host.append(canvas)
       // A viewport-sized effect (a dialog backdrop) is soft by nature and covers the most pixels: it is drawn at half
       // resolution and scaled up by the compositor, a quarter of the fragment work for no visible difference.
-      const dpr = Math.min(window.devicePixelRatio || 1, 2) * (o.layout === 'viewport' ? 0.5 : 1)
+      const dpr = Math.min(window.devicePixelRatio || 1, 2) * (o.scale ?? (o.layout === 'viewport' ? 0.5 : 1))
       const fit = () => {
         // Assigning width/height clears the canvas: only when the size actually changes.
         const w = Math.max(1, Math.round(canvas.clientWidth * dpr))
@@ -146,7 +146,10 @@ export function createRenderer(): Renderer {
           params: o.params
         })
         if (k < 1) raf = requestAnimationFrame(frame)
-        else finish(true)
+        else {
+          try { o.onEnd?.(canvas) } catch (err) { console.warn('[webgl-ui] onEnd failed', err) }
+          finish(true)
+        }
       }
       // The end of an animation is when native work happens (a dialog's close event, focus restore): it must not
       // depend on the frame cadence. If frames stall (a busy or throttled page), this deadline draws the last one.

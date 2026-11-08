@@ -18,6 +18,18 @@ export interface DialogFxOptions {
   layout?: FxLayout
   /** Opening duration in ms. Closing takes 65% of it. Default 1200. */
   duration?: number
+  /**
+   * Layout 'viewport' only: keep the last frame of the opening as the backdrop. When the opening ends, its pixels
+   * become the ::backdrop's background image (`--fx-backdrop-image`, `[data-fx-snapshot]`), so a backdrop CSS
+   * cannot draw (noise, halftone…) stays on screen while the canvas goes away, as always. Default false.
+   */
+  keepBackdrop?: boolean
+  /**
+   * Layout 'viewport' only: the effect also paints the panel's surface (it receives the panel's rectangle as
+   * `uPanel` and its color, `--fx-cover`, as `uSheet`), so the panel is transparent while animating
+   * (`[data-fx-behind]`, see dialog.css). Default false.
+   */
+  paintsPanel?: boolean
   /** Debug hook for internal decisions. */
   trace?: (message: string) => void
 }
@@ -75,6 +87,20 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   }
   void resolveRenderer(options.renderer).prepare(effect)
 
+  function clearSnapshot() {
+    dialog.removeAttribute('data-fx-snapshot')
+    dialog.style.removeProperty('--fx-backdrop-image')
+  }
+
+  // The panel's rectangle in the viewport canvas, as uv with the origin at the bottom left (GLSL convention).
+  function panelRect(): [number, number, number, number] {
+    const panel = dialog.querySelector('[data-fx-panel]') ?? dialog
+    const r = panel.getBoundingClientRect()
+    const w = document.documentElement.clientWidth || innerWidth // the viewport canvas covers the initial containing block
+    const h = document.documentElement.clientHeight || innerHeight
+    return [r.left / w, 1 - r.bottom / h, r.width / w, r.height / h]
+  }
+
   function cleanup() {
     dialog.removeAttribute('data-animating')
     dialog.style.removeProperty('--p')
@@ -91,6 +117,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
       } else if (dialog.open) {
         const rv = pendingReturnValue
         pendingReturnValue = undefined
+        clearSnapshot()
         nativeClose.call(dialog, rv) // the browser restores focus and emits `close` here
       }
     } finally {
@@ -133,11 +160,18 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
         color: layout === 'viewport' ? dim.rgb : readCoverColor(dialog),
         alpha: layout === 'viewport' ? dim.alpha : 1,
         layout,
+        params: layout === 'viewport' ? { uPanel: options.paintsPanel ? panelRect() : [0, 0, 0, 0], uSheet: readCoverColor(dialog) } : undefined,
         onFrame: (p, t) => {
           if (id !== runId) return // frame of a superseded animation: writes nothing
           progress = p
           clock = t
           dialog.style.setProperty('--p', p.toFixed(4))
+        },
+        onEnd: canvas => {
+          if (!next || !options.keepBackdrop || layout !== 'viewport' || id !== runId) return
+          // Read in the same task as the last frame: afterwards a WebGL canvas may already be cleared.
+          dialog.style.setProperty('--fx-backdrop-image', `url("${canvas.toDataURL('image/png')}")`)
+          dialog.setAttribute('data-fx-snapshot', '')
         }
       })
     } catch (err) {
@@ -224,10 +258,11 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
     progress = 0
     pendingReturnValue = undefined
     cleanup()
+    clearSnapshot()
   }
 
   if (layout !== 'viewport') dialog.setAttribute('data-fx-host', '')
-  if (layout === 'behind') dialog.setAttribute('data-fx-behind', '')
+  if (layout === 'behind' || (layout === 'viewport' && options.paintsPanel)) dialog.setAttribute('data-fx-behind', '')
   dialog.showModal = showModal
   dialog.close = close
   dialog.addEventListener('cancel', onCancel)
@@ -243,6 +278,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
       runId++
       dialog.removeAttribute('data-fx-host')
       dialog.removeAttribute('data-fx-behind')
+      clearSnapshot()
       Reflect.deleteProperty(dialog, 'showModal') // back to the prototype's native method
       Reflect.deleteProperty(dialog, 'close')
       dialog.removeEventListener('cancel', onCancel)

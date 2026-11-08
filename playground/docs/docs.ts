@@ -1,5 +1,5 @@
 import {
-  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, createSwapFx, defineGlslEffect, readCoverColor, inkImageEffect,
+  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, createSwapFx, defineGlslEffect, readCoverColor, inkImageEffect, halftoneEffect,
   inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import '../../src/elements/progress/progress.css'
@@ -21,7 +21,7 @@ void main() {
 const blindsEffect = defineGlslEffect('blinds', BLINDS_FRAG)
 
 const effects: Record<string, EffectDef> = {
-  'ink-image': inkImageEffect, ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
+  halftone: halftoneEffect, 'ink-image': inkImageEffect, ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
 }
 
 // One renderer for the whole page: every example shares one canvas and one WebGL context.
@@ -50,7 +50,7 @@ document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
   }
   if (el.dataset.fx === 'dialog') {
     const layout = el.dataset.layout === 'host' || el.dataset.layout === 'behind' ? el.dataset.layout : 'viewport'
-    createDialogFx(el as HTMLDialogElement, { renderer, effect, layout })
+    createDialogFx(el as HTMLDialogElement, { renderer, effect, layout, keepBackdrop: el.hasAttribute('data-keep-backdrop'), paintsPanel: el.hasAttribute('data-paints-panel') })
   }
 })
 document.querySelectorAll<HTMLButtonElement>('[data-open-dialog]').forEach(b => {
