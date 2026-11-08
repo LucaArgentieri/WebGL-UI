@@ -108,7 +108,7 @@ details[data-animating] .content > :not(canvas),
 :root dialog, :root dialog::backdrop { --fx-rgb: 244, 239, 228; --fx-a: 0.9; }
 dialog { width: min(34rem, calc(100% - 2rem)); color: var(--ink); }
 .panel { background: var(--sheet); color: var(--ink); padding: 2rem; max-height: calc(100dvh - 2rem); overflow: auto; box-shadow: 0 1px 2px rgb(var(--ink-rgb) / 0.12), 0 24px 60px rgb(var(--ink-rgb) / 0.22); }
-dialog[data-animating]:not([data-fx-host]):not([data-fx-behind]) [data-fx-panel] { filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 6px), 2px)); }
+dialog[data-animating]:not([data-fx-host]):not([data-fx-behind]):not(.glass):not(.liquid) [data-fx-panel] { filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 6px), 2px)); }
 /* When the shader paints the panel's sheet, the content waits for it: it fades in over the second part of the
    progress, with no blur (a blurred panel before its sheet looked like the dialog arriving early). */
 dialog[data-fx-behind][data-animating] [data-fx-panel] > * { opacity: clamp(0, calc((var(--p, 1) - 0.45) / 0.55), 1); }
@@ -133,7 +133,8 @@ dialog[data-fx-behind][data-animating] [data-fx-panel] > * { opacity: clamp(0, c
    keeps, at rest, the fringe the shader shows while the glass forms. */
 :root dialog.glass, :root dialog.glass::backdrop { --fx-rgb: 236, 232, 224; --fx-a: 0.22; }
 :root dialog.glass::backdrop { -webkit-backdrop-filter: blur(10px) saturate(1.1); backdrop-filter: blur(10px) saturate(1.1); }
-dialog.glass .panel {
+dialog.glass .panel,
+dialog.liquid .panel {
   background: rgb(255 255 255 / 0.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.35);
   backdrop-filter: blur(24px) saturate(1.35);
@@ -145,7 +146,11 @@ dialog.glass .panel {
     inset -1.5px 0 0 rgb(40 130 255 / 0.18),
     0 30px 70px rgb(var(--ink-rgb) / 0.18);
 }
-dialog.glass .btn.primary { border-radius: 999px; }
+dialog.glass .btn.primary, dialog.liquid .btn.primary { border-radius: 999px; }
+/* Liquid glass backdrop: CSS frosts the page (fading in with --p), the shader draws the glass pane over it. */
+:root dialog.liquid, :root dialog.liquid::backdrop { --fx-rgb: 250, 248, 244; --fx-a: 0.12; }
+:root dialog.liquid::backdrop { -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5); }
+:root dialog.liquid[data-animating]::backdrop { opacity: var(--p, 1); }
 
 dialog[data-fx-behind][data-animating] .panel {
   box-shadow: 0 1px 2px rgb(var(--ink-rgb) / calc(0.12 * var(--p, 1))), 0 24px 60px rgb(var(--ink-rgb) / calc(0.22 * var(--p, 1)));

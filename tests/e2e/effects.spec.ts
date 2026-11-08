@@ -101,3 +101,35 @@ test.describe('glass', () => {
     expect(mid.slice(0, 3).every(v => v > 200), `mid: ${mid}`).toBe(true)
   })
 })
+
+test.describe('liquid glass (GLSL twin)', () => {
+  test('transparent at 0; at 1 a visible glass pane (shading and highlights), not a flat veil', async ({ page }) => {
+    await page.goto('/docs/effects.html')
+    expect(near(await probe(page, 'liquid-glass', 0, [1, 1, 1], 0.12), [255, 255, 255])).toBe(true)
+    await page.evaluate(async () => {
+      const { renderer, effects } = (window as any).__docs
+      const host = document.createElement('div')
+      host.id = 'probe3'
+      host.style.cssText = 'position:fixed;left:0;top:0;width:480px;height:320px;z-index:10;background:#808080'
+      document.body.append(host)
+      await renderer.prepare(effects['liquid-glass'])
+      void renderer.play(host, { effect: effects['liquid-glass'], from: 1, to: 1, duration: 3000, color: [1, 1, 1], alpha: 0.12, scale: 1, params: { uDrift: 3 } })
+    })
+    await page.waitForTimeout(250)
+    const png = (await page.locator('#probe3').screenshot()).toString('base64')
+    const range = await page.evaluate(async b64 => {
+      const img = new Image()
+      img.src = 'data:image/png;base64,' + b64
+      await img.decode()
+      const c = document.createElement('canvas')
+      c.width = img.width; c.height = img.height
+      const ctx = c.getContext('2d')!
+      ctx.drawImage(img, 0, 0)
+      const d = ctx.getImageData(40, 40, c.width - 80, c.height - 80).data // inside the rim
+      let min = 255, max = 0
+      for (let i = 0; i < d.length; i += 4) { min = Math.min(min, d[i + 1]!); max = Math.max(max, d[i + 1]!) }
+      return max - min
+    }, png)
+    expect(range).toBeGreaterThan(25)
+  })
+})

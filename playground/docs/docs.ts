@@ -1,5 +1,5 @@
 import {
-  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, createSwapFx, defineGlslEffect, readCoverColor, inkImageEffect, halftoneEffect, glassEffect,
+  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, createSwapFx, defineGlslEffect, readCoverColor, inkImageEffect, halftoneEffect, glassEffect, liquidGlassGlEffect, liquidGlassEffect,
   inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import '../../src/elements/progress/progress.css'
@@ -21,11 +21,12 @@ void main() {
 const blindsEffect = defineGlslEffect('blinds', BLINDS_FRAG)
 
 const effects: Record<string, EffectDef> = {
-  glass: glassEffect, halftone: halftoneEffect, 'ink-image': inkImageEffect, ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
+  'liquid-glass': liquidGlassGlEffect, glass: glassEffect, halftone: halftoneEffect, 'ink-image': inkImageEffect, ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
 }
 
 // One renderer for the whole page: every example shares one canvas and one WebGL context.
 const renderer = createRenderer()
+let gpuRenderer: ReturnType<typeof createRenderer> | undefined
 const effectOf = (el: HTMLElement) => effects[el.dataset.effect ?? '']
 
 document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
@@ -47,6 +48,12 @@ document.querySelectorAll<HTMLElement>('[data-fx]').forEach(el => {
   if (el.dataset.fx === 'image') {
     const fx = createImageFx(el as HTMLImageElement, { renderer, effect })
     el.closest('.example')?.querySelector('[data-replay]')?.addEventListener('click', () => { void fx.reveal() })
+  }
+  if (el.dataset.fx === 'dialog' && el.dataset.renderer === 'gpu') {
+    // WGSL effects need a canvas of their own (a WebGPU context), so this example has its own renderer.
+    gpuRenderer ??= createRenderer()
+    createDialogFx(el as HTMLDialogElement, { renderer: gpuRenderer, effect: liquidGlassEffect, keepBackdrop: true })
+    return
   }
   if (el.dataset.fx === 'dialog') {
     const layout = el.dataset.layout === 'host' || el.dataset.layout === 'behind' ? el.dataset.layout : 'viewport'

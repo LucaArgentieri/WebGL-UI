@@ -36,6 +36,16 @@ test.describe('WebGPU (WGSL) backend', () => {
     expect(start![3], `start ${start}`).toBeLessThan(4)
   })
 
+  test('the WGSL liquid glass: transparent at 0, a glass pane at 1, premultiplied', async ({ page }) => {
+    await page.goto('/webgpu.html')
+    const start = await offscreen(page, 'liquid', 0, [0.98, 0.97, 0.95], 0.12)
+    test.skip(start === null, 'no WebGPU adapter in this browser')
+    expect(start![3], `start ${start}`).toBeLessThan(4)
+    const end = await offscreen(page, 'liquid', 1, [0.98, 0.97, 0.95], 0.12)
+    expect(end![3], `end ${end}`).toBeGreaterThan(20)
+    expect(end!.slice(0, 3).every(v => v <= end![3]! + 1), `premultiplied ${end}`).toBe(true)
+  })
+
   test('details, popover and dialog animate and clean up', async ({ page }) => {
     await page.goto('/webgpu.html')
     await isReady(page)

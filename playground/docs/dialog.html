@@ -20,6 +20,7 @@
   <div class="actions">
     <button type="button" class="btn primary" data-open-dialog="dlg-host">The sheet appears from nothing</button>
     <button type="button" class="btn" data-open-dialog="dlg-viewport">The backdrop is the effect</button>
+    <button type="button" class="btn" data-open-dialog="dlg-liquid">Liquid glass (WebGPU)</button>
     <button type="button" class="btn" data-open-dialog="dlg-glass">Glass</button>
     <button type="button" class="btn" data-open-dialog="dlg-halftone">Halftone noise backdrop</button>
   </div>
@@ -31,6 +32,15 @@
       <h2 id="dlg-host-title">layout: 'behind'</h2>
       <p>The effect paints the panel's sheet behind its content: the dialog appears from nothing, through the ink. The veil behind is plain CSS.</p>
       <div class="row"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok">OK</button></div>
+    </form>
+  </div>
+</dialog>
+<dialog id="dlg-liquid" class="liquid" data-fx="dialog" data-renderer="gpu" closedby="any" aria-labelledby="dlg-liquid-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="dlg-liquid-title">Liquid glass</h2>
+      <p>The backdrop is a pane of liquid glass drawn with WebGPU (<code>liquidGlassEffect</code>, GLSL where WebGPU is missing), over a page frosted by CSS. Its surface drifts to a stop and the still frame stays (<code>keepBackdrop</code>). WGSL effects need a renderer of their own.</p>
+      <div class="row"><button class="btn primary" value="ok">OK</button></div>
     </form>
   </div>
 </dialog>

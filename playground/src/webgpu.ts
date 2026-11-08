@@ -1,6 +1,6 @@
 import {
   createRenderer, createDetailsFx, createDialogFx, createPopoverFx, inkGpuEffect, inkVeilGpuEffect, effectsAllowed,
-  wgslSource, INK_WGSL, INK_VEIL_WGSL
+  wgslSource, INK_WGSL, INK_VEIL_WGSL, LIQUID_GLASS_WGSL
 } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 
@@ -35,18 +35,18 @@ Object.assign(window, {
      * Test hook: renders an effect's WGSL into an offscreen texture and reads the center pixel back. Headless
      * browsers may not present WebGPU canvases on screen, so screenshots cannot check the shader; this does.
      */
-    async renderOffscreen(name: 'ink' | 'veil', progress: number, color: [number, number, number], alpha = 1) {
+    async renderOffscreen(name: 'ink' | 'veil' | 'liquid', progress: number, color: [number, number, number], alpha = 1) {
       const adapter = await navigator.gpu?.requestAdapter()
       if (!adapter) return null
       const device = await adapter.requestDevice()
       const size = 64
       const format: GPUTextureFormat = 'rgba8unorm'
-      const module = device.createShaderModule({ code: wgslSource(name === 'ink' ? INK_WGSL : INK_VEIL_WGSL) })
+      const module = device.createShaderModule({ code: wgslSource(name === 'ink' ? INK_WGSL : name === 'veil' ? INK_VEIL_WGSL : LIQUID_GLASS_WGSL) })
       const pipeline = await device.createRenderPipelineAsync({
         layout: 'auto', vertex: { module, entryPoint: 'vs' }, fragment: { module, entryPoint: 'fs', targets: [{ format }] }
       })
       const ubo = device.createBuffer({ size: 48, usage: 0x40 | 0x8 })
-      device.queue.writeBuffer(ubo, 0, new Float32Array([size, size, 0.5, 0.5, color[0], color[1], color[2], 0, 0, progress, alpha, 0]))
+      device.queue.writeBuffer(ubo, 0, new Float32Array([size, size, 0.5, 0.5, color[0], color[1], color[2], 0, 0, progress, alpha, 3]))
       const target = device.createTexture({ size: [size, size], format, usage: 0x10 | 0x01 })
       const out = device.createBuffer({ size: size * size * 4, usage: 0x8 | 0x1 })
       const enc = device.createCommandEncoder()

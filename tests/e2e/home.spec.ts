@@ -14,10 +14,10 @@ async function countCanvases(page: import('@playwright/test').Page) {
 }
 
 test.describe('home (showcase)', () => {
-  test('details, dialog and popover share one canvas; --p and data-animating follow the animation and are cleaned up', async ({ page }) => {
+  test('details and popover share one canvas, the dialog has its own (WebGPU); --p and data-animating follow the animation and are cleaned up', async ({ page }) => {
     await countCanvases(page)
     await page.goto('/')
-    await expect(page.locator('#status')).toContainText('One renderer, three effects')
+    await expect(page.locator('#status')).toContainText('Open a row, the dialog or the popover')
 
     const d = page.locator('details').first()
     await d.locator('summary').click()
@@ -32,11 +32,13 @@ test.describe('home (showcase)', () => {
     await page.locator('#open-dialog').click()
     const dlg = page.locator('#home-dialog')
     await expect(dlg).toHaveJSProperty('open', true)
-    // glass: layout 'host', the shader draws light over the panel while the CSS glass fades in, then goes
-    await expect(dlg).toHaveAttribute('data-fx-host', '')
+    // liquid glass: viewport layout on its own (WebGPU) renderer; the surface drifts to a stop, then its still
+    // frame becomes the ::backdrop image and the canvas goes; the frosting is CSS
     await expect(page.locator('#home-dialog > canvas')).toHaveCount(1)
-    await expect(page.locator('canvas')).toHaveCount(0, { timeout: 6000 })
-    expect(await page.locator('#home-dialog .panel').evaluate(el => getComputedStyle(el).backdropFilter)).toContain('blur')
+    await expect(dlg).toHaveAttribute('data-fx-snapshot', '', { timeout: 12000 })
+    await expect(page.locator('canvas')).toHaveCount(0)
+    expect(await page.evaluate(() => getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').backgroundImage)).toContain('blob:')
+    expect(await page.evaluate(() => getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').backdropFilter)).toContain('blur')
     await page.keyboard.press('Escape')
     await expect(dlg).toHaveJSProperty('open', false, { timeout: 4000 })
 
@@ -47,7 +49,7 @@ test.describe('home (showcase)', () => {
     await expect.poll(() => page.evaluate(() => document.getElementById('home-pop')!.matches(':popover-open')), { timeout: 3000 }).toBe(false)
 
     await expect(page.locator('canvas')).toHaveCount(0)
-    expect(await page.evaluate(() => (window as any).__canvases)).toBe(1)
+    expect(await page.evaluate(() => (window as any).__canvases)).toBe(2) // one renderer for the page, one (WebGPU) for the dialog
   })
 
   test('without WebGL2 every element is native', async ({ page }) => {

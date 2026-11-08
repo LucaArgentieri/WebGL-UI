@@ -8,7 +8,8 @@ import type { Effect, EffectDef, FxFrame } from './types'
  * returning premultiplied color. `uv` is 0..1 with the origin at the top left (the WebGPU convention); `frag` is
  * the fragment position in pixels. The standard inputs are in the uniform `fx`:
  *
- *   fx.progress, fx.time, fx.resolution, fx.pointer, fx.color (rgb in .xyz), fx.alpha
+ *   fx.progress, fx.time, fx.resolution, fx.pointer, fx.color (rgb in .xyz), fx.alpha,
+ *   fx.drift (the `uDrift` param when the caller passes one, e.g. a dialog with keepBackdrop; otherwise fx.time)
  *
  * Without WebGPU (no navigator.gpu, no adapter) the effect runs its `fallback` (a GLSL effect) on the same canvas;
  * without a fallback it fails to initialize and elements stay native. A canvas holds one kind of context, so give
@@ -22,7 +23,7 @@ struct Fx {
   time: f32,
   progress: f32,
   alpha: f32,
-  pad: f32,
+  drift: f32,
 }
 @group(0) @binding(0) var<uniform> fx: Fx;
 
@@ -106,7 +107,8 @@ export function createWgslEffect(code: string, fallback?: EffectDef): Effect {
     render(f: FxFrame) {
       if (delegate) { delegate.render(f); return }
       if (!gpu || !pipeline || !buffer || !group) return
-      data.set([f.size[0], f.size[1], f.pointer[0], f.pointer[1], f.color[0], f.color[1], f.color[2], 0, f.time, f.progress, f.alpha, 0])
+      const drift = f.params?.uDrift
+      data.set([f.size[0], f.size[1], f.pointer[0], f.pointer[1], f.color[0], f.color[1], f.color[2], 0, f.time, f.progress, f.alpha, typeof drift === 'number' ? drift : f.time])
       gpu.device.queue.writeBuffer(buffer, 0, data)
       const encoder = gpu.device.createCommandEncoder()
       const pass = encoder.beginRenderPass({
