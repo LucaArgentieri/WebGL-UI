@@ -2,6 +2,7 @@ import { resolveRenderer } from '../../core/renderer'
 import { effectsAllowed } from '../../core/preferences'
 import { backdropEffect } from '../../effects/backdrop'
 import { readCoverColor } from '../../core/color'
+import { MAX_DURATION } from '../../core/preferences'
 import type { EffectDef, FxLayout, RendererSource, Vec3 } from '../../core/types'
 
 export interface DialogFxOptions {
@@ -21,9 +22,16 @@ export interface DialogFxOptions {
   /**
    * Layout 'viewport' only: keep the last frame of the opening as the backdrop. When the opening ends, its pixels
    * become the ::backdrop's background image (`--fx-backdrop-image`, `[data-fx-snapshot]`), so a backdrop CSS
-   * cannot draw (noise, halftone…) stays on screen while the canvas goes away, as always. Default false.
+   * cannot draw (noise, halftone…) stays on screen while the canvas goes away, as always. Before that, the effect's
+   * motion (`uDrift`) goes on for `drift` ms and eases to a stop. Default false.
    */
   keepBackdrop?: boolean
+  /**
+   * With keepBackdrop: how long the backdrop keeps moving after the opening, slowing down to a stop. The opening
+   * plus this stays under five seconds by default (WCAG 2.2.2: motion that lasts longer needs a pause control).
+   * Default 3500.
+   */
+  drift?: number
   /**
    * Layout 'viewport' only: the effect also paints the panel's surface (it receives the panel's rectangle as
    * `uPanel` and its color, `--fx-cover`, as `uSheet`), so the panel is transparent while animating
@@ -87,9 +95,19 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   }
   void resolveRenderer(options.renderer).prepare(effect)
 
+  // keepBackdrop: after the opening, the backdrop drifts to a stop ([data-fx-ambient], the canvas still draws it),
+  // then its still frame becomes the ::backdrop image ([data-fx-snapshot]). A token invalidates late callbacks.
+  let ambientId = 0
+  let snapshotUrl: string | null = null
+  let restingDrift = 0
+
   function clearSnapshot() {
+    if (dialog.hasAttribute('data-fx-ambient')) resolveRenderer(options.renderer).cancel(owner)
+    ambientId++
+    dialog.removeAttribute('data-fx-ambient')
     dialog.removeAttribute('data-fx-snapshot')
     dialog.style.removeProperty('--fx-backdrop-image')
+    if (snapshotUrl) { URL.revokeObjectURL(snapshotUrl); snapshotUrl = null }
   }
 
   // The panel's rectangle in the viewport canvas, as uv with the origin at the bottom left (GLSL convention).
@@ -135,7 +153,9 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   async function animateTo(next: boolean) {
     const renderer = resolveRenderer(options.renderer)
     const id = ++runId
-    renderer.cancel(owner) // one of my own animations still running must not stay alive
+    renderer.cancel(owner) // one of my own animations (or the backdrop's drift) still running must not stay alive
+    ambientId++
+    dialog.removeAttribute('data-fx-ambient')
     target = next
     const from = progress
     const to = next ? 1 : 0
@@ -160,18 +180,12 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
         color: layout === 'viewport' ? dim.rgb : readCoverColor(dialog),
         alpha: layout === 'viewport' ? dim.alpha : 1,
         layout,
-        params: layout === 'viewport' ? { uPanel: options.paintsPanel ? panelRect() : [0, 0, 0, 0], uSheet: readCoverColor(dialog) } : undefined,
+        params: layout === 'viewport' ? panelParams(t => t) : undefined,
         onFrame: (p, t) => {
           if (id !== runId) return // frame of a superseded animation: writes nothing
           progress = p
           clock = t
           dialog.style.setProperty('--p', p.toFixed(4))
-        },
-        onEnd: canvas => {
-          if (!next || !options.keepBackdrop || layout !== 'viewport' || id !== runId) return
-          // Read in the same task as the last frame: afterwards a WebGL canvas may already be cleared.
-          dialog.style.setProperty('--fx-backdrop-image', `url("${canvas.toDataURL('image/png')}")`)
-          dialog.setAttribute('data-fx-snapshot', '')
         }
       })
     } catch (err) {
@@ -180,6 +194,65 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
 
     if (id !== runId) { trace(`${label} run#${id} superseded`); return }
     settle() // finished, or interrupted from outside (another dialog, lost context)
+    if (next && completed && options.keepBackdrop && layout === 'viewport') void persistBackdrop()
+  }
+
+  // Uniforms of a viewport effect: the panel's rectangle and color, and the noise's position in time.
+  function panelParams(drift: (time: number) => number) {
+    const uPanel = options.paintsPanel ? panelRect() : [0, 0, 0, 0]
+    const uSheet = readCoverColor(dialog)
+    return (_p: number, time: number) => ({ uPanel, uSheet, uDrift: drift(time) })
+  }
+
+  async function persistBackdrop() {
+    const renderer = resolveRenderer(options.renderer)
+    const token = ++ambientId
+    const dim = readDim(dialog)
+    const base = { effect, owner, layout, color: dim.rgb, alpha: dim.alpha, from: 1, to: 1 }
+    const seconds = Math.max(0, Math.min(options.drift ?? 3500, MAX_DURATION)) / 1000
+    const t0 = clock
+    // Velocity falls linearly from the opening's speed to zero: drift = t0 + s·(k − k²/2), k = elapsed / s.
+    const eased = (time: number) => {
+      const k = seconds > 0 ? Math.min(1, Math.max(0, (time - t0) / seconds)) : 1
+      clock = t0 + seconds * (k - (k * k) / 2) // a closing started now continues from here, without a jump
+      return clock
+    }
+    restingDrift = eased(t0 + seconds)
+    dialog.setAttribute('data-fx-ambient', '')
+    if (seconds > 0) {
+      const done = await renderer.play(dialog, { ...base, duration: seconds * 1000, time0: t0, params: panelParams(eased) })
+      if (!done || token !== ambientId) return
+    }
+    await snapshot(token)
+  }
+
+  // Draws the still frame, reads it without blocking (toBlob) and hands it to CSS once decoded; the canvas stays
+  // until then, so there is no frame without a backdrop.
+  async function snapshot(token: number) {
+    const renderer = resolveRenderer(options.renderer)
+    const dim = readDim(dialog)
+    void renderer.play(dialog, {
+      effect, owner, layout, color: dim.rgb, alpha: dim.alpha, from: 1, to: 1, duration: MAX_DURATION,
+      time0: restingDrift, params: panelParams(() => restingDrift)
+    })
+    clock = restingDrift
+    const blob = await new Promise<Blob | null>(resolve => renderer.canvas.toBlob(resolve, 'image/png'))
+    if (!blob || token !== ambientId) return
+    const url = URL.createObjectURL(blob)
+    try { const img = new Image(); img.src = url; await img.decode() } catch { /* use it anyway */ }
+    if (token !== ambientId) { URL.revokeObjectURL(url); return }
+    if (snapshotUrl) URL.revokeObjectURL(snapshotUrl)
+    snapshotUrl = url
+    dialog.style.setProperty('--fx-backdrop-image', `url("${url}")`)
+    dialog.setAttribute('data-fx-snapshot', '')
+    dialog.removeAttribute('data-fx-ambient')
+    renderer.cancel(owner) // the image is in place: the canvas can go
+  }
+
+  // A resized window would stretch the still frame: draw it again at the new size.
+  function onResize() {
+    if (!dialog.hasAttribute('data-fx-snapshot') || running || !fxAvailable()) return
+    void snapshot(ambientId)
   }
 
   /* Public API: same signatures as the native methods */
@@ -267,6 +340,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
   dialog.close = close
   dialog.addEventListener('cancel', onCancel)
   dialog.addEventListener('command', onCommand)
+  if (options.keepBackdrop) addEventListener('resize', onResize)
   dialog.addEventListener('submit', onSubmit)
   dialog.addEventListener('close', onClose)
 
@@ -283,6 +357,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
       Reflect.deleteProperty(dialog, 'close')
       dialog.removeEventListener('cancel', onCancel)
       dialog.removeEventListener('command', onCommand)
+      removeEventListener('resize', onResize)
       dialog.removeEventListener('submit', onSubmit)
       dialog.removeEventListener('close', onClose)
     },

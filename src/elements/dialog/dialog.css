@@ -58,7 +58,12 @@ dialog[data-fx-behind][data-animating] [data-fx-panel] {
   background: transparent;
 }
 
-/* keepBackdrop: the last frame of the opening, handed over to CSS (not while an animation draws it). */
+/* keepBackdrop: while the backdrop drifts to a stop the canvas draws it, then its still frame is handed over to
+   CSS (not while an animation draws it). */
+dialog[data-fx-ambient]::backdrop {
+  background: transparent;
+}
+
 dialog[data-fx-snapshot]:not([data-animating])::backdrop {
   background: var(--fx-backdrop-image) 0 0 / 100% 100% no-repeat;
 }

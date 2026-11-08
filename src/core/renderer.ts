@@ -143,7 +143,7 @@ export function createRenderer(): Renderer {
           alpha: o.alpha ?? 1,
           image: o.image ?? null,
           imageScale: o.imageScale ?? [1, 1],
-          params: o.params
+          params: typeof o.params === 'function' ? o.params(progress, time) : o.params
         })
         if (k < 1) raf = requestAnimationFrame(frame)
         else {

@@ -57,7 +57,7 @@ Documented differences:
 - While closing, `open` stays `true` and `close` / focus restore arrive when the animation ends.
 - A non-cancelable `cancel` (browser anti-abuse for repeated Esc without user activation) closes the dialog immediately, without animation.
 - The canvas is inserted inside the `<dialog>` during the animation.
-- `keepBackdrop` (layout `viewport`): the last frame of the opening becomes the `::backdrop` image (`[data-fx-snapshot]`, `--fx-backdrop-image`), so a backdrop CSS cannot draw stays after the canvas is removed; it is not redrawn on resize. `paintsPanel`: the same effect paints the panel's sheet (`uPanel`, `uSheet`).
+- `keepBackdrop` (layout `viewport`): after the opening the effect keeps moving for `drift` ms (default 3500, opening plus drift under 5 s, WCAG 2.2.2) and eases to a stop (`[data-fx-ambient]`); the still frame then becomes the `::backdrop` image (`[data-fx-snapshot]`, `--fx-backdrop-image`, read with `toBlob`, the canvas stays until the image is decoded), and is redrawn when the window is resized. `paintsPanel`: the same effect paints the panel's sheet (`uPanel`, `uSheet`).
 - `layout: 'host'` paints the effect over the dialog box instead of the backdrop, and `layout: 'behind'` paints the panel's sheet behind its content, so the dialog appears from nothing; in both, the backdrop is plain CSS that fades in with `--p` (`dialog.css`, `[data-fx-host]`, `[data-fx-behind]`).
 
 ## `popover` (MDN: https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)

@@ -38,7 +38,7 @@ native element ──(click / method / command / native event)──► element 
 - **Two families of effects**
   - *Cover*: fully covering at 0, fully transparent at 1 (`inkEffect`, `dissolveEffect`, `wipeEffect`). Used over content that is revealed.
   - *Veil*: transparent at 0, uniform `uColor × uAlpha` at 1 (`inkVeilEffect`, `backdropEffect`). Used for backdrops, and with `layout: 'behind'` to paint a surface that appears from nothing. Its last frame must equal the CSS that takes over.
-  - *Persisted backdrop*: when the last frame cannot be drawn by CSS (`halftoneEffect`: noise-sized dots), the dialog's `keepBackdrop` reads that frame in `onEnd` and hands it to the `::backdrop` as an image. The canvas still goes away; the image is plain CSS decoration.
+  - *Persisted backdrop*: when the last frame cannot be drawn by CSS (`halftoneEffect`: noise-sized dots), the dialog's `keepBackdrop` lets the noise drift to a stop (`uDrift`, under 5 s in total for WCAG 2.2.2), reads the still frame with `toBlob` (never `toDataURL`: it blocks) and hands it to the `::backdrop` as an image, keeping the canvas until the image is decoded. The canvas then goes away; the image is plain CSS decoration. Continuous motion behind an open dialog would need a pause control: don't add it silently.
 - **Layouts**: `host` (canvas over the host's content), `behind` (canvas behind the content, z-index −1, host must be a stacking context — dialogs and popovers in the top layer are), `viewport` (fixed, behind a dialog's panel; drawn at half resolution).
 - **Colors**: `--fx-cover: r, g, b` (0–255, commas) on the element chooses what the shader paints; otherwise the surface background. Dialog backdrops use `--fx-rgb` / `--fx-a`, read by both CSS and shader.
 
@@ -114,6 +114,7 @@ Implement `Effect` (async `init` is fine), report failures by throwing from `ini
 - **`rgb(var(--x) / a)`** needs a space-separated custom property; a comma-separated one silently invalidates the whole declaration.
 - **`::backdrop` inherits `--p`** from its dialog in current engines; older ones fall back to the default value.
 - **Animated blur radius** re-rasterizes text every frame: change it in whole steps (`round()`), fade backdrop blur with opacity instead of radius.
+- **When the shader paints a panel's sheet, the content must wait for it**: fade the content in over the second half of the progress, never show it (blurred or not) before its surface.
 - **The end of an animation is when native work happens** (a dialog's `close` event, focus restore): never make it depend on frame cadence (the renderer has a deadline).
 
 ## Testing

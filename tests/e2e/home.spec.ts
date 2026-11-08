@@ -35,10 +35,14 @@ test.describe('home (showcase)', () => {
     // halftone backdrop drawn by the shader, which also paints the panel's sheet (paintsPanel → [data-fx-behind])
     await expect(dlg).toHaveAttribute('data-fx-behind', '')
     await expect(page.locator('#home-dialog > canvas')).toHaveCount(1)
-    // keepBackdrop: when the opening ends, its last frame becomes the ::backdrop image and the canvas goes
-    await expect(dlg).toHaveAttribute('data-fx-snapshot', '', { timeout: 6000 })
+    // keepBackdrop: after the opening the noise keeps moving and eases to a stop ([data-fx-ambient], canvas still
+    // there), then the still frame becomes the ::backdrop image and the canvas goes
+    await expect(dlg).toHaveAttribute('data-fx-ambient', '', { timeout: 8000 })
+    await expect(page.locator('#home-dialog > canvas')).toHaveCount(1)
+    await expect(dlg).toHaveAttribute('data-fx-snapshot', '', { timeout: 12000 })
+    await expect(dlg).not.toHaveAttribute('data-fx-ambient', '')
     await expect(page.locator('canvas')).toHaveCount(0)
-    expect(await page.evaluate(() => getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').backgroundImage)).toContain('data:image/png')
+    expect(await page.evaluate(() => getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').backgroundImage)).toContain('blob:')
     await page.keyboard.press('Escape')
     await expect(dlg).toHaveJSProperty('open', false, { timeout: 4000 })
     await expect(dlg).not.toHaveAttribute('data-fx-snapshot', '')

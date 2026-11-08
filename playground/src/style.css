@@ -99,20 +99,19 @@ details[data-animating] .content {
    pixels (round()): a new radius means a new raster of the text, so a handful of steps cost far fewer frames
    than a different radius on every one. */
 details[data-animating] .content > :not(canvas),
-.pop[data-animating] > :not(canvas),
-dialog[data-fx-host][data-animating] [data-fx-panel] > * {
+.pop[data-animating] > :not(canvas) {
   opacity: var(--p, 1);
   filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 8px), 2px));
 }
 
 /* dialog (the contract lives in src/elements/dialog/dialog.css). The veil is paper, the panel is a sheet of paper. */
 :root dialog, :root dialog::backdrop { --fx-rgb: 244, 239, 228; --fx-a: 0.9; }
-:root dialog::backdrop { backdrop-filter: blur(5px); }
-/* A fixed blur radius that fades with opacity: much cheaper than re-blurring the viewport with a new radius on every frame. */
-:root dialog[data-animating]::backdrop { opacity: var(--p, 1); }
 dialog { width: min(34rem, calc(100% - 2rem)); color: var(--ink); }
 .panel { background: var(--sheet); color: var(--ink); padding: 2rem; max-height: calc(100dvh - 2rem); overflow: auto; box-shadow: 0 1px 2px rgb(var(--ink-rgb) / 0.12), 0 24px 60px rgb(var(--ink-rgb) / 0.22); }
-dialog[data-animating]:not([data-fx-host]) [data-fx-panel] { filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 6px), 2px)); }
+dialog[data-animating]:not([data-fx-host]):not([data-fx-behind]) [data-fx-panel] { filter: blur(round(up, calc(max(0, 1 - var(--p, 1) * 1.5) * 6px), 2px)); }
+/* When the shader paints the panel's sheet, the content waits for it: it fades in over the second part of the
+   progress, with no blur (a blurred panel before its sheet looked like the dialog arriving early). */
+dialog[data-fx-behind][data-animating] [data-fx-panel] > * { opacity: clamp(0, calc((var(--p, 1) - 0.45) / 0.55), 1); }
 .panel h2 { margin: 0 0 0.75rem; font-size: 2.125rem; font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; }
 .panel p { margin: 0 0 1rem; }
 .panel label { display: block; font-size: 0.9375rem; font-style: italic; margin-bottom: 0.25rem; }

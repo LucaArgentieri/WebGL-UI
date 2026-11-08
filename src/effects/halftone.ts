@@ -6,8 +6,8 @@ import { defineGlslEffect } from '../core/glsl'
  * noise-staggered order as the dialog opens. With `paintsPanel`, the panel's sheet (uSheet, in uPanel) appears from
  * nothing with an organic ink edge, like inkVeilEffect.
  *
- * The last frame is not uniform, so CSS cannot redraw it: use it with `keepBackdrop: true`, which hands that frame
- * over to the ::backdrop as an image.
+ * The noise moves with uDrift. The last frame is not uniform, so CSS cannot redraw it: use it with
+ * `keepBackdrop: true`, which lets the noise drift to a stop and hands the still frame over to the ::backdrop.
  *   uPanel: panel rectangle in uv (x, y, w, h), origin bottom left; w = 0 means no panel. uSheet: panel color.
  */
 export const HALFTONE_FRAG = `#version 300 es
@@ -19,6 +19,7 @@ uniform vec3  uColor;
 uniform float uAlpha;
 uniform vec4  uPanel;
 uniform vec3  uSheet;
+uniform float uDrift; // seconds of noise motion (the dialog eases it to a stop)
 out vec4 outColor;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -48,7 +49,7 @@ void main() {
   vec2 id = floor(q);
   vec2 gv = fract(q) - 0.5;
   vec2 center = transpose(rot) * ((id + 0.5) * cell) / uResolution.y; // cell center, screen space
-  float n = fbm(center * 2.6 + vec2(uTime * 0.02, 0.0));
+  float n = fbm(center * 2.6 + vec2(uDrift * 0.16, uDrift * 0.07));
   float tone = clamp((n - 0.28) / 0.5, 0.0, 1.0);
   float grow = smoothstep(tone * 0.45, tone * 0.45 + 0.55, p); // denser tones arrive later
   float r = 0.66 * sqrt(tone) * grow;
