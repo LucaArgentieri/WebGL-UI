@@ -11,7 +11,9 @@ Issue #8. Question: can an effect distort an element's own pixels (the text itse
 | Repaint signal | `paint` event, `canvas.requestPaint()` | same |
 | Firefox, Safari | none | none |
 
-The spike feature-detects both shapes and sets both attributes. Only the first shape could be exercised here (Chromium 153 with the flag): the Chrome 157 upload path is written from the published names but **not verified**.
+The spike implements the first shape only (verified on Chromium 153 with the flag). In a browser with the shipped shape it keeps the article as plain DOM.
+
+**Chrome 158 (CI, November 2026) showed why the shipped shape is not a rename.** With the article moved into a drawable canvas, clicks went to the canvas instead of the children: the shipped API expects the page to declare where each element is drawn (element geometry: `updateElementGeometry`, `getElementTransform`, the `elementgeometryupdate` event) so that hit testing can map pointer events to it, and it uploads with `texElementSubImage2D`. Porting the spike means drawing the element where the geometry says and keeping that geometry up to date; that is the next step before any API proposal.
 
 ## What was verified
 
@@ -28,7 +30,7 @@ Chromium 153 + flag, headless, SwiftShader; each item is an e2e test (`tests/e2e
 | Selection | triple click selects the paragraph inside the canvas |
 | Without the API | the article stays plain DOM; no canvas is created |
 
-Not verified: Chrome 157 shapes, context loss (the spike reloads), high-DPI precision, performance, WICG issue #172 (it concerns a WebGL canvas moved into a drawable canvas; here the drawable canvas is the WebGL one).
+Not verified: the Chrome 157+ shape (see above), context loss (the spike reloads), high-DPI precision, performance, WICG issue #172 (it concerns a WebGL canvas moved into a drawable canvas; here the drawable canvas is the WebGL one).
 
 ## What it means for an API
 

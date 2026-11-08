@@ -3,7 +3,8 @@
  *
  * Feature detection covers both shapes seen so far:
  * - Chromium 147–156 behind the CanvasDrawElement flag: <canvas layoutsubtree>, gl.texElementImage2D(target, internalformat, element)
- * - Chrome 157+: <canvas content="drawable"> + [drawable] children, gl.texElementSubImage2D(...)
+ * - Chrome 157+: <canvas content="drawable"> + [drawable] children, gl.texElementSubImage2D(...) and element
+ *   geometry for hit testing (not implemented: those browsers get plain DOM)
  */
 export {}
 
@@ -20,8 +21,11 @@ type GL = WebGL2RenderingContext & {
   texElementImage2D?: (target: number, internalformat: number, element: Element) => void
 }
 
-const supported = 'requestPaint' in HTMLCanvasElement.prototype &&
-  ('texElementImage2D' in WebGL2RenderingContext.prototype || 'texElementSubImage2D' in WebGL2RenderingContext.prototype)
+// Only the shape this spike implements: the flagged Chromium 147–156 API. The API shipped in Chrome 157+ uploads
+// with texElementSubImage2D and needs the page to declare where each element is drawn (element geometry) for
+// hit testing to reach it; without that, the canvas swallows clicks. Not implemented here: such browsers get
+// plain DOM (see docs/html-in-canvas.md).
+const supported = 'requestPaint' in HTMLCanvasElement.prototype && 'texElementImage2D' in WebGL2RenderingContext.prototype
 
 const FRAG = `#version 300 es
 precision highp float;
