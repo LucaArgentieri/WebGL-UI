@@ -2,7 +2,7 @@ import { test, expect } from './fixtures'
 import type { Page } from '@playwright/test'
 
 // Every preference that asks for the native behavior, and how to emulate it.
-const preferences: { name: string; apply: (page: Page) => Promise<void> }[] = [
+const preferences: { name: string; apply: (page: Page) => Promise<unknown> }[] = [
   { name: 'reduced motion', apply: page => page.emulateMedia({ reducedMotion: 'reduce' }) },
   { name: 'forced colors', apply: page => page.emulateMedia({ forcedColors: 'active' }) },
   { name: 'more contrast', apply: page => page.emulateMedia({ contrast: 'more' }) },

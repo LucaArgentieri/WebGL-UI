@@ -12,7 +12,7 @@
     "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.0",
+    "@playwright/test": "^1.65.0",
     "@types/node": "^26.6.5",
     "@types/three": "^0.186.0",
     "marked": "^15.0.12",
