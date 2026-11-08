@@ -1,5 +1,5 @@
 import {
-  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, createSwapFx, defineGlslEffect, readCoverColor, inkImageEffect, halftoneEffect,
+  createRenderer, createDetailsFx, createDialogFx, createPopoverFx, createImageFx, createProgressFx, createSwapFx, defineGlslEffect, readCoverColor, inkImageEffect, halftoneEffect, glassEffect,
   inkEffect, inkVeilEffect, dissolveEffect, wipeEffect, backdropEffect, type EffectDef, effectsAllowed } from 'webgl-ui'
 import '../../src/elements/dialog/dialog.css'
 import '../../src/elements/progress/progress.css'
@@ -21,7 +21,7 @@ void main() {
 const blindsEffect = defineGlslEffect('blinds', BLINDS_FRAG)
 
 const effects: Record<string, EffectDef> = {
-  halftone: halftoneEffect, 'ink-image': inkImageEffect, ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
+  glass: glassEffect, halftone: halftoneEffect, 'ink-image': inkImageEffect, ink: inkEffect, 'ink-veil': inkVeilEffect, dissolve: dissolveEffect, wipe: wipeEffect, backdrop: backdropEffect, blinds: blindsEffect
 }
 
 // One renderer for the whole page: every example shares one canvas and one WebGL context.

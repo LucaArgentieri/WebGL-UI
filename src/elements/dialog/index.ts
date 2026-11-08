@@ -110,6 +110,12 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
     if (snapshotUrl) { URL.revokeObjectURL(snapshotUrl); snapshotUrl = null }
   }
 
+  // The panel's corner radius in canvas pixels, for effects that draw a rounded box (uRadius).
+  function panelRadius(): number {
+    const panel = dialog.querySelector('[data-fx-panel]') ?? dialog
+    return (parseFloat(getComputedStyle(panel).borderTopLeftRadius) || 0) * Math.min(devicePixelRatio || 1, 2)
+  }
+
   // The panel's rectangle in the viewport canvas, as uv with the origin at the bottom left (GLSL convention).
   function panelRect(): [number, number, number, number] {
     const panel = dialog.querySelector('[data-fx-panel]') ?? dialog
@@ -180,7 +186,7 @@ export function createDialogFx(dialog: HTMLDialogElement, options: DialogFxOptio
         color: layout === 'viewport' ? dim.rgb : readCoverColor(dialog),
         alpha: layout === 'viewport' ? dim.alpha : 1,
         layout,
-        params: layout === 'viewport' ? panelParams(t => t) : undefined,
+        params: layout === 'viewport' ? panelParams(t => t) : { uRadius: panelRadius() },
         onFrame: (p, t) => {
           if (id !== runId) return // frame of a superseded animation: writes nothing
           progress = p

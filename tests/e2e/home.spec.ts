@@ -32,21 +32,13 @@ test.describe('home (showcase)', () => {
     await page.locator('#open-dialog').click()
     const dlg = page.locator('#home-dialog')
     await expect(dlg).toHaveJSProperty('open', true)
-    // halftone backdrop drawn by the shader, which also paints the panel's sheet (paintsPanel → [data-fx-behind])
-    await expect(dlg).toHaveAttribute('data-fx-behind', '')
+    // glass: layout 'host', the shader draws light over the panel while the CSS glass fades in, then goes
+    await expect(dlg).toHaveAttribute('data-fx-host', '')
     await expect(page.locator('#home-dialog > canvas')).toHaveCount(1)
-    // keepBackdrop: after the opening the noise keeps moving and eases to a stop ([data-fx-ambient], canvas still
-    // there), then the still frame becomes the ::backdrop image and the canvas goes
-    await expect(dlg).toHaveAttribute('data-fx-ambient', '', { timeout: 8000 })
-    await expect(page.locator('#home-dialog > canvas')).toHaveCount(1)
-    await expect(dlg).toHaveAttribute('data-fx-snapshot', '', { timeout: 12000 })
-    await expect(dlg).not.toHaveAttribute('data-fx-ambient', '')
-    await expect(page.locator('canvas')).toHaveCount(0)
-    expect(await page.evaluate(() => getComputedStyle(document.getElementById('home-dialog')!, '::backdrop').backgroundImage)).toContain('blob:')
+    await expect(page.locator('canvas')).toHaveCount(0, { timeout: 6000 })
+    expect(await page.locator('#home-dialog .panel').evaluate(el => getComputedStyle(el).backdropFilter)).toContain('blur')
     await page.keyboard.press('Escape')
     await expect(dlg).toHaveJSProperty('open', false, { timeout: 4000 })
-    await expect(dlg).not.toHaveAttribute('data-fx-snapshot', '')
-    expect(await dlg.evaluate(el => (el as HTMLElement).style.getPropertyValue('--fx-backdrop-image'))).toBe('')
 
     await page.getByRole('button', { name: 'Popover' }).click()
     expect(await page.evaluate(() => document.getElementById('home-pop')!.matches(':popover-open'))).toBe(true)

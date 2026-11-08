@@ -54,7 +54,7 @@ document.querySelectorAll('[popover]').forEach(p => createPopoverFx(p, { rendere
 // popovertarget buttons and showPopover()/hidePopover()/togglePopover() are now animated
 ```
 
-Built-in effects: `dissolveEffect`, `wipeEffect`, `backdropEffect`, and the paper-and-ink pair `inkEffect` / `inkVeilEffect` used by the showcase (a cover that recedes with an organic, fibrous edge, like ink soaking into paper). The elements also expose `--p` and `[data-animating]`, so CSS can add opacity or blur that follows the shader.
+Built-in effects: `dissolveEffect`, `wipeEffect`, `backdropEffect`, `glassEffect` (light only, over CSS frosted glass), `halftoneEffect`, and the paper-and-ink pair `inkEffect` / `inkVeilEffect` used by the showcase (a cover that recedes with an organic, fibrous edge, like ink soaking into paper). The elements also expose `--p` and `[data-animating]`, so CSS can add opacity or blur that follows the shader.
 
 For a dialog or a popover, `layout: 'behind'` with `inkVeilEffect` paints the surface itself behind the content, so the box appears from nothing; `layout: 'host'` paints a cover over it; a dialog's default (`'viewport'`) paints the backdrop. Set `--fx-cover: r, g, b` on the dialog, popover or details to choose the cover color.
 

@@ -20,6 +20,7 @@
   <div class="actions">
     <button type="button" class="btn primary" data-open-dialog="dlg-host">The sheet appears from nothing</button>
     <button type="button" class="btn" data-open-dialog="dlg-viewport">The backdrop is the effect</button>
+    <button type="button" class="btn" data-open-dialog="dlg-glass">Glass</button>
     <button type="button" class="btn" data-open-dialog="dlg-halftone">Halftone noise backdrop</button>
   </div>
 </div>
@@ -30,6 +31,15 @@
       <h2 id="dlg-host-title">layout: 'behind'</h2>
       <p>The effect paints the panel's sheet behind its content: the dialog appears from nothing, through the ink. The veil behind is plain CSS.</p>
       <div class="row"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok">OK</button></div>
+    </form>
+  </div>
+</dialog>
+<dialog id="dlg-glass" class="glass" data-fx="dialog" data-effect="glass" data-layout="host" closedby="any" aria-labelledby="dlg-glass-title">
+  <div class="panel" data-fx-panel>
+    <form method="dialog">
+      <h2 id="dlg-glass-title">Glass</h2>
+      <p>The frosting is CSS (<code>backdrop-filter</code>): WebGL cannot read the page behind. The shader adds what CSS cannot while the glass forms, a rim with a faint RGB split and a sweep of light, and is transparent at the end.</p>
+      <div class="row"><button class="btn primary" value="ok">OK</button></div>
     </form>
   </div>
 </dialog>

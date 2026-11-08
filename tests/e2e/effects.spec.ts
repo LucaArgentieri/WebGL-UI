@@ -90,3 +90,14 @@ test.describe('halftone backdrop', () => {
     expect(stats.max, JSON.stringify(stats)).toBeGreaterThan(220)
   })
 })
+
+test.describe('glass', () => {
+  test('only light while the glass forms: transparent at 0 and at 1, light in between', async ({ page }) => {
+    await page.goto('/docs/effects.html')
+    expect(near(await probe(page, 'glass', 0, [1, 1, 1]), [255, 255, 255])).toBe(true)
+    expect(near(await probe(page, 'glass', 1, [1, 1, 1]), [255, 255, 255])).toBe(true)
+    // mid-way, the box must not be painted over: the centre stays (nearly) what is behind
+    const mid = await probe(page, 'glass', 0.5, [1, 1, 1])
+    expect(mid.slice(0, 3).every(v => v > 200), `mid: ${mid}`).toBe(true)
+  })
+})
