@@ -65,6 +65,13 @@ export interface PlayOptions {
   /** Who owns this animation: cancel(owner) only stops animations of that owner. */
   owner?: unknown
   layout?: FxLayout
+  /** Progress curve: 'ease' (default, ease-in-out) or 'linear' (for clocks, e.g. a countdown split into segments). */
+  easing?: 'ease' | 'linear'
+  /**
+   * Layout 'host' only: how far, in CSS pixels, the canvas reaches beyond the host on every side, for effects that
+   * draw outside the element (flames, smoke). The host must not clip its overflow.
+   */
+  bleed?: number
   /** Called synchronously on every frame, before rendering, with the same progress the shader gets. */
   onFrame?: (progress: number, time: number) => void
   /**

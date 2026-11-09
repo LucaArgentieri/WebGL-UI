@@ -121,3 +121,16 @@ Not an element: a helper around a DOM update you make. Its contract is about wha
 | `document.startViewTransition` | opt-in (`viewTransition: true`); the region gets a temporary `view-transition-name` |
 | A failing update | the region is uncovered and left as it was |
 | Reduced motion and other preferences / no WebGL | the update runs immediately; focus still handled |
+
+## Time limits (`createExpiryFx`)
+
+Not an element: a time limit you put on one (an undo button, an offer). Its contract is about the time limit.
+
+| Feature | Status |
+| --- | --- |
+| The element | native and focusable; hidden, removed or replaced by your `onExpire`, in the same task as the last frame |
+| WCAG 2.2.1 Timing Adjustable | the clock stops on hover and focus; `pause()`, `resume()`, `extend()` |
+| WCAG 2.2.2 Pause, Stop, Hide | pausing the clock stills the flames (the burned state stays, frozen) |
+| Announcements | the author's: the limit once and the outcome once, not every second |
+| Reduced motion and other preferences / no WebGL | the timer runs the same, without fire |
+| Background | WebGL cannot read the page: the burned part is painted with `--fx-cover` (flat backgrounds) |

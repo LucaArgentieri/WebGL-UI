@@ -37,3 +37,6 @@ export { INK_WGSL, INK_VEIL_WGSL, inkGpuEffect, inkVeilGpuEffect } from './effec
 export { HALFTONE_FRAG, halftoneEffect } from './effects/halftone'
 export { GLASS_FRAG, glassEffect } from './effects/glass'
 export { LIQUID_GLASS_WGSL, LIQUID_GLASS_FRAG, liquidGlassEffect, liquidGlassGlEffect } from './effects/liquid-glass'
+export { BURN_FRAG, burnEffect } from './effects/burn'
+export { createExpiryFx } from './elements/expiry'
+export type { ExpiryFx, ExpiryFxOptions } from './elements/expiry'

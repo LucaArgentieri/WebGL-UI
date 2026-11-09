@@ -179,3 +179,13 @@ dialog[data-fx-behind][data-animating] .panel {
 .spike-sheet { background: var(--paper); padding: 1.5rem 0; }
 .spike-sheet h2 { font-weight: 400; font-size: 2rem; margin: 0 0 0.75rem; }
 .spike-canvas { display: block; width: 100%; }
+
+/* burn timer: the stage is a flat paper surface (the burn paints the page colour where the button is gone) */
+.burn-stage { min-height: 9rem; display: grid; place-items: center; margin: 1rem 0 2rem; background: var(--paper); }
+.burn-btn {
+  font: inherit; font-size: 1.125rem; min-height: 3.25rem; padding: 0 1.75rem; min-width: 18rem; text-align: left;
+  color: var(--paper); background: var(--ink); border: 0; border-radius: 6px; cursor: pointer;
+}
+.burn-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.burn-btn[data-paused] .burn-left::after { content: " · paused"; font-style: italic; }
+.burn-done { font-style: italic; margin: 0; }

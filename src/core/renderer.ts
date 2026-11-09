@@ -62,11 +62,11 @@ export function createRenderer(): Renderer {
   let stop: (() => void) | null = null
   let stopOwner: unknown = null
 
-  function applyLayout(layout: FxLayout) {
+  function applyLayout(layout: FxLayout, bleed = 0) {
     const s = canvas.style
-    s.inset = '0'
-    s.width = '100%'
-    s.height = '100%'
+    s.inset = bleed ? `${-bleed}px` : '0'
+    s.width = bleed ? `calc(100% + ${2 * bleed}px)` : '100%'
+    s.height = bleed ? `calc(100% + ${2 * bleed}px)` : '100%'
     if (layout === 'viewport') {
       s.position = 'fixed'
       s.zIndex = '-1'
@@ -81,7 +81,7 @@ export function createRenderer(): Renderer {
     if (!inst || !inst.ready) return Promise.resolve(false)
     if (stop) stop()
     return new Promise<boolean>(resolve => {
-      applyLayout(o.layout ?? 'host')
+      applyLayout(o.layout ?? 'host', o.layout === 'viewport' ? 0 : o.bleed ?? 0)
       host.append(canvas)
       // A viewport-sized effect (a dialog backdrop) is soft by nature and covers the most pixels: it is drawn at half
       // resolution and scaled up by the compositor, a quarter of the fragment work for no visible difference.
@@ -131,7 +131,7 @@ export function createRenderer(): Renderer {
         fit()
         const elapsed = Math.max(now - t0, 0)
         const k = Math.min(elapsed / Math.min(o.duration, MAX_DURATION), 1)
-        const progress = o.from + (o.to - o.from) * easeInOut(k)
+        const progress = o.from + (o.to - o.from) * (o.easing === 'linear' ? k : easeInOut(k))
         const time = time0 + elapsed / 1000
         o.onFrame?.(progress, time)
         inst.effect.render({

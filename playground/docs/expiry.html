@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="./docs.css">
+<title>Expiry · WebGL UI</title>
+</head>
+<body>
+<div class="docs-shell">
+<!-- docs-nav -->
+<main>
+<h1>Expiry</h1>
+<p class="lead">A time limit on an element — an "undo" button, an offer, a one-time link — with the element burning away as the time runs out. The element stays native; the time limit and what expiry means are yours.</p>
+
+<p>Live: <a href="../burn.html">burn timer playground</a>.</p>
+
+<h2 id="usage">Usage</h2>
+<pre><code class="language-html">&lt;button id=&quot;undo&quot;&gt;Undo send · &lt;span id=&quot;left&quot;&gt;7&lt;/span&gt;s&lt;/button&gt;</code></pre>
+<pre><code class="language-ts">import { createRenderer, createExpiryFx } from &#x27;webgl-ui&#x27;
+
+const renderer = createRenderer()
+const undo = document.querySelector&lt;HTMLButtonElement&gt;(&#x27;#undo&#x27;)!
+const expiry = createExpiryFx(undo, {
+  renderer,
+  seconds: 7,
+  onTick: s =&gt; { left.textContent = String(s) },
+  onExpire: () =&gt; { undo.hidden = true }   // same task as the last frame: nothing flashes
+})
+expiry.start()
+undo.addEventListener(&#x27;click&#x27;, () =&gt; { expiry.cancel(); undoSend() })</code></pre>
+
+<h2 id="options">Options</h2>
+<table><thead><tr><th scope="col">Option</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>renderer</code></td><td><code>Renderer | () =&gt; Renderer</code></td><td>required</td><td>The shared renderer.</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>required</td><td>How long the element lives.</td></tr><tr><td><code>effect</code></td><td><code>EffectDef</code></td><td><code>burnEffect</code></td><td>Receives <code>uBox</code> (the element in canvas pixels) and <code>uDrift</code> (the flames&#39; clock).</td></tr><tr><td><code>bleed</code></td><td><code>number</code></td><td><code>56</code></td><td>How far flames and smoke may reach outside the element, in CSS pixels. The element must not clip its overflow.</td></tr><tr><td><code>onTick</code></td><td><code>(secondsLeft) =&gt; void</code></td><td>none</td><td>Each time the whole seconds left change: update your text.</td></tr><tr><td><code>onExpire</code></td><td><code>() =&gt; void</code></td><td>none</td><td>When the time is up, in the same task as the last frame: hide, remove or replace the element.</td></tr><tr><td><code>pauseOnInteraction</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Pause while hovered or focused.</td></tr></tbody></table>
+
+<h2 id="returns">Returns</h2>
+<table><thead><tr><th scope="col">Member</th><th scope="col">Description</th></tr></thead><tbody><tr><td><code>start()</code></td><td>Starts the clock (and the burn).</td></tr><tr><td><code>pause()</code>, <code>resume()</code></td><td>Stops and restarts the clock; while paused the burned state stays on screen, flames still.</td></tr><tr><td><code>extend(seconds)</code></td><td>Adds time.</td></tr><tr><td><code>cancel()</code></td><td>Stops for good without expiring (the action was taken); the element is shown intact.</td></tr><tr><td><code>secondsLeft()</code></td><td>Whole seconds left.</td></tr><tr><td><code>destroy()</code></td><td>Stops and removes the listeners.</td></tr></tbody></table>
+
+<h2 id="css">CSS hooks</h2>
+<table><thead><tr><th scope="col">Hook</th><th scope="col">Meaning</th></tr></thead><tbody><tr><td><code>[data-animating]</code>, <code>--p</code></td><td>While the burn runs; <code>--p</code> is the share burned.</td></tr><tr><td><code>[data-paused]</code></td><td>While the clock is stopped (hover, focus or <code>pause()</code>).</td></tr><tr><td><code>--fx-cover</code></td><td>The page colour behind the element, which the burned part is painted with. Default: the parent&#39;s background.</td></tr></tbody></table>
+
+<h2 id="behavior">Behavior and accessibility</h2>
+<ul class="plain">
+  <li><strong>Time limits must be adjustable</strong> (WCAG 2.2.1): the clock stops while the element is hovered or focused, and <code>extend()</code> adds time; offer a visible way to ask for more when the limit matters, and keep it generous.</li>
+  <li><strong>Motion that lasts more than five seconds must be stoppable</strong> (WCAG 2.2.2): pausing the clock also stills the flames.</li>
+  <li>Announce the limit once and the outcome once (an <code>aria-live</code> status), not every second.</li>
+  <li>WebGL cannot read the page: the burned part is painted with <code>--fx-cover</code>, so the element should sit on a flat background.</li>
+  <li>Reduced motion, forced colors, more contrast, reduced transparency or no WebGL2: the timer runs the same, without fire.</li>
+</ul>
+<p class="status" id="docs-status" role="status"></p>
+</main>
+</div>
+<script type="module" src="./docs.ts"></script>
+</body>
+</html>

@@ -77,6 +77,7 @@ createPopoverFx(menu, { renderer, effect: inkVeilEffect, layout: 'behind' })
 | `<img>` / `<picture>` | `createImageFx` | effects may sample the image (`uImage`); `[data-fx-pending]` while loading |
 | `<progress>` / `<meter>` | `createProgressFx` | needs `progress.css`; extra uniforms via `params` |
 | Content swaps | `createSwapFx(region).run(update)` | cover → your DOM update → reveal; focus and height handled |
+| Time limits | `createExpiryFx(el, { seconds, onTick, onExpire })` | burns the element away (`burnEffect`, `bleed`); pauses on hover/focus, `extend()` (WCAG 2.2.1/2.2.2) |
 | Custom effects | `defineGlslEffect`, `defineWgslEffect`, `defineTslEffect` | see "Writing an effect" |
 
 The docs site (`playground/docs/`) has a page per component with options, returned handle, CSS hooks and behavior, plus a cookbook. Keep it in sync with the code.
@@ -118,6 +119,7 @@ Implement `Effect` (async `init` is fine), report failures by throwing from `ini
 - **Light on a light page does not read**: white highlights over paper are invisible. Glass on light backgrounds needs shading (darker where the surface turns from the light), not only highlights.
 - **Value noise has a cell pattern** that shows up in normals and highlights; derive normals from smooth functions with an exact slope.
 - **When the shader paints a panel's sheet, the content must wait for it**: fade the content in over the second half of the progress, never show it (blurred or not) before its surface.
+- **Longer than 5 s? Chain linear segments** (`easing: 'linear'`, each under `MAX_DURATION`) from one clock, and keep the canvas with a held, frozen frame while paused (see `createExpiryFx`).
 - **The end of an animation is when native work happens** (a dialog's `close` event, focus restore): never make it depend on frame cadence (the renderer has a deadline).
 
 ## Testing

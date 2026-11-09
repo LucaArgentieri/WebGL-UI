@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./src/style.css">
+<title>WebGL UI: burn timer</title>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; WebGL UI</a>
+  <h1>burn timer</h1>
+  <p class="lead">A native button with a time limit, burning away as the time runs out. Hover it or give it focus and the timer stops, flames included; press it in time and nothing burns.</p>
+
+  <p class="sr-only" id="announce" role="status"></p>
+  <div class="burn-stage">
+    <button type="button" class="burn-btn" id="undo">Undo send <span class="burn-left">· <span id="left">7</span>s</span></button>
+    <p class="burn-done" id="done" hidden></p>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn primary" id="send">Send again</button>
+    <button type="button" class="btn" id="more">+ 5 seconds</button>
+  </div>
+
+  <p class="status" id="status" role="status"></p>
+</main>
+<script type="module" src="./src/burn.ts"></script>
+</body>
+</html>
